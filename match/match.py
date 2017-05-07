@@ -1,16 +1,3 @@
-"""
-Computational Cancer Analysis Library
-
-Authors:
-    Huwate (Kwat) Yeerna (Medetgul-Ernar)
-        kwat.medetgul.ernar@gmail.com
-        Computational Cancer Analysis Laboratory, UCSD Moore's Cancer Center
-
-    Pablo Tamayo
-        ptamayo@ucsd.edu
-        Computational Cancer Analysis Laboratory, UCSD Moore's Cancer Center
-"""
-
 from math import ceil, sqrt
 from os.path import join
 
