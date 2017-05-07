@@ -4,11 +4,11 @@ Computational Cancer Analysis Library
 Authors:
     Huwate (Kwat) Yeerna (Medetgul-Ernar)
         kwat.medetgul.ernar@gmail.com
-        Computational Cancer Analysis Laboratory, UCSD Cancer Center
+        Computational Cancer Analysis Laboratory, UCSD Moore's Cancer Center
 
     Pablo Tamayo
         ptamayo@ucsd.edu
-        Computational Cancer Analysis Laboratory, UCSD Cancer Center
+        Computational Cancer Analysis Laboratory, UCSD Moore's Cancer Center
 """
 
 from math import ceil, sqrt
@@ -25,18 +25,16 @@ from seaborn import heatmap
 from statsmodels.sandbox.stats.multicomp import multipletests
 
 from .. import RANDOM_SEED
+from ..helper.d2 import get_top_and_bottom_indices, normalize_2d, split_df
+from ..helper.file import establish_filepath
+from ..helper.str_ import title_str, untitle_str
+from ..helper.system import parallelize
 from ..machine_learning.score import compute_similarity_matrix
 from ..mathematics.information import information_coefficient
-from ..helper.d1 import get_uniques_in_order
-from ..helper.d2 import (get_top_and_bottom_indices, normalize_2d_or_1d,
-                          split_dataframe)
-from ..helper.file import establish_filepath
-from ..helper.system import parallelize
-from ..helper.plot import (CMAP_BINARY, CMAP_CATEGORICAL,
-                            CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
-                            FONT_LARGER, FONT_LARGEST, FONT_STANDARD, SPACING,
-                            plot_clustermap, save_plot)
-from ..helper.str_ import title_str, untitle_str
+from ..plot.plot import (CMAP_BINARY, CMAP_CATEGORICAL,
+                         CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE, FONT_LARGER,
+                         FONT_LARGEST, FONT_STANDARD, SPACING, plot_clustermap,
+                         save_plot)
 
 
 # ==============================================================================
@@ -110,8 +108,8 @@ def make_association_summary_panel(target,
             features = features.ix[:, a_target.index]
             print(
                 'Target {} ({} cols) and features ({} cols) have {} shared columns.'.
-                format(target.name, target.size, features.shape[1], len(
-                    shared)))
+                format(target.name, target.size, features.shape[1],
+                       len(shared)))
         else:
             raise ValueError(
                 'Target {} ({} cols) and features ({} cols) have 0 shared column.'.
@@ -474,7 +472,7 @@ def compute_association(target,
     # Split features for parallel computing
     if features.shape[0] < n_jobs * min_n_per_job:
         n_jobs = 1
-    split_features = split_dataframe(features, n_jobs)
+    split_features = split_df(features, n_jobs)
 
     # Score
     scores = concat(
@@ -642,8 +640,8 @@ def _preprocess_target_and_features(target,
     # Drop features having less than 2 unique values
     print('Dropping features with less than {} unique values ...'.format(
         min_n_unique_values))
-    features = features.ix[features.apply(lambda f: len(set(f)), axis=1) >=
-                           min_n_unique_values]
+    features = features.ix[features.apply(
+        lambda f: len(set(f)), axis=1) >= min_n_unique_values]
     if features.empty:
         raise ValueError('No feature has at least {} unique values.'.format(
             min_n_unique_values))
@@ -764,9 +762,8 @@ def _plot_association_panel(target,
     for t in target_ax.get_yticklabels():
         t.set(rotation=0, **FONT_STANDARD)
 
-    if target_type in (
-            'binary',
-            'categorical'):  # Add binary or categorical target labels
+    if target_type in ('binary', 'categorical'
+                       ):  # Add binary or categorical target labels
         boundaries = [0]
 
         # Get values
@@ -837,7 +834,7 @@ def _plot_association_panel(target,
 
 def _prepare_data_for_plotting(dataframe, data_type, max_std=3):
     if data_type == 'continuous':
-        return normalize_2d_or_1d(
+        return normalize_2d(
             dataframe, method='-0-',
             axis=1), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
     elif data_type == 'categorical':
