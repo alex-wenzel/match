@@ -6,12 +6,11 @@ from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
 from numpy import array, unique
 from numpy.random import choice, get_state, seed, set_state, shuffle
-from pandas import DataFrame, Series, concat, read_csv
+from pandas import DataFrame, Series, concat, read_table
 from scipy.stats import norm
 from seaborn import heatmap
 from statsmodels.sandbox.stats.multicomp import multipletests
 
-from .. import RANDOM_SEED
 from ..helper.d2 import get_top_and_bottom_indices, normalize_2d, split_df
 from ..helper.file import establish_filepath
 from ..helper.str_ import title_str, untitle_str
@@ -22,6 +21,8 @@ from ..plot.plot import (CMAP_BINARY, CMAP_CATEGORICAL,
                          CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE, FONT_LARGER,
                          FONT_LARGEST, FONT_STANDARD, SPACING, plot_clustermap,
                          save_plot)
+
+RANDOM_SEED = 20121020
 
 
 # ==============================================================================
@@ -103,8 +104,8 @@ def make_association_summary_panel(target,
                 format(target.name, target.size, features.shape[1]))
 
         # Read corresponding annotations file
-        annotations = read_csv(
-            annotation_files[features_name], sep='\t', index_col=0)
+        annotations = read_table(
+            annotation_files[features_name], index_col=0)
         # Keep only features in the features dataframe and sort by score
         annotations = annotations.ix[features_dict['original_index'], :]
         annotations.index = features.index
@@ -336,7 +337,7 @@ def make_association_panel(target,
         target, features = _preprocess_target_and_features(
             target, features, target_ascending=target_ascending)
 
-        scores = read_csv(filepath_scores, sep='\t', index_col=0)
+        scores = read_table(filepath_scores, index_col=0)
 
     else:  # Compute score
 
