@@ -15,7 +15,7 @@ from ..helper.d2 import get_top_and_bottom_indices, normalize_2d, split_df
 from ..helper.file import establish_filepath
 from ..helper.str_ import title_str, untitle_str
 from ..helper.system import parallelize
-from ..machine_learning.score import compute_similarity_matrix
+from ..machine_learning.score import apply_2
 from ..mathematics.information import information_coefficient
 from ..plot.plot import (CMAP_BINARY, CMAP_CATEGORICAL,
                          CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE, FONT_LARGER,
@@ -864,7 +864,7 @@ def make_comparison_panel(matrix1,
     """
 
     # Compute association or distance matrix, which is returned at the end
-    comparison_matrix = compute_similarity_matrix(
+    comparison_matrix = apply_2(
         matrix2, matrix1, function, axis=axis, is_distance=is_distance)
 
     if filepath_prefix:  # Save
