@@ -12,8 +12,8 @@ from seaborn import heatmap
 from statsmodels.sandbox.stats.multicomp import multipletests
 
 from ..helper.d2 import get_top_and_bottom_indices, normalize_2d, split_df
-from ..helper.file import establish_filepath
-from ..helper.str_ import title_str, untitle_str
+from .file.file.file import establish_path
+from ..helper.str_ import title, untitle
 from ..helper.system import parallelize
 from ..machine_learning.score import apply_2
 from ..mathematics.information import information_coefficient
@@ -35,7 +35,7 @@ def make_association_summary_panel(target,
                                    target_ascending=False,
                                    target_type='continuous',
                                    title=None,
-                                   filepath=None):
+                                   file_path=None):
     """
     Plot summary association panel.
     :param target: Series; (n_elements);
@@ -45,7 +45,7 @@ def make_association_summary_panel(target,
     :param target_ascending: bool;
     :param target_type: str;
     :param title; str;
-    :param filepath: str;
+    :param file_path: str;
     :return: None
     """
 
@@ -73,7 +73,7 @@ def make_association_summary_panel(target,
     r_i = 0
     if not title:
         title = 'Association Summary Panel for {}'.format(
-            title_str(target.name))
+            title(target.name))
     fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
     plot_annotation_header = True
 
@@ -134,7 +134,7 @@ def make_association_summary_panel(target,
         title_ax.text(
             title_ax.axis()[1] * 0.5,
             title_ax.axis()[3] * 0.3,
-            '{} (n={})'.format(title_str(features_name), len(shared)),
+            '{} (n={})'.format(title(features_name), len(shared)),
             horizontalalignment='center',
             **FONT_LARGER)
 
@@ -205,7 +205,7 @@ def make_association_summary_panel(target,
                 horizontalalignment='center',
                 **FONT_STANDARD)
     # Save
-    save_plot(filepath)
+    save_plot(file_path)
 
 
 # ==============================================================================
@@ -254,14 +254,14 @@ def make_association_panels(target,
                 target_prefix += ' '
             if data_prefix and not data_prefix.endswith(' '):
                 data_prefix += ' '
-            title = title_str('{}{} vs {}{}'.format(target_prefix, t_i,
+            title = title('{}{} vs {}{}'.format(target_prefix, t_i,
                                                     data_prefix, data_name))
             print('{} ...'.format(title))
 
             if directory_path:
-                filepath_prefix = join(directory_path, untitle_str(title))
+                file_path_prefix = join(directory_path, untitle(title))
             else:
-                filepath_prefix = None
+                file_path_prefix = None
 
             make_association_panel(
                 t,
@@ -278,13 +278,13 @@ def make_association_panels(target,
                 target_type=target_type,
                 features_type=data_dict['data_type'],
                 title=title,
-                filepath_prefix=filepath_prefix)
+                file_path_prefix=file_path_prefix)
 
 
 def make_association_panel(target,
                            features,
                            dropna='all',
-                           filepath_scores=None,
+                           file_path_scores=None,
                            target_ascending=False,
                            features_ascending=False,
                            n_jobs=1,
@@ -298,7 +298,7 @@ def make_association_panel(target,
                            features_type='continuous',
                            title=None,
                            plot_colname=False,
-                           filepath_prefix=None):
+                           file_path_prefix=None):
     """
     Compute: score_i = function(target, feature_i) for all features.
     Compute confidence interval (CI) for n_features features.
@@ -307,7 +307,7 @@ def make_association_panel(target,
     :param target: Series; (n_samples); must have name and index matching features's column names
     :param features: DataFrame; (n_features, n_samples); must have index and column names
     :param dropna: str; 'any' or 'all'
-    :param filepath_scores: str;
+    :param file_path_scores: str;
     :param target_ascending: bool;
     :param n_jobs: int; number of jobs to parallelize
     :param features_ascending: bool; True if features scores increase from top to bottom, and False otherwise
@@ -321,14 +321,14 @@ def make_association_panel(target,
     :param features_type: str; {'continuous', 'categorical', 'binary'}
     :param title: str; plot title
     :param plot_colname: bool; plot column names below the plot or not
-    :param filepath_prefix: str; filepath_prefix.txt and filepath_prefix.pdf will be saved
+    :param file_path_prefix: str; file_path_prefix.txt and file_path_prefix.pdf will be saved
     :return: DataFrame; (n_features, 8 ('score', '<confidence> moe',
                                         'p-value (forward)', 'p-value (reverse)', 'p-value',
                                         'fdr (forward)', 'fdr (reverse)', 'fdr'))
     """
 
     # Score
-    if filepath_scores:  # Read already computed scores; might have been calculated with a different number of samples
+    if file_path_scores:  # Read already computed scores; might have been calculated with a different number of samples
         print('Using already computed scores ...')
 
         # Make sure target is a Series and features a DataFrame
@@ -337,14 +337,14 @@ def make_association_panel(target,
         target, features = _preprocess_target_and_features(
             target, features, target_ascending=target_ascending)
 
-        scores = read_table(filepath_scores, index_col=0)
+        scores = read_table(file_path_scores, index_col=0)
 
     else:  # Compute score
 
-        if filepath_prefix:
-            filepath = filepath_prefix + '.txt'
+        if file_path_prefix:
+            file_path = file_path_prefix + '.txt'
         else:
-            filepath = None
+            file_path = None
 
         target, features, scores = compute_association(
             target,
@@ -357,7 +357,7 @@ def make_association_panel(target,
             n_samplings=n_samplings,
             n_permutations=n_permutations,
             random_seed=random_seed,
-            filepath=filepath)
+            file_path=file_path)
 
     # Keep only scores and features to plot
     indices_to_plot = get_top_and_bottom_indices(
@@ -380,10 +380,10 @@ def make_association_panel(target,
         '{:.2e}'.format)
 
     print('Plotting ...')
-    if filepath_prefix:
-        filepath = filepath_prefix + '.pdf'
+    if file_path_prefix:
+        file_path = file_path_prefix + '.pdf'
     else:
-        filepath = None
+        file_path = None
     _plot_association_panel(
         target,
         features_to_plot,
@@ -393,7 +393,7 @@ def make_association_panel(target,
         features_type=features_type,
         title=title,
         plot_colname=plot_colname,
-        filepath=filepath)
+        file_path=file_path)
 
     return scores
 
@@ -411,7 +411,7 @@ def compute_association(target,
                         confidence=0.95,
                         n_permutations=30,
                         random_seed=RANDOM_SEED,
-                        filepath=None):
+                        file_path=None):
     """
     Compute: score_i = function(target, feature_i) for all features.
     Compute confidence interval (CI) for n_features features.
@@ -430,7 +430,7 @@ def compute_association(target,
     :param confidence: float; fraction compute confidence interval
     :param n_permutations: int; number of permutations for permutation test to compute P-val and FDR
     :param random_seed: int;
-    :param filepath: str;
+    :param file_path: str;
     :return: Series, DataFrame, DataFrame; (n_features, 8 ('score', '<confidence> moe',
                                             'p-value (forward)', 'p-value (reverse)', 'p-value',
                                             'fdr (forward)', 'fdr (reverse)', 'fdr'))
@@ -575,9 +575,9 @@ def compute_association(target,
         ])
 
     # Save
-    if filepath:
-        establish_filepath(filepath)
-        results.to_csv(filepath, sep='\t')
+    if file_path:
+        establish_path(file_path)
+        results.to_csv(file_path, sep='\t')
 
     return target, features, results
 
@@ -658,13 +658,13 @@ def _permute_and_score(args):
          DataFrame (n_features, m_samples); features,
          function,
          int; n_permutations,
-         array; random_state)
+         array; random_seed)
     :return: DataFrame; (n_features, n_permutations)
     """
 
     if len(args) != 5:
         raise ValueError(
-            'args is not length of 5 (target, features, function, n_perms, and random_state).'
+            'args is not length of 5 (target, features, function, n_perms, and random_seed).'
         )
     else:
         t, f, func, n_perms, random_seed = args
@@ -698,7 +698,7 @@ def _plot_association_panel(target,
                             features_type='continuous',
                             title=None,
                             plot_colname=False,
-                            filepath=None):
+                            file_path=None):
     """
     Plot association panel.
     :param target: Series; (n_elements); must have indices matching features's columns
@@ -709,7 +709,7 @@ def _plot_association_panel(target,
     :param features_type: str; {'continuous', 'categorical', 'binary'}
     :param title: str;
     :param plot_colname: bool; plot column names or not
-    :param filepath: str;
+    :param file_path: str;
     :return: None
     """
 
@@ -817,7 +817,7 @@ def _plot_association_panel(target,
             **FONT_STANDARD)
 
     # Save
-    save_plot(filepath)
+    save_plot(file_path)
 
 
 def _prepare_data_for_plotting(dataframe, data_type, max_std=3):
@@ -847,7 +847,7 @@ def make_comparison_panel(matrix1,
                           is_distance=False,
                           annotate=True,
                           title=None,
-                          filepath_prefix=None):
+                          file_path_prefix=None):
     """
     Compare matrix1 and matrix2 by row (axis=1) or by column (axis=0), and plot cluster map.
     :param matrix1: DataFrame or numpy 2D arrays;
@@ -859,7 +859,7 @@ def make_comparison_panel(matrix1,
     :param is_distance: bool; if True, distances are computed from associations, as in 'distance = 1 - association'
     :param annotate: bool; show values in the matrix or not
     :param title: str; plot title
-    :param filepath_prefix: str; filepath_prefix.txt and filepath_prefix.pdf will be saved
+    :param file_path_prefix: str; file_path_prefix.txt and file_path_prefix.pdf will be saved
     :return: DataFrame; association or distance matrix
     """
 
@@ -867,21 +867,21 @@ def make_comparison_panel(matrix1,
     comparison_matrix = apply_2(
         matrix2, matrix1, function, axis=axis, is_distance=is_distance)
 
-    if filepath_prefix:  # Save
-        comparison_matrix.to_csv(filepath_prefix + '.txt', sep='\t')
+    if file_path_prefix:  # Save
+        comparison_matrix.to_csv(file_path_prefix + '.txt', sep='\t')
 
     # Plot cluster map of the compared matrix
-    if filepath_prefix:
-        filepath = filepath_prefix + '.pdf'
+    if file_path_prefix:
+        file_path = file_path_prefix + '.pdf'
     else:
-        filepath = None
+        file_path = None
     plot_clustermap(
         comparison_matrix,
         title=title,
         xlabel=matrix1_label,
         ylabel=matrix2_label,
         annotate=annotate,
-        filepath=filepath)
+        file_path=file_path)
 
     return comparison_matrix
 
@@ -915,6 +915,6 @@ def differential_gene_expression(phenotypes,
         n_permutations=number_of_permutations,
         target_type='binary',
         title=title,
-        filepath_prefix=output_filename,
+        file_path_prefix=output_filename,
         random_seed=random_seed)
     return gene_scores
