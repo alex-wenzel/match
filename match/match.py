@@ -237,7 +237,7 @@ def make_association_panels(target,
     :param n_features: int or float; number threshold if >= 1, and percentile threshold if < 1
     :param n_samplings: int; number of bootstrap samplings to build distribution to get CI; must be > 2 to compute CI
     :param n_permutations: int; number of permutations for permutation test to compute P-val and FDR
-    :param random_seed: int;
+    :param random_seed: int | array;
     :param directory_path: str; directory_path/target_name_vs_features_name.{txt, pdf} will be saved.
     :return: None
     """
@@ -315,7 +315,7 @@ def make_association_panel(target,
     :param max_n_features: int;
     :param n_samplings: int; number of bootstrap samplings to build distribution to get CI; must be > 2 to compute CI
     :param n_permutations: int; number of permutations for permutation test to compute P-val and FDR
-    :param random_seed: int;
+    :param random_seed: int | array;
     :param target_name: str;
     :param target_type: str; {'continuous', 'categorical', 'binary'}
     :param features_type: str; {'continuous', 'categorical', 'binary'}
@@ -429,7 +429,7 @@ def compute_association(target,
     :param n_samplings: int; number of bootstrap samplings to build distribution to get CI; must be > 2 to compute CI
     :param confidence: float; fraction compute confidence interval
     :param n_permutations: int; number of permutations for permutation test to compute P-val and FDR
-    :param random_seed: int;
+    :param random_seed: int | array;
     :param file_path: str;
     :return: Series, DataFrame, DataFrame; (n_features, 8 ('score', '<confidence> moe',
                                             'p-value (forward)', 'p-value (reverse)', 'p-value',
@@ -904,7 +904,7 @@ def differential_gene_expression(phenotypes,
     :param max_number_of_genes_to_show: int; maximum number of genes to show in the heatmap
     :param number_of_permutations: int; number of random permutations to estimate statistical significance (p-values and FDRs)
     :param title: str;
-    :param random_seed: int; random number generator seed (can be set to a user supplied integer for reproducibility)
+    :param random_seed: int | array; random number generator seed (can be set to a user supplied integer for reproducibility)
     :return: Dataframe; table of genes ranked by Information Coeff vs. phenotype
     """
     gene_scores = make_association_panel(
