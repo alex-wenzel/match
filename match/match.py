@@ -14,16 +14,19 @@ from statsmodels.sandbox.stats.multicomp import multipletests
 from .dataplay.dataplay.a2d import apply_2
 from .file.file.file import establish_path
 from .helper.helper.df import get_top_and_bottom_indices, split_df
-from .helper.helper.helper import multiprocess
 from .helper.helper.iterable import get_uniques_in_order
+from .helper.helper.multiprocess import multiprocess
 from .helper.helper.str_ import title, untitle
 from .information.information.information import information_coefficient
-from .plot.plot.plot import (CMAP_BINARY, CMAP_CATEGORICAL,
-                             CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
-                             FONT_LARGER, FONT_LARGEST, FONT_STANDARD, SPACING,
-                             plot_clustermap, save_plot)
+from .plot.plot.plot import plot_clustermap, save_plot
+from .plot.plot.style import (CMAP_BINARY, CMAP_CATEGORICAL,
+                              CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
+                              FONT_LARGER, FONT_LARGEST, FONT_STANDARD)
+
 
 RANDOM_SEED = 20121020
+
+SPACING = 0.05
 
 
 def make_association_summary_panel(target,
@@ -449,7 +452,7 @@ def compute_association(target,
     # Score
     scores = concat(
         multiprocess(_score, [(target, f, function) for f in split_features],
-                    n_jobs),
+                     n_jobs),
         verify_integrity=True)
 
     # Load scores and sort results by scores
@@ -514,8 +517,8 @@ def compute_association(target,
         # Permute and score
         permutation_scores = concat(
             multiprocess(_permute_and_score,
-                        [(target, f, function, n_permutations, random_seed)
-                         for f in split_features], n_jobs),
+                         [(target, f, function, n_permutations, random_seed)
+                          for f in split_features], n_jobs),
             verify_integrity=True)
 
         print('\tComputing p-value and FDR ...')
