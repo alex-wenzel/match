@@ -1,0 +1,15 @@
+[submodule "match/helper"]
+	path = match/helper
+	url = https://github.com/KwatME/helper
+[submodule "match/plot"]
+	path = match/plot
+	url = https://github.com/KwatME/plot
+[submodule "match/file"]
+	path = match/file
+	url = https://github.com/KwatME/file
+[submodule "match/dataplay"]
+	path = match/dataplay
+	url = https://github.com/KwatME/dataplay
+[submodule "match/information"]
+	path = match/information
+	url = https://github.com/KwatME/information
