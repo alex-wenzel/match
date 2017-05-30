@@ -23,7 +23,6 @@ from .plot.plot.style import (CMAP_BINARY, CMAP_CATEGORICAL,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGER, FONT_LARGEST, FONT_STANDARD)
 
-
 RANDOM_SEED = 20121020
 
 SPACING = 0.05
