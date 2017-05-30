@@ -14,7 +14,7 @@ from statsmodels.sandbox.stats.multicomp import multipletests
 from .dataplay.dataplay.a2d import apply_2
 from .file.file.file import establish_path
 from .helper.helper.df import get_top_and_bottom_indices, split_df
-from .helper.helper.helper import parallelize
+from .helper.helper.helper import multiprocess
 from .helper.helper.iterable import get_uniques_in_order
 from .helper.helper.str_ import title, untitle
 from .information.information.information import information_coefficient
@@ -448,7 +448,7 @@ def compute_association(target,
 
     # Score
     scores = concat(
-        parallelize(_score, [(target, f, function) for f in split_features],
+        multiprocess(_score, [(target, f, function) for f in split_features],
                     n_jobs),
         verify_integrity=True)
 
@@ -513,7 +513,7 @@ def compute_association(target,
 
         # Permute and score
         permutation_scores = concat(
-            parallelize(_permute_and_score,
+            multiprocess(_permute_and_score,
                         [(target, f, function, n_permutations, random_seed)
                          for f in split_features], n_jobs),
             verify_integrity=True)
