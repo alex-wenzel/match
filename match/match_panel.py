@@ -7,7 +7,6 @@ from numpy import unique
 from pandas import DataFrame, Series, read_table
 from seaborn import heatmap
 
-from .dataplay.dataplay.a2d import apply_2
 from .file.file.file import establish_path
 from .helper.helper.df import get_top_and_bottom_indices
 from .helper.helper.iterable import get_uniques_in_order
