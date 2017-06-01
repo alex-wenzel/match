@@ -115,7 +115,11 @@ def match(target,
     results = DataFrame(columns=[
         'Score',
         '{} CI'.format(confidence),
+        'p-value (forward)',
+        'p-value (reverse)',
         'p-value',
+        'FDR (forward)',
+        'FDR (reverse)',
         'FDR',
     ])
 
@@ -160,7 +164,7 @@ def match(target,
         permutation_scores = concatenate(
             multiprocess(multiprocess_permute_and_score,
                          [(target, f, function, n_permutations, random_seed)
-                          for f in split_features], n_jobs)).values.flatten()
+                          for f in split_features], n_jobs)).flatten()
 
         for i, (r_i, r) in enumerate(results.iterrows()):
 
@@ -192,11 +196,11 @@ def match(target,
         # Creating the summary p-value and FDR
         f = results['p-value (forward)']
         r = results['p-value (reverse)']
-        results['p-value'] = where(f < r, r, f)
+        results['p-value'] = where(f < r, f, r)
 
         f = results['FDR (forward)']
         r = results['FDR (reverse)']
-        results['p-value'] = where(f < r, r, f)
+        results['FDR'] = where(f < r, f, r)
 
     return results
 
@@ -239,13 +243,16 @@ def compute_confidence_interval(target,
 
     # Compute CI using bootstrapped score distributions
     # TODO: improve confidence interval calculation
-    z_critical = norm.ppf(q=confidence)
-    return apply_along_axis(lambda f: z_critical * f.std() / sqrt(n_samplings),
-                            1, features)
+    return apply_along_axis(
+        lambda f: norm.ppf(q=confidence) * f.std() / sqrt(n_samplings),
+        1,
+        feature_x_sampling)
 
 
 def multiprocess_permute_and_score(args):
     """
+    Call permute_and_score; for multiprocess mapping.
+    :param args: iterable; (5)
     :return: array; (n_features, n_permutations)
     """
 
@@ -293,6 +300,8 @@ def permute_and_score(target,
 
 def multiprocess_score(args):
     """
+    Call score; for multiprocess mapping.
+    :param args: iterable; (3)
     :return: array; (n_features, n_permutations)
     """
 
