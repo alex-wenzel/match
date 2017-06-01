@@ -28,14 +28,14 @@ RANDOM_SEED = 20121020
 SPACING = 0.05
 
 
-def make_association_summary_panel(target,
-                                   data_bundle,
-                                   annotation_files,
-                                   order=(),
-                                   target_ascending=False,
-                                   target_type='continuous',
-                                   title=None,
-                                   file_path=None):
+def summarize_matches(target,
+                      data_bundle,
+                      annotation_files,
+                      order=(),
+                      target_ascending=False,
+                      target_type='continuous',
+                      title=None,
+                      file_path=None):
     """
 
     :param target: Series; (n_elements);
@@ -264,7 +264,7 @@ def make_association_panels(target,
                 dropna=dropna,
                 target_ascending=target_ascending,
                 n_jobs=n_jobs,
-                features_ascending=data_dict['emphasis'] == 'low',
+                result_in_ascending_order=data_dict['emphasis'] == 'low',
                 n_features=n_features,
                 n_samplings=n_samplings,
                 n_permutations=n_permutations,
@@ -281,7 +281,7 @@ def match(target,
           dropna='all',
           file_path_scores=None,
           target_ascending=False,
-          features_ascending=False,
+          result_in_ascending_order=False,
           n_jobs=1,
           n_features=0.95,
           max_n_features=100,
@@ -304,7 +304,7 @@ def match(target,
     :param file_path_scores: str;
     :param target_ascending: bool;
     :param n_jobs: int; number of jobs for parallelizing
-    :param features_ascending: bool; True if features scores increase from top to bottom, and False otherwise
+    :param result_in_ascending_order: bool; True if features scores increase from top to bottom, and False otherwise
     :param n_features: int or float; number threshold if >= 1, and percentile threshold if < 1
     :param max_n_features: int;
     :param n_samplings: int; number of bootstrap samplings to build distribution to get CI; must be > 2 to compute CI
@@ -324,7 +324,7 @@ def match(target,
     # Score
     if file_path_scores:
         print(
-            'Using precomputed scores (might have been calculated with a different number of samples) ...'
+            'Using precomputed scores (could have been calculated with a different number of samples) ...'
         )
 
         # Make sure target is a Series and features a DataFrame
@@ -337,25 +337,27 @@ def match(target,
 
     else:  # Compute score
 
-        if file_path_prefix:
-            file_path = file_path_prefix + '.match.txt'
-        else:
-            file_path = None
+        # # Make sure target is a Series and features a DataFrame
+        # # Keep samples found in both target and features
+        # # Drop features with less than 2 unique values
+        # target, features = _preprocess_target_and_features(
+        #     target, features, dropna=dropna, target_ascending=target_ascending)
 
+        # TODO: Consider requiring file_path argument
         target, features, scores = compute_association(
             target,
             features,
             dropna=dropna,
             target_ascending=target_ascending,
             n_jobs=n_jobs,
-            features_ascending=features_ascending,
+            result_in_ascending_order=result_in_ascending_order,
             n_features=n_features,
             n_samplings=n_samplings,
             n_permutations=n_permutations,
             random_seed=random_seed,
             file_path=file_path)
 
-    # Keep only scores and features to plot
+# Keep only scores and features to plot
     indices_to_plot = get_top_and_bottom_indices(
         scores, 'Score', n_features, max_n=max_n_features)
     scores_to_plot = scores.ix[indices_to_plot]
@@ -382,190 +384,6 @@ def match(target,
         file_path=file_path)
 
     return scores
-
-
-def compute_association(target,
-                        features,
-                        function=information_coefficient,
-                        dropna='all',
-                        target_ascending=False,
-                        features_ascending=False,
-                        n_jobs=1,
-                        min_n_per_job=100,
-                        n_features=0.95,
-                        n_samplings=30,
-                        confidence=0.95,
-                        n_permutations=30,
-                        random_seed=RANDOM_SEED,
-                        file_path=None):
-    """
-    Compute: score_i = function(target, feature_i) for all features.
-    Compute confidence interval (CI) for n_features features.
-    Compute p-value and FDR (BH) for all features.
-    :param target: Series; (n_samples); must have name and indices, matching features's column index
-    :param features: DataFrame; (n_features, n_samples); must have row and column indices
-    :param function: function; scoring function
-    :param dropna: str; 'any' or 'all'
-    :param target_ascending: bool; target is ascending or not
-    :param n_jobs: int; number of jobs to parallelize
-    :param min_n_per_job: int; minimum number of n per job
-    :param features_ascending: bool; True if features scores increase from top to bottom, and False otherwise
-    :param n_features: int or float; number of features to compute confidence interval and plot;
-                        number threshold if >= 1, percentile threshold if < 1, and don't compute if None
-    :param n_samplings: int; number of bootstrap samplings to build distribution to get CI; must be > 2 to compute CI
-    :param confidence: float; fraction compute confidence interval
-    :param n_permutations: int; number of permutations for permutation test to compute p-val and FDR
-    :param random_seed: int | array;
-    :param file_path: str;
-    :return: Series, DataFrame, DataFrame; (n_features, 8 ('score', '<confidence> MoE',
-                                            'p-value (forward)', 'p-value (reverse)', 'p-value',
-                                            'fdr (forward)', 'fdr (reverse)', 'fdr'))
-    """
-
-    # TODO: make empty DataFrame to absorb the results instead of concatenation
-
-    # Make sure target is a Series and features a DataFrame
-    # Keep samples found in both target and features
-    # Drop features with less than 2 unique values
-    target, features = _preprocess_target_and_features(
-        target, features, dropna=dropna, target_ascending=target_ascending)
-
-    results = DataFrame(
-        index=features.index,
-        columns=[
-            'score', '{} MoE'.format(confidence), 'p-value (forward)',
-            'p-value (reverse)', 'p-value', 'fdr (forward)', 'fdr (reverse)',
-            'fdr'
-        ])
-
-    #
-    # Compute: score_i = function(target, feature_i)
-    #
-    print('Scoring (n_jobs={}) ...'.format(n_jobs))
-
-    # Split features for parallel computing
-    if features.shape[0] < n_jobs * min_n_per_job:
-        n_jobs = 1
-    split_features = split_df(features, n_jobs)
-
-    # Score
-    scores = concat(
-        multiprocess(_score, [(target, f, function) for f in split_features],
-                     n_jobs),
-        verify_integrity=True)
-
-    # Load scores and sort results by scores
-    results.ix[scores.index, 'score'] = scores
-    results.sort_values('score', ascending=features_ascending, inplace=True)
-
-    #
-    #  Compute CI using bootstrapped distribution
-    #
-    if n_samplings < 2:
-        print('Not computing CI because n_samplings < 2.')
-
-    elif ceil(0.632 * features.shape[1]) < 3:
-        print('Not computing CI because 0.632 * n_samples < 3.')
-
-    else:
-        print(
-            'Computing {} CI for using distributions built by {} bootstraps ...'.
-            format(confidence, n_samplings))
-        indices_to_bootstrap = get_top_and_bottom_indices(results, 'score',
-                                                          n_features)
-
-        # Bootstrap: for n_sampling times, randomly choose 63.2% of the samples, score, and build score distribution
-        sampled_scores = DataFrame(
-            index=indices_to_bootstrap, columns=range(n_samplings))
-        seed(random_seed)
-        for c_i in sampled_scores:
-            # Random sample
-            ramdom_samples = choice(
-                features.columns.tolist(),
-                int(ceil(0.632 * features.shape[1]))).tolist()
-            sampled_target = target.ix[ramdom_samples]
-            sampled_features = features.ix[indices_to_bootstrap,
-                                           ramdom_samples]
-            rs = get_state()
-
-            # Score
-            sampled_scores.ix[:, c_i] = sampled_features.apply(
-                lambda f: function(sampled_target, f), axis=1)
-
-            set_state(rs)
-
-        # Compute scores' confidence intervals using bootstrapped score distributions
-        # TODO: improve confidence interval calculation
-        z_critical = norm.ppf(q=confidence)
-
-        # Load confidence interval
-        results.ix[sampled_scores.index, '{} MoE'.format(
-            confidence)] = sampled_scores.apply(
-                lambda f: z_critical * (f.std() / sqrt(n_samplings)), axis=1)
-
-    #
-    # Compute p-values and FDRs by sores against permuted target
-    #
-    if n_permutations < 1:
-        print('Not computing p-value and FDR because n_perm < 1.')
-    else:
-        print(
-            'Computing p-value & FDR by scoring against {} permuted targets (n_jobs={}) ...'.
-            format(n_permutations, n_jobs))
-
-        # Permute and score
-        permutation_scores = concat(
-            multiprocess(_permute_and_score,
-                         [(target, f, function, n_permutations, random_seed)
-                          for f in split_features], n_jobs),
-            verify_integrity=True)
-
-        print('\tComputing p-value and FDR ...')
-        # All scores
-        all_permutation_scores = permutation_scores.values.flatten()
-        for i, (r_i, r) in enumerate(results.iterrows()):
-            # This feature's score
-            s = r.ix['score']
-
-            # Compute forward p-value
-            p_value_forward = (all_permutation_scores >= s
-                               ).sum() / len(all_permutation_scores)
-            if not p_value_forward:
-                p_value_forward = float(1 / len(all_permutation_scores))
-            results.ix[r_i, 'p-value (forward)'] = p_value_forward
-
-            # Compute reverse p-value
-            p_value_reverse = (all_permutation_scores <= s
-                               ).sum() / len(all_permutation_scores)
-            if not p_value_reverse:
-                p_value_reverse = float(1 / len(all_permutation_scores))
-            results.ix[r_i, 'p-value (reverse)'] = p_value_reverse
-
-        # Compute forward FDR
-        results.ix[:, 'fdr (forward)'] = multipletests(
-            results.ix[:, 'p-value (forward)'], method='fdr_bh')[1]
-
-        # Compute reverse FDR
-        results.ix[:, 'fdr (reverse)'] = multipletests(
-            results.ix[:, 'p-value (reverse)'], method='fdr_bh')[1]
-
-        # Creating the summary p-value and FDR
-        forward = results.ix[:, 'score'] >= 0
-        results.ix[:, 'p-value'] = concat([
-            results.ix[forward, 'p-value (forward)'],
-            results.ix[~forward, 'p-value (reverse)']
-        ])
-        results.ix[:, 'fdr'] = concat([
-            results.ix[forward, 'fdr (forward)'],
-            results.ix[~forward, 'fdr (reverse)']
-        ])
-
-    # Save
-    if file_path:
-        establish_path(file_path)
-        results.to_csv(file_path, sep='\t')
-
-    return target, features, results
 
 
 def _preprocess_target_and_features(target,
@@ -623,57 +441,6 @@ def _preprocess_target_and_features(target,
         print('\tKept {} features.'.format(features.shape[0]))
 
     return target, features
-
-
-def _score(args):
-    """
-    Compute: score_i = function(target, feature_i)
-    :param args: list-like; [DataFrame (n_features, m_samples); features, Series (m_samples); target, function]
-    :return: Series; (n_features)
-    """
-
-    t, f, func = args
-    return f.apply(lambda a_f: func(t, a_f), axis=1)
-
-
-def _permute_and_score(args):
-    """
-    Compute: ith score = function(target, ith feature) for n_permutations times.
-    :param args: list-like;
-        (Series (m_samples); target,
-         DataFrame (n_features, m_samples); features,
-         function,
-         int; n_permutations,
-         array; random_seed)
-    :return: DataFrame; (n_features, n_permutations)
-    """
-
-    if len(args) != 5:
-        raise ValueError(
-            'args is not length of 5 (target, features, function, n_perms, and random_seed).'
-        )
-    else:
-        t, f, func, n_perms, random_seed = args
-
-    scores = DataFrame(index=f.index, columns=range(n_perms))
-
-    # Target array to be permuted during each permutation
-    permuted_t = array(t)
-
-    seed(random_seed)
-    for p in range(n_perms):
-        print(
-            '\tScoring against permuted target ({}/{}) ...'.format(p, n_perms),
-            print_process=True)
-
-        shuffle(permuted_t)
-        rs = get_state()
-
-        scores.iloc[:, p] = f.apply(lambda r: func(permuted_t, r), axis=1)
-
-        set_state(rs)
-
-    return scores
 
 
 def plot_matches(target,
