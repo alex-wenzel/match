@@ -135,11 +135,11 @@ def match(target,
 
     print('Computing {} CI ...'.format(confidence))
     if n_samplings < 2:
-        print('\tNot computing because n_samplings < 2.')
+        print('\tSkipping because n_samplings < 2.')
     elif ceil(0.632 * target.size) < 3:
-        print('\tNot computing because 0.632 * n_samples < 3.')
+        print('\tSkipping because 0.632 * n_samples < 3.')
     else:
-        print('\tComputing with {} bootstrapped distributions ...'.format(
+        print('\tWith {} bootstrapped distributions ...'.format(
             n_samplings))
 
     indices = get_top_and_bottom_indices(results, 'Score', n_features)
@@ -155,9 +155,9 @@ def match(target,
 
     print('Computing p-value and FDR ...')
     if n_permutations < 1:
-        print('\tNot computing because n_perm < 1.')
+        print('\tSkipping because n_perm < 1.')
     else:
-        print('Computing by scoring against {} permuted targets ...'.format(
+        print('\tBy scoring against {} permuted targets ...'.format(
             n_permutations))
 
         # Permute and score
@@ -173,16 +173,16 @@ def match(target,
 
             # Compute forward p-value
             p_value_forward = (
-                permutation_scores >= s).sum() / permutation_scores.size
+                s <= permutation_scores).sum() / permutation_scores.size
             if not p_value_forward:
-                p_value_forward = float(1 / permutation_scores.size)
+                p_value_forward = 1 / permutation_scores.size
             results.ix[r_i, 'p-value (forward)'] = p_value_forward
 
             # Compute reverse p-value
             p_value_reverse = (
                 permutation_scores <= s).sum() / permutation_scores.size
             if not p_value_reverse:
-                p_value_reverse = float(1 / permutation_scores.size)
+                p_value_reverse = 1 / permutation_scores.size
             results.ix[r_i, 'p-value (reverse)'] = p_value_reverse
 
         # Compute forward FDR
