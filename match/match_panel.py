@@ -5,7 +5,8 @@ from numpy import array, unique
 from pandas import DataFrame, Series, read_table
 from seaborn import heatmap
 
-from .dataplay.dataplay.a2d import normalize
+from .dataplay.dataplay.a import normalize as normalize_a
+from .dataplay.dataplay.a2d import normalize as normalize_a2d
 from .file.file.file import establish_path
 from .helper.helper.df import get_top_and_bottom_indices
 from .helper.helper.iterable import get_uniques_in_order
@@ -482,23 +483,29 @@ def make_summary_match_panel(target,
     save_plot(file_path)
 
 
-def _prepare_data_for_plotting(a2d, data_type, max_std=3):
+def _prepare_data_for_plotting(a, data_type, max_std=3):
     """
     Prepare data for plotting.
+    :param a: array; (n) | (n, m)
     :param data_type: str; 'continuous' | 'categorical' | 'binary'
     :param max_std: number;
     """
 
     if data_type == 'continuous':
-        return normalize(
-            a2d, method='-0-',
-            axis=1), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+        if a.ndim == 2:
+            return normalize_a2d(
+                a, method='-0-',
+                axis=1), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+        else:
+            return normalize_a(
+                a,
+                method='-0-'), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
-        return a2d.copy(), 0, unique(a2d).size, CMAP_CATEGORICAL
+        return a.copy(), 0, unique(a).size, CMAP_CATEGORICAL
 
     elif data_type == 'binary':
-        return a2d.copy(), 0, 1, CMAP_BINARY
+        return a.copy(), 0, 1, CMAP_BINARY
 
     else:
         raise ValueError('Unknown data_type: {}.'.format(data_type))
