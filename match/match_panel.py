@@ -8,7 +8,8 @@ from seaborn import heatmap
 from .dataplay.dataplay.a import normalize as normalize_a
 from .dataplay.dataplay.a2d import normalize as normalize_a2d
 from .file.file.file import establish_path
-from .helper.helper.df import get_top_and_bottom_indices
+from .helper.helper.df import (drop_slices_containing_only,
+                               get_top_and_bottom_indices)
 from .helper.helper.iterable import get_uniques_in_order
 from .match import match
 from .plot.plot.plot import save_plot
@@ -86,6 +87,8 @@ def make_match_panel(target,
         random_seed=random_seed).sort_values(
             'Score', ascending=result_in_ascending_order)
 
+    print(scores)
+
     # Save
     if file_path_prefix:
         file_path_txt = file_path_prefix + '.match.txt'
@@ -140,37 +143,36 @@ def _preprocess_target_and_features(target,
     :return: Series and DataFrame;
     """
 
-    if isinstance(
-            features, Series
-    ):  # Convert Series-features into DataFrame-features with 1 row
+    if isinstance(features, Series):
         features = DataFrame(features).T
 
     features.dropna(axis=1, how=dropna, inplace=True)
 
-    if not isinstance(target, Series):  # Convert target into a Series
-        if isinstance(target, DataFrame) and target.shape[0] == 1:
+    if not isinstance(target, Series):
+        if isinstance(target, DataFrame) and target.ndim == 1:
             target = target.iloc[0, :]
         else:
             target = Series(target, index=features.columns)
 
     # Keep only columns shared by target and features
     shared = target.index & features.columns
-    if any(shared):
+    if len(shared):
         print(
             'Target ({} cols) and features ({} cols) have {} shared columns.'.
             format(target.size, features.shape[1], len(shared)))
         target = target.ix[shared].sort_values(ascending=target_ascending)
         features = features.ix[:, target.index]
+
     else:
         raise ValueError(
-            'Target {} ({} cols) and features ({} cols) have 0 shared columns.'.
-            format(target.name, target.size, features.shape[1]))
+            'Target ({} cols) and features ({} cols) have 0 shared columns.'.
+            format(target.size, features.shape[1]))
 
     # Drop features having less than 2 unique values
     print('Dropping features with less than {} unique values ...'.format(
         min_n_unique_values))
-    features = features.ix[features.apply(
-        lambda f: len(set(f)), axis=1) >= min_n_unique_values]
+    drop_slices_containing_only(
+        features, min_n_unique_objects=min_n_unique_values, axis=1)
     if features.empty:
         raise ValueError('No feature has at least {} unique values.'.format(
             min_n_unique_values))
