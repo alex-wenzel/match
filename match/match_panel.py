@@ -274,7 +274,7 @@ def plot_matches(target,
     target_ax.text(
         target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
         target_ax.axis()[3] * 0.5,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-val' + ' ' * 14 + 'FDR',
+        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 14 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
 
