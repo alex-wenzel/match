@@ -86,6 +86,7 @@ def make_match_panel(target,
         n_permutations=n_permutations,
         random_seed=random_seed).sort_values(
             'Score', ascending=result_in_ascending_order)
+    scores.index = features.index
 
     # Save
     if file_path_prefix:
@@ -134,27 +135,28 @@ def _preprocess_target_and_features(target,
     Make sure target is a Series and features a DataFrame.
     Keep samples found in both target and features.
     Drop features with less than 2 unique values.
-    :param target: Series or iterable;
-    :param features: DataFrame or Series;
-    :param dropna: 'any' or 'all'
-    :param target_ascending: bool;
-    :param min_n_unique_values: int;
-    :return: Series and DataFrame;
+    :param target: iterable | Series
+    :param features: DataFrame
+    :param dropna: 'any' | 'all'
+    :param target_ascending: bool
+    :param min_n_unique_values: int
+    :return: Series & DataFrame
     """
 
-    if isinstance(features, Series):
-        features = DataFrame(features).T
-
-    features.dropna(axis=1, how=dropna, inplace=True)
-
     if not isinstance(target, Series):
-        if isinstance(target, DataFrame) and target.ndim == 1:
-            target = target.iloc[0, :]
-        else:
-            target = Series(target, index=features.columns)
+        target = Series(target, index=features.columns)
+
+    # Drop features having less than 2 unique values
+    features = drop_slices_containing_only(
+        features, min_n_unique_objects=min_n_unique_values, axis=1)
+
+    if features.empty:
+        raise ValueError('No feature has at least {} unique values.'.format(
+            min_n_unique_values))
 
     # Keep only columns shared by target and features
     shared = target.index & features.columns
+
     if len(shared):
         print(
             'Target ({} cols) and features ({} cols) have {} shared columns.'.
@@ -166,17 +168,6 @@ def _preprocess_target_and_features(target,
         raise ValueError(
             'Target ({} cols) and features ({} cols) have 0 shared columns.'.
             format(target.size, features.shape[1]))
-
-    # Drop features having less than 2 unique values
-    print('Dropping features with less than {} unique values ...'.format(
-        min_n_unique_values))
-    drop_slices_containing_only(
-        features, min_n_unique_objects=min_n_unique_values, axis=1)
-    if features.empty:
-        raise ValueError('No feature has at least {} unique values.'.format(
-            min_n_unique_values))
-    else:
-        print('\tKept {} features.'.format(features.shape[0]))
 
     return target, features
 
@@ -489,18 +480,23 @@ def _prepare_data_for_plotting(a, data_type, max_std=3):
     Prepare data for plotting.
     :param a: array; (n) | (n, m)
     :param data_type: str; 'continuous' | 'categorical' | 'binary'
-    :param max_std: number;
+    :param max_std: number
+    :return: DataFrame & float & float & cmap
     """
 
     if data_type == 'continuous':
         if a.ndim == 2:
-            return normalize_a2d(
-                a, method='-0-',
-                axis=1), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+            return DataFrame(
+                normalize_a2d(
+                    a, method='-0-', axis=1),
+                index=a.index,
+                columns=a.
+                columns), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
         else:
-            return normalize_a(
-                a,
-                method='-0-'), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+            return Series(
+                normalize_a(
+                    a, method='-0-'),
+                index=a.index), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
         return a.copy(), 0, unique(a).size, CMAP_CATEGORICAL
