@@ -15,7 +15,8 @@ from .match import match
 from .plot.plot.plot import save_plot
 from .plot.plot.style import (CMAP_BINARY, CMAP_CATEGORICAL,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
-                              FONT_LARGER, FONT_LARGEST, FONT_STANDARD)
+                              FONT_LARGER, FONT_LARGEST, FONT_STANDARD,
+                              decorate)
 
 RANDOM_SEED = 20121020
 
@@ -221,9 +222,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
         cbar=False)
 
     # Adjust target name
-    # TODO: Use decorate function
-    for t in target_ax.get_yticklabels():
-        t.set(rotation=0, **FONT_STANDARD)
+    decorate(ax=target_ax)
 
     if target_type in ('binary', 'categorical'):  # Add labels
 
@@ -269,7 +268,6 @@ def _plot_match(target, features, annotations, target_type, features_type,
         verticalalignment='center',
         **FONT_STANDARD)
 
-    # Plot features
     heatmap(
         features,
         ax=features_ax,
@@ -279,9 +277,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
         xticklabels=plot_sample_names,
         cbar=False)
 
-    # TODO: Use decorate function
-    for t in features_ax.get_yticklabels():
-        t.set(rotation=0, **FONT_STANDARD)
+    decorate(ax=features_ax, ylabel='')
 
     # Plot annotations
     for i, (a_i, a) in enumerate(annotations.iterrows()):
