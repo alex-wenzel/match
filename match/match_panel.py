@@ -99,6 +99,7 @@ def make_match_panel(target,
     # Keep only scores and features to plot
     indices = get_top_and_bottom_indices(
         scores, 'Score', n_features, max_n=max_n_features)
+
     scores_to_plot = scores.ix[indices]
     features_to_plot = features.ix[indices]
 
