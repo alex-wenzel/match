@@ -15,7 +15,8 @@ from .match import match
 from .plot.plot.plot import save_plot
 from .plot.plot.style import (CMAP_BINARY, CMAP_CATEGORICAL,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
-                              FONT_LARGER, FONT_LARGEST, FONT_STANDARD)
+                              FONT_LARGER, FONT_LARGEST, FONT_STANDARD,
+                              decorate)
 
 RANDOM_SEED = 20121020
 
@@ -26,9 +27,10 @@ def make_match_panel(target,
                      features,
                      dropna='all',
                      target_ascending=False,
+                     min_n_unique_objects=2,
                      result_in_ascending_order=False,
                      n_jobs=1,
-                     n_features=0.95,
+                     n_features=0.99,
                      max_n_features=100,
                      n_samplings=30,
                      n_permutations=30,
@@ -75,7 +77,11 @@ def make_match_panel(target,
     # Keep samples found in both target and features.
     # Drop features with less than 2 unique values.
     target, features = _preprocess_target_and_features(
-        target, features, target_ascending=target_ascending)
+        target,
+        features,
+        dropna=dropna,
+        target_ascending=target_ascending,
+        min_n_unique_objects=min_n_unique_objects)
 
     scores = match(
         array(target),
@@ -84,8 +90,10 @@ def make_match_panel(target,
         n_features=n_features,
         n_samplings=n_samplings,
         n_permutations=n_permutations,
-        random_seed=random_seed).sort_values(
-            'Score', ascending=result_in_ascending_order)
+        random_seed=random_seed)
+    scores.index = features.index
+    scores.sort_values(
+        'Score', ascending=result_in_ascending_order, inplace=True)
 
     # Save
     if file_path_prefix:
@@ -99,6 +107,7 @@ def make_match_panel(target,
     # Keep only scores and features to plot
     indices = get_top_and_bottom_indices(
         scores, 'Score', n_features, max_n=max_n_features)
+
     scores_to_plot = scores.ix[indices]
     features_to_plot = features.ix[indices]
 
@@ -111,7 +120,7 @@ def make_match_panel(target,
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     print('Plotting match panel ...')
-    plot_matches(
+    _plot_match(
         target,
         features_to_plot,
         annotations,
@@ -124,36 +133,34 @@ def make_match_panel(target,
     return scores
 
 
-def _preprocess_target_and_features(target,
-                                    features,
-                                    dropna='all',
-                                    target_ascending=False,
-                                    min_n_unique_values=2):
+def _preprocess_target_and_features(target, features, dropna, target_ascending,
+                                    min_n_unique_objects):
     """
-    Make sure target is a Series and features a DataFrame.
+    Make sure target is a Series.
+    Drop features with less than min_n_unique_objects unique values.
     Keep samples found in both target and features.
-    Drop features with less than 2 unique values.
-    :param target: Series or iterable;
-    :param features: DataFrame or Series;
-    :param dropna: 'any' or 'all'
-    :param target_ascending: bool;
-    :param min_n_unique_values: int;
-    :return: Series and DataFrame;
+    :param target: iterable | Series
+    :param features: DataFrame
+    :param dropna: 'any' | 'all'
+    :param target_ascending: bool
+    :param min_n_unique_objects: int
+    :return: Series & DataFrame
     """
-
-    if isinstance(features, Series):
-        features = DataFrame(features).T
-
-    features.dropna(axis=1, how=dropna, inplace=True)
 
     if not isinstance(target, Series):
-        if isinstance(target, DataFrame) and target.ndim == 1:
-            target = target.iloc[0, :]
-        else:
-            target = Series(target, index=features.columns)
+        target = Series(target, index=features.columns)
+
+    # Drop features having less than 2 unique values
+    features = drop_slices_containing_only(
+        features, min_n_unique_objects=min_n_unique_objects, axis=1)
+
+    if features.empty:
+        raise ValueError('No feature has at least {} unique objects.'.format(
+            min_n_unique_objects))
 
     # Keep only columns shared by target and features
     shared = target.index & features.columns
+
     if len(shared):
         print(
             'Target ({} cols) and features ({} cols) have {} shared columns.'.
@@ -166,33 +173,18 @@ def _preprocess_target_and_features(target,
             'Target ({} cols) and features ({} cols) have 0 shared columns.'.
             format(target.size, features.shape[1]))
 
-    # Drop features having less than 2 unique values
-    print('Dropping features with less than {} unique values ...'.format(
-        min_n_unique_values))
-    drop_slices_containing_only(
-        features, min_n_unique_objects=min_n_unique_values, axis=1)
-    if features.empty:
-        raise ValueError('No feature has at least {} unique values.'.format(
-            min_n_unique_values))
-    else:
-        print('\tKept {} features.'.format(features.shape[0]))
-
     return target, features
 
 
-def plot_matches(target,
-                 features,
-                 annotations,
-                 target_type='continuous',
-                 features_type='continuous',
-                 title=None,
-                 plot_sample_names=False,
-                 file_path=None):
+def _plot_match(target, features, annotations, target_type, features_type,
+                title, plot_sample_names, file_path):
     """
     Plot matches.
-    :param target: Series; (n_elements); must have index matching features' columns
+    :param target: Series; (n_elements); must have index matching features'
+        columns
     :param features: DataFrame; (n_features, n_elements)
-    :param annotations: DataFrame; (n_features, n_annotations); must have index matching features' index
+    :param annotations: DataFrame; (n_features, n_annotations); must have index
+        matching features' index
     :param target_type: str; 'continuous' | 'categorical' | 'binary'
     :param features_type: str; 'continuous' | 'categorical' | 'binary'
     :param title: str
@@ -230,9 +222,7 @@ def plot_matches(target,
         cbar=False)
 
     # Adjust target name
-    # TODO: Use decorate function
-    for t in target_ax.get_yticklabels():
-        t.set(rotation=0, **FONT_STANDARD)
+    decorate(ax=target_ax)
 
     if target_type in ('binary', 'categorical'):  # Add labels
 
@@ -274,11 +264,10 @@ def plot_matches(target,
     target_ax.text(
         target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
         target_ax.axis()[3] * 0.5,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 14 + 'FDR',
+        ' ' * 6 + 'IC(\u0394)' + ' ' * 10 + 'p-value' + ' ' * 12 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
 
-    # Plot features
     heatmap(
         features,
         ax=features_ax,
@@ -288,9 +277,7 @@ def plot_matches(target,
         xticklabels=plot_sample_names,
         cbar=False)
 
-    # TODO: Use decorate function
-    for t in features_ax.get_yticklabels():
-        t.set(rotation=0, **FONT_STANDARD)
+    decorate(ax=features_ax, ylabel='')
 
     # Plot annotations
     for i, (a_i, a) in enumerate(annotations.iterrows()):
@@ -488,18 +475,23 @@ def _prepare_data_for_plotting(a, data_type, max_std=3):
     Prepare data for plotting.
     :param a: array; (n) | (n, m)
     :param data_type: str; 'continuous' | 'categorical' | 'binary'
-    :param max_std: number;
+    :param max_std: number
+    :return: DataFrame & float & float & cmap
     """
 
     if data_type == 'continuous':
         if a.ndim == 2:
-            return normalize_a2d(
-                a, method='-0-',
-                axis=1), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+            return DataFrame(
+                normalize_a2d(
+                    a, method='-0-', axis=1),
+                index=a.index,
+                columns=a.
+                columns), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
         else:
-            return normalize_a(
-                a,
-                method='-0-'), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+            return Series(
+                normalize_a(
+                    a, method='-0-'),
+                index=a.index), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
         return a.copy(), 0, unique(a).size, CMAP_CATEGORICAL
