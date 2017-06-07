@@ -89,9 +89,10 @@ def make_match_panel(target,
         n_features=n_features,
         n_samplings=n_samplings,
         n_permutations=n_permutations,
-        random_seed=random_seed).sort_values(
-            'Score', ascending=result_in_ascending_order)
+        random_seed=random_seed)
     scores.index = features.index
+    socores.sort_values(
+            'Score', ascending=result_in_ascending_order)
 
     # Save
     if file_path_prefix:
