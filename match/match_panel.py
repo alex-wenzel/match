@@ -118,7 +118,7 @@ def make_match_panel(target,
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     print('Plotting match panel ...')
-    plot_matches(
+    _plot_match(
         target,
         features_to_plot,
         annotations,
@@ -174,19 +174,15 @@ def _preprocess_target_and_features(target, features, dropna, target_ascending,
     return target, features
 
 
-def plot_matches(target,
-                 features,
-                 annotations,
-                 target_type='continuous',
-                 features_type='continuous',
-                 title=None,
-                 plot_sample_names=False,
-                 file_path=None):
+def _plot_match(target, features, annotations, target_type, features_type,
+                title, plot_sample_names, file_path):
     """
     Plot matches.
-    :param target: Series; (n_elements); must have index matching features' columns
+    :param target: Series; (n_elements); must have index matching features'
+        columns
     :param features: DataFrame; (n_features, n_elements)
-    :param annotations: DataFrame; (n_features, n_annotations); must have index matching features' index
+    :param annotations: DataFrame; (n_features, n_annotations); must have index
+        matching features' index
     :param target_type: str; 'continuous' | 'categorical' | 'binary'
     :param features_type: str; 'continuous' | 'categorical' | 'binary'
     :param title: str
