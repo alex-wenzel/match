@@ -87,8 +87,6 @@ def make_match_panel(target,
         random_seed=random_seed).sort_values(
             'Score', ascending=result_in_ascending_order)
 
-    print(scores)
-
     # Save
     if file_path_prefix:
         file_path_txt = file_path_prefix + '.match.txt'
