@@ -193,13 +193,13 @@ def plot_matches(target,
     """
     Plot matches.
     :param target: Series; (n_elements); must have index matching features' columns
-    :param features: DataFrame; (n_features, n_elements);
+    :param features: DataFrame; (n_features, n_elements)
     :param annotations: DataFrame; (n_features, n_annotations); must have index matching features' index
     :param target_type: str; 'continuous' | 'categorical' | 'binary'
     :param features_type: str; 'continuous' | 'categorical' | 'binary'
-    :param title: str;
+    :param title: str
     :param plot_sample_names: bool; plot column names or not
-    :param file_path: str;
+    :param file_path: str
     :return: None
     """
 
