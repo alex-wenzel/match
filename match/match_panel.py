@@ -91,8 +91,8 @@ def make_match_panel(target,
         n_permutations=n_permutations,
         random_seed=random_seed)
     scores.index = features.index
-    socores.sort_values(
-            'Score', ascending=result_in_ascending_order)
+    scores.sort_values(
+        'Score', ascending=result_in_ascending_order, inplace=True)
 
     # Save
     if file_path_prefix:
@@ -265,7 +265,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
     target_ax.text(
         target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
         target_ax.axis()[3] * 0.5,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 14 + 'FDR',
+        ' ' * 6 + 'IC(\u0394)' + ' ' * 10 + 'p-value' + ' ' * 12 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
 
