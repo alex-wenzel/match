@@ -26,6 +26,7 @@ def make_match_panel(target,
                      features,
                      dropna='all',
                      target_ascending=False,
+                     min_n_unique_objects=2,
                      result_in_ascending_order=False,
                      n_jobs=1,
                      n_features=0.95,
@@ -75,7 +76,11 @@ def make_match_panel(target,
     # Keep samples found in both target and features.
     # Drop features with less than 2 unique values.
     target, features = _preprocess_target_and_features(
-        target, features, target_ascending=target_ascending)
+        target,
+        features,
+        dropna=dropna,
+        target_ascending=target_ascending,
+        min_n_unique_objects=min_n_unique_objects)
 
     scores = match(
         array(target),
@@ -126,20 +131,17 @@ def make_match_panel(target,
     return scores
 
 
-def _preprocess_target_and_features(target,
-                                    features,
-                                    dropna='all',
-                                    target_ascending=False,
-                                    min_n_unique_values=2):
+def _preprocess_target_and_features(target, features, dropna, target_ascending,
+                                    min_n_unique_objects):
     """
-    Make sure target is a Series and features a DataFrame.
+    Make sure target is a Series.
+    Drop features with less than min_n_unique_objects unique values.
     Keep samples found in both target and features.
-    Drop features with less than 2 unique values.
     :param target: iterable | Series
     :param features: DataFrame
     :param dropna: 'any' | 'all'
     :param target_ascending: bool
-    :param min_n_unique_values: int
+    :param min_n_unique_objects: int
     :return: Series & DataFrame
     """
 
@@ -148,11 +150,11 @@ def _preprocess_target_and_features(target,
 
     # Drop features having less than 2 unique values
     features = drop_slices_containing_only(
-        features, min_n_unique_objects=min_n_unique_values, axis=1)
+        features, min_n_unique_objects=min_n_unique_objects, axis=1)
 
     if features.empty:
-        raise ValueError('No feature has at least {} unique values.'.format(
-            min_n_unique_values))
+        raise ValueError('No feature has at least {} unique objects.'.format(
+            min_n_unique_objects))
 
     # Keep only columns shared by target and features
     shared = target.index & features.columns
