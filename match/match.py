@@ -69,6 +69,7 @@ def match(target,
         print('\tWith {} bootstrapped distributions ...'.format(n_samplings))
 
     indices = get_top_and_bottom_indices(results, 'Score', n_features)
+    print(indices)
 
     results.ix[indices, '{} CI'.format(
         confidence_interval)] = compute_confidence_interval(

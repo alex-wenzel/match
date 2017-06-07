@@ -8,7 +8,8 @@ from seaborn import heatmap
 from .dataplay.dataplay.a import normalize as normalize_a
 from .dataplay.dataplay.a2d import normalize as normalize_a2d
 from .file.file.file import establish_path
-from .helper.helper.df import get_top_and_bottom_indices
+from .helper.helper.df import (drop_slices_containing_only,
+                               get_top_and_bottom_indices)
 from .helper.helper.iterable import get_uniques_in_order
 from .match import match
 from .plot.plot.plot import save_plot
@@ -140,37 +141,36 @@ def _preprocess_target_and_features(target,
     :return: Series and DataFrame;
     """
 
-    if isinstance(
-            features, Series
-    ):  # Convert Series-features into DataFrame-features with 1 row
+    if isinstance(features, Series):
         features = DataFrame(features).T
 
     features.dropna(axis=1, how=dropna, inplace=True)
 
-    if not isinstance(target, Series):  # Convert target into a Series
-        if isinstance(target, DataFrame) and target.shape[0] == 1:
+    if not isinstance(target, Series):
+        if isinstance(target, DataFrame) and target.ndim == 1:
             target = target.iloc[0, :]
         else:
             target = Series(target, index=features.columns)
 
     # Keep only columns shared by target and features
     shared = target.index & features.columns
-    if any(shared):
+    if len(shared):
         print(
             'Target ({} cols) and features ({} cols) have {} shared columns.'.
             format(target.size, features.shape[1], len(shared)))
         target = target.ix[shared].sort_values(ascending=target_ascending)
         features = features.ix[:, target.index]
+
     else:
         raise ValueError(
-            'Target {} ({} cols) and features ({} cols) have 0 shared columns.'.
-            format(target.name, target.size, features.shape[1]))
+            'Target ({} cols) and features ({} cols) have 0 shared columns.'.
+            format(target.size, features.shape[1]))
 
     # Drop features having less than 2 unique values
     print('Dropping features with less than {} unique values ...'.format(
         min_n_unique_values))
-    features = features.ix[features.apply(
-        lambda f: len(set(f)), axis=1) >= min_n_unique_values]
+    drop_slices_containing_only(
+        features, min_n_unique_objects=min_n_unique_values, axis=1)
     if features.empty:
         raise ValueError('No feature has at least {} unique values.'.format(
             min_n_unique_values))
@@ -191,13 +191,13 @@ def plot_matches(target,
     """
     Plot matches.
     :param target: Series; (n_elements); must have index matching features' columns
-    :param features: DataFrame; (n_features, n_elements);
+    :param features: DataFrame; (n_features, n_elements)
     :param annotations: DataFrame; (n_features, n_annotations); must have index matching features' index
     :param target_type: str; 'continuous' | 'categorical' | 'binary'
     :param features_type: str; 'continuous' | 'categorical' | 'binary'
-    :param title: str;
+    :param title: str
     :param plot_sample_names: bool; plot column names or not
-    :param file_path: str;
+    :param file_path: str
     :return: None
     """
 
@@ -274,7 +274,7 @@ def plot_matches(target,
     target_ax.text(
         target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
         target_ax.axis()[3] * 0.5,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-val' + ' ' * 14 + 'FDR',
+        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 14 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
 
