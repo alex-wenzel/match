@@ -223,7 +223,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
         cbar=False)
 
     # Adjust target name
-    decorate(ax=target_ax, yticks=['asdfasdfa'])
+    decorate(ax=target_ax)
 
     if target_type in ('binary', 'categorical'):  # Add labels
 
