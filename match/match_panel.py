@@ -219,10 +219,11 @@ def _plot_match(target, features, annotations, target_type, features_type,
         vmax=target_max,
         cmap=target_cmap,
         xticklabels=False,
+        yticklabels=False,
         cbar=False)
 
     # Adjust target name
-    decorate(ax=target_ax)
+    decorate(ax=target_ax, yticks=['asdfasdfa'])
 
     if target_type in ('binary', 'categorical'):  # Add labels
 
