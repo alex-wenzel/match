@@ -219,6 +219,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
         vmax=target_max,
         cmap=target_cmap,
         xticklabels=False,
+        yticklabels=bool(target.name),
         cbar=False)
 
     # Adjust target name
