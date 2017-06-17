@@ -27,6 +27,8 @@ def differential_gene_expression(phenotypes,
         file_path_prefix=output_filename,
         random_seed=random_seed)
     return gene_scores
+
+
 def expand_gene_set(gene_sets,
                     gene_sets_by_n_columns,
                     gene_by_sample_matrix,
