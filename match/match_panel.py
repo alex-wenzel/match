@@ -200,8 +200,8 @@ def _plot_match(target, features, annotations, target_type, features_type,
         features, features_type)
 
     # Set up figure
-    figure(figsize=(min(pow(features.shape[1], 0.7), 7), pow(features.shape[0],
-                                                             0.9)))
+    figure(figsize=(min(pow(features.shape[1], 0.7), 7), pow(
+        features.shape[0], 0.9)))
 
     # Set up grids & axes
     gridspec = GridSpec(features.shape[0] + 1, 1)
@@ -265,7 +265,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
     target_ax.text(
         target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
         target_ax.axis()[3] * 0.5,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 10 + 'p-value' + ' ' * 12 + 'FDR',
+        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 12 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
 
@@ -284,7 +284,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
     for i, (a_i, a) in enumerate(annotations.iterrows()):
         features_ax.text(
             features_ax.axis()[1] + features_ax.axis()[1] * SPACING,
-            features_ax.axis()[3] - i - 0.5,
+            features_ax.axis()[3] + i + 0.5,
             '\t'.join(a.tolist()).expandtabs(),
             verticalalignment='center',
             **FONT_STANDARD)
@@ -361,8 +361,8 @@ def make_summary_match_panel(target,
             features = features.ix[:, a_target.index]
             print(
                 'Target {} ({} cols) and features ({} cols) have {} shared columns.'.
-                format(target.name, target.size, features.shape[1],
-                       len(shared)))
+                format(target.name, target.size, features.shape[1], len(
+                    shared)))
         else:
             raise ValueError(
                 'Target {} ({} cols) and features ({} cols) have 0 shared column.'.
@@ -419,7 +419,8 @@ def make_summary_match_panel(target,
             target_ax.text(
                 target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
                 target_ax.axis()[3] * 0.5,
-                ' ' * 1 + 'IC(\u0394)' + ' ' * 6 + 'p-val' + ' ' * 15 + 'FDR',
+                ' ' * 1 + 'IC(\u0394)' + ' ' * 6 + 'p-value' + ' ' * 12 +
+                'FDR',
                 verticalalignment='center',
                 **FONT_STANDARD)
             plot_annotation_header = False
@@ -442,8 +443,8 @@ def make_summary_match_panel(target,
                 features_ax.axis()[1] + features_ax.axis()[1] * SPACING,
                 features_ax.axis()[3] - i *
                 (features_ax.axis()[3] / features.shape[0]) - 0.5,
-                '{0:.3f}\t{1:.2e}\t{2:.2e}'.format(*a.ix[
-                    ['score', 'p-value', 'fdr']]).expandtabs(),
+                '{0:.3f}\t{1:.2e}\t{2:.2e}'.format(
+                    *a.ix[['score', 'p-value', 'fdr']]).expandtabs(),
                 verticalalignment='center',
                 **FONT_STANDARD)
 
@@ -483,15 +484,13 @@ def _prepare_data_for_plotting(a, data_type, max_std=3):
     if data_type == 'continuous':
         if a.ndim == 2:
             return DataFrame(
-                normalize_a2d(
-                    a, method='-0-', axis=1),
+                normalize_a2d(a, method='-0-', axis=1),
                 index=a.index,
-                columns=a.
-                columns), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+                columns=a.columns
+            ), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
         else:
             return Series(
-                normalize_a(
-                    a, method='-0-'),
+                normalize_a(a, method='-0-'),
                 index=a.index), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
