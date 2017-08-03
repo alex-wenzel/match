@@ -8,8 +8,7 @@ from seaborn import heatmap
 from .dataplay.dataplay.a import normalize as normalize_a
 from .dataplay.dataplay.a2d import normalize as normalize_a2d
 from .file.file.file import establish_path
-from .helper.helper.df import (drop_slices_containing_only,
-                               get_top_and_bottom_indices)
+from .helper.helper.df import drop_slices, get_top_and_bottom_indices
 from .helper.helper.iterable import get_uniques_in_order
 from .match import match
 from .plot.plot.plot import save_plot
@@ -27,7 +26,7 @@ def make_match_panel(target,
                      features,
                      dropna='all',
                      target_ascending=False,
-                     min_n_unique_objects=2,
+                     max_n_unique_objects_for_drop_slices=1,
                      result_in_ascending_order=False,
                      n_jobs=1,
                      n_features=0.99,
@@ -42,14 +41,16 @@ def make_match_panel(target,
                      file_path_prefix=None):
     """
     Make match panel.
-    Compute: scores[i] = function(target, features[i]); confidence intervals
-    (CI) for n_features features; p-values; FDRs; and plot n_features features.
+        Compute: scores[i] = function(target, features[i]); confidence
+        intervals (CI) for n_features features; p-values; FDRs; and plot
+        n_features features.
     :param target: Series; (n_samples); DataFrame must have columns matching
-    features' columns
+        features' columns
     :param features: DataFrame; (n_features, n_samples);
     :param dropna: str; 'all' | 'any'
     :param target_ascending: bool; True if target increase from left to right,
         and False right to left
+    :param max_n_unique_objects_for_drop_slices: int
     :param result_in_ascending_order: bool; True if result increase from top to
         bottom, and False bottom to top
     :param n_jobs: int; number of multiprocess jobs
@@ -62,7 +63,6 @@ def make_match_panel(target,
     :param n_permutations: int; number of permutations for permutation test to
         compute p-values and FDR
     :param random_seed: int | array;
-
     :param target_type: str; 'continuous' | 'categorical' | 'binary'
     :param features_type: str; 'continuous' | 'categorical' | 'binary'
     :param title: str; plot title
@@ -81,7 +81,8 @@ def make_match_panel(target,
         features,
         dropna=dropna,
         target_ascending=target_ascending,
-        min_n_unique_objects=min_n_unique_objects)
+        max_n_unique_objects_for_drop_slices=
+        max_n_unique_objects_for_drop_slices)
 
     scores = match(
         array(target),
@@ -134,16 +135,16 @@ def make_match_panel(target,
 
 
 def _preprocess_target_and_features(target, features, dropna, target_ascending,
-                                    min_n_unique_objects):
+                                    max_n_unique_objects_for_drop_slices):
     """
     Make sure target is a Series.
-    Drop features with less than min_n_unique_objects unique values.
+    Drop features with less than max_n_unique_objects unique values.
     Keep samples found in both target and features.
     :param target: iterable | Series
     :param features: DataFrame
     :param dropna: 'any' | 'all'
     :param target_ascending: bool
-    :param min_n_unique_objects: int
+    :param max_n_unique_objects_for_drop_slices: int
     :return: Series & DataFrame
     """
 
@@ -151,12 +152,14 @@ def _preprocess_target_and_features(target, features, dropna, target_ascending,
         target = Series(target, index=features.columns)
 
     # Drop features having less than 2 unique values
-    features = drop_slices_containing_only(
-        features, min_n_unique_objects=min_n_unique_objects, axis=1)
+    features = drop_slices(
+        features,
+        max_n_unique_objects=max_n_unique_objects_for_drop_slices,
+        axis=1)
 
     if features.empty:
         raise ValueError('No feature has at least {} unique objects.'.format(
-            min_n_unique_objects))
+            max_n_unique_objects_for_drop_slices))
 
     # Keep only columns shared by target and features
     shared = target.index & features.columns
