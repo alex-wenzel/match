@@ -8,8 +8,7 @@ from seaborn import heatmap
 from .dataplay.dataplay.a import normalize as normalize_a
 from .dataplay.dataplay.a2d import normalize as normalize_a2d
 from .file.file.file import establish_path
-from .helper.helper.df import (drop_slices_containing_only,
-                               get_top_and_bottom_indices)
+from .helper.helper.df import drop_slices, get_top_and_bottom_indices
 from .helper.helper.iterable import get_uniques_in_order
 from .match import match
 from .plot.plot.plot import save_plot
@@ -27,7 +26,7 @@ def make_match_panel(target,
                      features,
                      dropna='all',
                      target_ascending=False,
-                     min_n_unique_objects=2,
+                     max_n_unique_objects_for_drop_slices=1,
                      result_in_ascending_order=False,
                      n_jobs=1,
                      n_features=0.99,
@@ -42,14 +41,16 @@ def make_match_panel(target,
                      file_path_prefix=None):
     """
     Make match panel.
-    Compute: scores[i] = function(target, features[i]); confidence intervals
-    (CI) for n_features features; p-values; FDRs; and plot n_features features.
+        Compute: scores[i] = function(target, features[i]); confidence
+        intervals (CI) for n_features features; p-values; FDRs; and plot
+        n_features features.
     :param target: Series; (n_samples); DataFrame must have columns matching
-    features' columns
+        features' columns
     :param features: DataFrame; (n_features, n_samples);
     :param dropna: str; 'all' | 'any'
     :param target_ascending: bool; True if target increase from left to right,
         and False right to left
+    :param max_n_unique_objects_for_drop_slices: int
     :param result_in_ascending_order: bool; True if result increase from top to
         bottom, and False bottom to top
     :param n_jobs: int; number of multiprocess jobs
@@ -62,7 +63,6 @@ def make_match_panel(target,
     :param n_permutations: int; number of permutations for permutation test to
         compute p-values and FDR
     :param random_seed: int | array;
-
     :param target_type: str; 'continuous' | 'categorical' | 'binary'
     :param features_type: str; 'continuous' | 'categorical' | 'binary'
     :param title: str; plot title
@@ -81,7 +81,8 @@ def make_match_panel(target,
         features,
         dropna=dropna,
         target_ascending=target_ascending,
-        min_n_unique_objects=min_n_unique_objects)
+        max_n_unique_objects_for_drop_slices=
+        max_n_unique_objects_for_drop_slices)
 
     scores = match(
         array(target),
@@ -134,16 +135,16 @@ def make_match_panel(target,
 
 
 def _preprocess_target_and_features(target, features, dropna, target_ascending,
-                                    min_n_unique_objects):
+                                    max_n_unique_objects_for_drop_slices):
     """
     Make sure target is a Series.
-    Drop features with less than min_n_unique_objects unique values.
+    Drop features with less than max_n_unique_objects unique values.
     Keep samples found in both target and features.
     :param target: iterable | Series
     :param features: DataFrame
     :param dropna: 'any' | 'all'
     :param target_ascending: bool
-    :param min_n_unique_objects: int
+    :param max_n_unique_objects_for_drop_slices: int
     :return: Series & DataFrame
     """
 
@@ -151,12 +152,14 @@ def _preprocess_target_and_features(target, features, dropna, target_ascending,
         target = Series(target, index=features.columns)
 
     # Drop features having less than 2 unique values
-    features = drop_slices_containing_only(
-        features, min_n_unique_objects=min_n_unique_objects, axis=1)
+    features = drop_slices(
+        features,
+        max_n_unique_objects=max_n_unique_objects_for_drop_slices,
+        axis=1)
 
     if features.empty:
         raise ValueError('No feature has at least {} unique objects.'.format(
-            min_n_unique_objects))
+            max_n_unique_objects_for_drop_slices))
 
     # Keep only columns shared by target and features
     shared = target.index & features.columns
@@ -200,8 +203,8 @@ def _plot_match(target, features, annotations, target_type, features_type,
         features, features_type)
 
     # Set up figure
-    figure(figsize=(min(pow(features.shape[1], 0.7), 7), pow(features.shape[0],
-                                                             0.9)))
+    figure(figsize=(min(pow(features.shape[1], 0.7), 7), pow(
+        features.shape[0], 0.9)))
 
     # Set up grids & axes
     gridspec = GridSpec(features.shape[0] + 1, 1)
@@ -265,7 +268,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
     target_ax.text(
         target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
         target_ax.axis()[3] * 0.5,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 10 + 'p-value' + ' ' * 12 + 'FDR',
+        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 12 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
 
@@ -284,7 +287,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
     for i, (a_i, a) in enumerate(annotations.iterrows()):
         features_ax.text(
             features_ax.axis()[1] + features_ax.axis()[1] * SPACING,
-            features_ax.axis()[3] - i - 0.5,
+            features_ax.axis()[3] + i + 0.5,
             '\t'.join(a.tolist()).expandtabs(),
             verticalalignment='center',
             **FONT_STANDARD)
@@ -361,8 +364,8 @@ def make_summary_match_panel(target,
             features = features.ix[:, a_target.index]
             print(
                 'Target {} ({} cols) and features ({} cols) have {} shared columns.'.
-                format(target.name, target.size, features.shape[1],
-                       len(shared)))
+                format(target.name, target.size, features.shape[1], len(
+                    shared)))
         else:
             raise ValueError(
                 'Target {} ({} cols) and features ({} cols) have 0 shared column.'.
@@ -419,7 +422,8 @@ def make_summary_match_panel(target,
             target_ax.text(
                 target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
                 target_ax.axis()[3] * 0.5,
-                ' ' * 1 + 'IC(\u0394)' + ' ' * 6 + 'p-val' + ' ' * 15 + 'FDR',
+                ' ' * 1 + 'IC(\u0394)' + ' ' * 6 + 'p-value' + ' ' * 12 +
+                'FDR',
                 verticalalignment='center',
                 **FONT_STANDARD)
             plot_annotation_header = False
@@ -442,8 +446,8 @@ def make_summary_match_panel(target,
                 features_ax.axis()[1] + features_ax.axis()[1] * SPACING,
                 features_ax.axis()[3] - i *
                 (features_ax.axis()[3] / features.shape[0]) - 0.5,
-                '{0:.3f}\t{1:.2e}\t{2:.2e}'.format(*a.ix[
-                    ['score', 'p-value', 'fdr']]).expandtabs(),
+                '{0:.3f}\t{1:.2e}\t{2:.2e}'.format(
+                    *a.ix[['score', 'p-value', 'fdr']]).expandtabs(),
                 verticalalignment='center',
                 **FONT_STANDARD)
 
@@ -483,15 +487,13 @@ def _prepare_data_for_plotting(a, data_type, max_std=3):
     if data_type == 'continuous':
         if a.ndim == 2:
             return DataFrame(
-                normalize_a2d(
-                    a, method='-0-', axis=1),
+                normalize_a2d(a, method='-0-', axis=1),
                 index=a.index,
-                columns=a.
-                columns), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+                columns=a.columns
+            ), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
         else:
             return Series(
-                normalize_a(
-                    a, method='-0-'),
+                normalize_a(a, method='-0-'),
                 index=a.index), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
