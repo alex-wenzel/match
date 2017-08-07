@@ -31,8 +31,10 @@ def make_comparison_panel(a2d0,
     """
 
     # Compute association or distance matrix, which is returned at the end
-    comparison = apply_2(
-        a2d1, a2d0, function, axis=axis, is_distance=is_distance)
+    comparison = apply_2(a2d1, a2d0, function, axis=axis)
+
+    if is_distance:
+        pass
 
     if file_path_prefix:  # Save
         comparison.to_csv(
