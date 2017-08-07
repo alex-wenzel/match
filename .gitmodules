@@ -10,3 +10,6 @@
 [submodule "match/information"]
 	path = match/information
 	url = https://github.com/KwatME/information
+[submodule "match/plot"]
+	path = match/plot
+	url = https://github.com/KwatME/plot
