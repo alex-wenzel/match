@@ -25,7 +25,7 @@ def match(target,
           random_seed=RANDOM_SEED):
     """
     Compute: scores[i] = function(target, features[i]); confidence interval
-    (CI) for n_features features; p-value; and FDR.
+        (CI) for n_features features; p-value; and FDR.
     :param target: array; (n_samples)
     :param features: array; (n_features, n_samples)
     :param function: callable
