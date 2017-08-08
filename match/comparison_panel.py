@@ -7,8 +7,8 @@ def make_comparison_panel(a2d0,
                           a2d1,
                           function=information_coefficient,
                           axis=0,
-                          is_distance=False,
                           annotate=True,
+                          figure_size=(8, 8),
                           title=None,
                           a2d0_name='',
                           a2d1_name='',
@@ -19,8 +19,6 @@ def make_comparison_panel(a2d0,
     :param a2d1: DataFrame | array;
     :param function: callable; association or distance function
     :param axis: int; 0 | 1
-    :param is_distance: bool; use distances: distances = 1 - associations or
-        not
     :param annotate: bool; show values in the clustermap cells or not
     :param title: str; plot title
     :param a2d0_name: str; a2d0 name
@@ -31,8 +29,7 @@ def make_comparison_panel(a2d0,
     """
 
     # Compute association or distance matrix, which is returned at the end
-    comparison = apply_2(
-        a2d1, a2d0, function, axis=axis, is_distance=is_distance)
+    comparison = apply_2(a2d1, a2d0, function, axis=axis)
 
     if file_path_prefix:  # Save
         comparison.to_csv(
@@ -43,6 +40,7 @@ def make_comparison_panel(a2d0,
 
     plot_clustermap(
         comparison,
+        figure_size=figure_size,
         title=title,
         xlabel=a2d0_name,
         ylabel=a2d1_name,
