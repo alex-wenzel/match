@@ -7,7 +7,7 @@ from seaborn import heatmap
 
 from .dataplay.dataplay.a import normalize as normalize_a
 from .dataplay.dataplay.a2d import normalize as normalize_a2d
-from .file.file.file import establish_path
+from .helper.helper.file import establish_path
 from .helper.helper.df import drop_slices, get_top_and_bottom_indices
 from .helper.helper.iterable import get_uniques_in_order
 from .match import match
