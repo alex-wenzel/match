@@ -260,7 +260,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
         target_ax.text(
             target_ax.axis()[1] / 2,
             -target_ax.axis()[2] / 2,
-            'title',
+            title,
             horizontalalignment='center',
             **FONT_LARGEST)
 
