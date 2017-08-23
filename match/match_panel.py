@@ -7,8 +7,8 @@ from seaborn import heatmap
 
 from .dataplay.dataplay.a import normalize as normalize_a
 from .dataplay.dataplay.a2d import normalize as normalize_a2d
-from .helper.helper.file import establish_path
 from .helper.helper.df import drop_slices, get_top_and_bottom_indices
+from .helper.helper.file import establish_path
 from .helper.helper.iterable import get_uniques_in_order
 from .match import match
 from .plot.plot.plot import save_plot
@@ -258,16 +258,16 @@ def _plot_match(target, features, annotations, target_type, features_type,
 
     if title:  # Plot title
         target_ax.text(
-            target_ax.axis()[1] * 0.5,
-            target_ax.axis()[3] * 1.9,
-            title,
+            target_ax.axis()[1] / 2,
+            -target_ax.axis()[2] / 2,
+            'title',
             horizontalalignment='center',
             **FONT_LARGEST)
 
     # Plot annotation header
     target_ax.text(
         target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
-        target_ax.axis()[3] * 0.5,
+        target_ax.axis()[2] / 2,
         ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 12 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
@@ -341,7 +341,7 @@ def make_summary_match_panel(target,
     #
     r_i = 0
     if not title:
-        title = 'Association Summary Panel for {}'.format(title(target.name))
+        title = 'Summary Match Panel for {}'.format(title(target.name))
     fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
     plot_annotation_header = True
 
