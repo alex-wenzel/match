@@ -1,3 +1,6 @@
+from numpy import array
+from pandas import DataFrame
+
 from .dataplay.dataplay.a2d import apply_2
 from .information.information.information import information_coefficient
 from .plot.plot.plot import plot_clustermap
@@ -29,7 +32,8 @@ def make_comparison_panel(a2d0,
     """
 
     # Compute association or distance matrix, which is returned at the end
-    comparison = apply_2(a2d1, a2d0, function, axis=axis)
+    comparison = apply_2(array(a2d1), array(a2d0), function, axis=axis)
+    print(type(comparison))
 
     if file_path_prefix:  # Save
         comparison.to_csv(
@@ -37,6 +41,15 @@ def make_comparison_panel(a2d0,
         plot_file_path = '{}.comparison.pdf'.format(file_path_prefix)
     else:
         plot_file_path = None
+
+    if isinstance(a2d0, DataFrame):
+        assert isinstance(a2d1, DataFrame)
+        if axis == 0:
+            comparison = DataFrame(
+                comparison, index=a2d1.columns, columns=a2d0.columns)
+        elif axis == 1:
+            comparison = DataFrame(
+                comparison, index=a2d1.index, columns=a2d0.index)
 
     plot_clustermap(
         comparison,
