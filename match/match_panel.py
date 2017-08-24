@@ -1,12 +1,13 @@
 from matplotlib.colorbar import ColorbarBase, make_axes
+from matplotlib.colors import Normalize
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
 from numpy import array, unique
 from pandas import DataFrame, Series, read_table
 from seaborn import heatmap
 
-from .dataplay.dataplay.a import normalize as normalize_a
-from .dataplay.dataplay.a2d import normalize as normalize_a2d
+from .dataplay.dataplay.a import normalize as a_normalize
+from .dataplay.dataplay.a2d import normalize as a2d_normalize
 from .helper.helper.df import drop_slices, get_top_and_bottom_indices
 from .helper.helper.file import establish_path
 from .helper.helper.iterable import get_uniques_in_order
@@ -24,7 +25,7 @@ SPACING = 0.05
 
 def make_match_panel(target,
                      features,
-                     dropna='all',
+                     keep_only_target_columns_with_value=True,
                      target_ascending=False,
                      max_n_unique_objects_for_drop_slices=1,
                      result_in_ascending_order=False,
@@ -47,7 +48,7 @@ def make_match_panel(target,
     :param target: Series; (n_samples); DataFrame must have columns matching
         features' columns
     :param features: DataFrame; (n_features, n_samples);
-    :param dropna: str; 'all' | 'any'
+    :param keep_only_target_columns_with_value: bool
     :param target_ascending: bool; True if target increase from left to right,
         and False right to left
     :param max_n_unique_objects_for_drop_slices: int
@@ -77,12 +78,8 @@ def make_match_panel(target,
     # Keep samples found in both target and features.
     # Drop features with less than 2 unique values.
     target, features = _preprocess_target_and_features(
-        target,
-        features,
-        dropna=dropna,
-        target_ascending=target_ascending,
-        max_n_unique_objects_for_drop_slices=
-        max_n_unique_objects_for_drop_slices)
+        target, features, keep_only_target_columns_with_value,
+        target_ascending, max_n_unique_objects_for_drop_slices)
 
     scores = match(
         array(target),
@@ -134,24 +131,41 @@ def make_match_panel(target,
     return scores
 
 
-def _preprocess_target_and_features(target, features, dropna, target_ascending,
-                                    max_n_unique_objects_for_drop_slices):
+def _preprocess_target_and_features(
+        target, features, keep_only_target_columns_with_value,
+        target_ascending, max_n_unique_objects_for_drop_slices):
     """
-    Make sure target is a Series.
-    Drop features with less than max_n_unique_objects unique values.
-    Keep samples found in both target and features.
+    Make target Series. Select columns. Drop rows with less than
+        max_n_unique_objects unique values.
     :param target: iterable | Series
     :param features: DataFrame
-    :param dropna: 'any' | 'all'
+    :param keep_only_target_columns_with_value: bool
     :param target_ascending: bool
     :param max_n_unique_objects_for_drop_slices: int
     :return: Series & DataFrame
     """
 
+    # Make target Series
     if not isinstance(target, Series):
         target = Series(target, index=features.columns)
 
-    # Drop features having less than 2 unique values
+    # Select columns
+    if keep_only_target_columns_with_value:
+        i = target.index & features.columns
+        print('Target {} {} and features {} have {} shared columns.'.format(
+            target.name, target.shape, features.shape, len(i)))
+    else:
+        i = target.index
+
+    if not len(i):
+        raise ValueError('0 column.')
+
+    target = target[i]
+    target.sort_values(ascending=target_ascending, inplace=True)
+
+    features = features.loc[:, target.index]
+
+    # Drop rows with less than max_n_unique_objects unique values
     features = drop_slices(
         features,
         max_n_unique_objects=max_n_unique_objects_for_drop_slices,
@@ -161,26 +175,19 @@ def _preprocess_target_and_features(target, features, dropna, target_ascending,
         raise ValueError('No feature has at least {} unique objects.'.format(
             max_n_unique_objects_for_drop_slices))
 
-    # Keep only columns shared by target and features
-    shared = target.index & features.columns
-
-    if len(shared):
-        print(
-            'Target ({} cols) and features ({} cols) have {} shared columns.'.
-            format(target.size, features.shape[1], len(shared)))
-        target = target.ix[shared].sort_values(ascending=target_ascending)
-        features = features.ix[:, target.index]
-
-    else:
-        raise ValueError(
-            'Target ({} cols) and features ({} cols) have 0 shared columns.'.
-            format(target.size, features.shape[1]))
-
     return target, features
 
 
-def _plot_match(target, features, annotations, target_type, features_type,
-                title, plot_sample_names, file_path):
+def _plot_match(target,
+                features,
+                annotations,
+                target_type,
+                features_type,
+                title,
+                plot_sample_names,
+                file_path,
+                target_ax=None,
+                features_ax=None):
     """
     Plot matches.
     :param target: Series; (n_elements); must have index matching features'
@@ -196,9 +203,11 @@ def _plot_match(target, features, annotations, target_type, features_type,
     :return: None
     """
 
-    # Prepare target & features for plotting
+    # Prepare target for plotting
     target, target_min, target_max, target_cmap = _prepare_data_for_plotting(
         target, target_type)
+
+    # Prepare features for plotting
     features, features_min, features_max, features_cmap = _prepare_data_for_plotting(
         features, features_type)
 
@@ -207,9 +216,10 @@ def _plot_match(target, features, annotations, target_type, features_type,
         features.shape[0], 0.9)))
 
     # Set up grids & axes
-    gridspec = GridSpec(features.shape[0] + 1, 1)
-    target_ax = subplot(gridspec[:1, 0])
-    features_ax = subplot(gridspec[1:, 0])
+    if target_ax is None or features_ax is None:
+        gridspec = GridSpec(features.shape[0] + 1, 1)
+        target_ax = subplot(gridspec[:1, 0])
+        features_ax = subplot(gridspec[1:, 0])
 
     #
     # Plot target, target label, & title
@@ -291,6 +301,7 @@ def _plot_match(target, features, annotations, target_type, features_type,
             '\t'.join(a.tolist()).expandtabs(),
             verticalalignment='center',
             **FONT_STANDARD)
+    ########
 
     # Save
     if file_path:
@@ -298,41 +309,30 @@ def _plot_match(target, features, annotations, target_type, features_type,
 
 
 def make_summary_match_panel(target,
-                             data_bundle,
-                             annotation_files,
-                             order=(),
+                             multiple_features,
+                             keep_only_target_columns_with_value=True,
                              target_ascending=False,
+                             max_n_unique_objects_for_drop_slices=1,
+                             result_in_ascending_order=False,
                              target_type='continuous',
+                             features_type='continuous',
                              title=None,
+                             plot_sample_names=False,
                              file_path=None):
     """
-    Make summary match panel.    Make summary match panel
-    :param target: Series; (n_elements);
-    :param data_bundle: dict;
-    :param annotation_files: dict;
-    :param order: iterable;
-    :param target_ascending: bool;
-    :param target_type: str;
-    :param title; str;
-    :param file_path: str;
-    :return: None
     """
 
-    # Prepare target for plotting
-    target, target_min, target_max, target_cmap = _prepare_data_for_plotting(
-        target, target_type)
-
-    #
-    # Set up figure
-    #
-    # Compute the number of row-grids for setting up a figure
-    n = 0
-    for features_name, features_dict in data_bundle.items():
-        n += features_dict['dataframe'].shape[0] + 3
-    # Add a row for color bar
-    n += 1
     # Set up figure
     fig = figure(figsize=FIGURE_SIZE)
+
+    # Compute the number of row-grids for setting up a figure
+    n = 0
+    for name, features, emphasis, features_type, scores, index, alias in multiple_features:
+        n += len(index) + 3
+
+    # Add a row for color bar
+    n += 1
+
     # Set up axis grids
     gridspec = GridSpec(n, 1)
 
@@ -343,113 +343,77 @@ def make_summary_match_panel(target,
     if not title:
         title = 'Summary Match Panel for {}'.format(title(target.name))
     fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
-    plot_annotation_header = True
 
-    if not any(order):  # Sort alphabetically if order is not given
-        order = sorted(data_bundle.keys())
-    for features_name, features_dict in [(k, data_bundle[k]) for k in order]:
+    for name, features, emphasis, features_type, scores, index, alias in multiple_features:
 
-        # Read features
-        features = features_dict['dataframe']
+        target, features = _preprocess_target_and_features(
+            target, features, keep_only_target_columns_with_value,
+            target_ascending, max_n_unique_objects_for_drop_slices)
+
+        # Prepare target for plotting
+        target, target_min, target_max, target_cmap = _prepare_data_for_plotting(
+            target, target_type)
 
         # Prepare features for plotting
         features, features_min, features_max, features_cmap = _prepare_data_for_plotting(
-            features, features_dict['data_type'])
+            features, features_type)
 
-        # Keep only columns shared by target and features
-        shared = target.index & features.columns
-        if any(shared):
-            a_target = target.ix[shared].sort_values(
-                ascending=target_ascending)
-            features = features.ix[:, a_target.index]
-            print(
-                'Target {} ({} cols) and features ({} cols) have {} shared columns.'.
-                format(target.name, target.size, features.shape[1], len(
-                    shared)))
-        else:
-            raise ValueError(
-                'Target {} ({} cols) and features ({} cols) have 0 shared column.'.
-                format(target.name, target.size, features.shape[1]))
+        # Read corresponding match score file
+        scores = read_table(scores, index_col=0)
 
-        # Read corresponding annotations file
-        annotations = read_table(annotation_files[features_name], index_col=0)
-        # Keep only features in the features dataframe and sort by score
-        annotations = annotations.ix[features_dict['original_index'], :]
-        annotations.index = features.index
-        annotations.sort_values(
-            'score', ascending=features_dict['emphasis'] == 'low')
+        # Keep only selected features
+        scores = scores.loc[index]
+
+        # Sort by match score
+        scores.sort_values(
+            'Score', ascending=result_in_ascending_order, inplace=True)
 
         # Apply the sorted index to featuers
-        features = features.ix[annotations.index, :]
+        features = features.loc[scores.index]
 
-        # TODO: update logic and consider removing this
-        # if any(features_dict['alias']):  # Use alias as index
-        #     features.index = features_dict['alias']
-        #     annotations.index = features.index
+        i_to_a = {i: a for i, a in zip(index, alias)}
+        features.index = features.index.map(lambda i: i_to_a[i])
+
+        print('Making annotations ...')
+        annotations = DataFrame(index=scores.index)
+        # Add IC(confidence interval), p-value, and FDR
+        annotations['IC(\u0394)'] = scores[['Score', '0.95 CI']].apply(
+            lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
+        annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
+        annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
         # Set up axes
         r_i += 1
         title_ax = subplot(gridspec[r_i:r_i + 1, 0])
         title_ax.axis('off')
+
         r_i += 1
         target_ax = subplot(gridspec[r_i:r_i + 1, 0])
+
         r_i += 1
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
+
         r_i += features.shape[0]
 
         # Plot title
         title_ax.text(
-            title_ax.axis()[1] * 0.5,
-            title_ax.axis()[3] * 0.3,
-            '{} (n={})'.format(title(features_name), len(shared)),
+            title_ax.axis()[1] / 2,
+            -title_ax.axis()[2] / 2,
+            '{} (n={})'.format(name, target.size),
             horizontalalignment='center',
             **FONT_LARGER)
 
-        # Plot target
-        heatmap(
-            DataFrame(a_target).T,
-            ax=target_ax,
-            vmin=target_min,
-            vmax=target_max,
-            cmap=target_cmap,
-            xticklabels=False,
-            yticklabels=True,
-            cbar=False)
-        for t in target_ax.get_yticklabels():
-            t.set(rotation=0, **FONT_STANDARD)
-
-        if plot_annotation_header:  # Plot header only for the 1st target axis
-            target_ax.text(
-                target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
-                target_ax.axis()[3] * 0.5,
-                ' ' * 1 + 'IC(\u0394)' + ' ' * 6 + 'p-value' + ' ' * 12 +
-                'FDR',
-                verticalalignment='center',
-                **FONT_STANDARD)
-            plot_annotation_header = False
-
-        # Plot features
-        heatmap(
+        _plot_match(
+            target,
             features,
-            ax=features_ax,
-            vmin=features_min,
-            vmax=features_max,
-            cmap=features_cmap,
-            xticklabels=False,
-            cbar=False)
-        for t in features_ax.get_yticklabels():
-            t.set(rotation=0, **FONT_STANDARD)
-
-        # Plot annotations
-        for i, (a_i, a) in enumerate(annotations.iterrows()):
-            features_ax.text(
-                features_ax.axis()[1] + features_ax.axis()[1] * SPACING,
-                features_ax.axis()[3] - i *
-                (features_ax.axis()[3] / features.shape[0]) - 0.5,
-                '{0:.3f}\t{1:.2e}\t{2:.2e}'.format(
-                    *a.ix[['score', 'p-value', 'fdr']]).expandtabs(),
-                verticalalignment='center',
-                **FONT_STANDARD)
+            annotations,
+            target_type,
+            features_type,
+            None,
+            False,
+            None,
+            target_ax=target_ax,
+            features_ax=features_ax)
 
         # Plot colorbar
         if r_i == n - 1:
@@ -463,44 +427,41 @@ def make_summary_match_panel(target,
                 shrink=2.6,
                 aspect=26,
                 cmap=target_cmap,
-                ticks=[])
+                norm=Normalize(-3, 3),
+                ticks=range(-3, 4, 1))
             ColorbarBase(cax, **kw)
-            cax.text(
-                cax.axis()[1] * 0.5,
-                cax.axis()[3] * -2.6,
-                'Standardized Profile for Target and Features',
-                horizontalalignment='center',
-                **FONT_STANDARD)
     # Save
     save_plot(file_path)
 
 
 def _prepare_data_for_plotting(a, data_type, max_std=3):
     """
-    Prepare data for plotting.
-    :param a: array; (n) | (n, m)
-    :param data_type: str; 'continuous' | 'categorical' | 'binary'
-    :param max_std: number
-    :return: DataFrame & float & float & cmap
+    Prepare data (target | features) for plotting.
+    Arguments:
+         a (array): (n) | (n, m)
+         data_type (str): 'continuous' | 'categorical' | 'binary'
+         max_std (number):
+    Returns:
+         DataFrame:
+         float:
+         float:
+         cmap:
     """
 
     if data_type == 'continuous':
-        if a.ndim == 2:
-            return DataFrame(
-                normalize_a2d(a, method='-0-', axis=1),
-                index=a.index,
-                columns=a.columns
-            ), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
-        else:
-            return Series(
-                normalize_a(a, method='-0-'),
-                index=a.index), -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+
+        if a.ndim == 1:
+            a_ = a_normalize(a.values, method='-0-')
+            a = Series(a_, name=a.name, index=a.index)
+
+        elif a.ndim == 2:
+            a_ = a2d_normalize(a.values, method='-0-', axis=1)
+            a = DataFrame(a_, index=a.index, columns=a.columns)
+
+        return a, -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
         return a.copy(), 0, unique(a).size, CMAP_CATEGORICAL
 
     elif data_type == 'binary':
         return a.copy(), 0, 1, CMAP_BINARY
-
-    else:
-        raise ValueError('Unknown data_type: {}.'.format(data_type))
