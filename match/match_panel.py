@@ -12,11 +12,11 @@ from .helper.helper.df import drop_slices, get_top_and_bottom_indices
 from .helper.helper.file import establish_path
 from .helper.helper.iterable import get_uniques_in_order
 from .match import match
+from .plot.plot.decorate import decorate
 from .plot.plot.plot import save_plot
 from .plot.plot.style import (CMAP_BINARY, CMAP_CATEGORICAL,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
-                              FONT_LARGER, FONT_LARGEST, FONT_STANDARD,
-                              decorate)
+                              FONT_LARGER, FONT_LARGEST, FONT_STANDARD)
 
 RANDOM_SEED = 20121020
 
