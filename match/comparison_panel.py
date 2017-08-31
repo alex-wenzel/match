@@ -33,14 +33,6 @@ def make_comparison_panel(a2d0,
 
     # Compute association or distance matrix, which is returned at the end
     comparison = apply_2(array(a2d1), array(a2d0), function, axis=axis)
-    print(type(comparison))
-
-    if file_path_prefix:  # Save
-        comparison.to_csv(
-            '{}.comparison.txt'.format(file_path_prefix), sep='\t')
-        plot_file_path = '{}.comparison.pdf'.format(file_path_prefix)
-    else:
-        plot_file_path = None
 
     if isinstance(a2d0, DataFrame):
         assert isinstance(a2d1, DataFrame)
@@ -50,6 +42,13 @@ def make_comparison_panel(a2d0,
         elif axis == 1:
             comparison = DataFrame(
                 comparison, index=a2d1.index, columns=a2d0.index)
+
+    if file_path_prefix:  # Save
+        comparison.to_csv(
+            '{}.comparison.txt'.format(file_path_prefix), sep='\t')
+        plot_file_path = '{}.comparison.png'.format(file_path_prefix)
+    else:
+        plot_file_path = None
 
     plot_clustermap(
         comparison,
