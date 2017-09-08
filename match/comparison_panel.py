@@ -4,6 +4,7 @@ from pandas import DataFrame
 from .dataplay.dataplay.a2d import apply_2
 from .information.information.information import information_coefficient
 from .plot.plot.plot import plot_clustermap
+from .plot.plot.style import FIGURE_SIZE
 
 
 def make_comparison_panel(a2d0,
@@ -11,7 +12,7 @@ def make_comparison_panel(a2d0,
                           function=information_coefficient,
                           axis=0,
                           annotate=True,
-                          figure_size=(8, 8),
+                          figure_size=FIGURE_SIZE,
                           title=None,
                           a2d0_name='',
                           a2d1_name='',
