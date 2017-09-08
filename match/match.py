@@ -9,14 +9,15 @@ from statsmodels.sandbox.stats.multicomp import multipletests
 
 from .helper.helper.df import get_top_and_bottom_indices
 from .helper.helper.multiprocess import multiprocess
-from .information.information.information import information_coefficient
+from .information.information.information import \
+    compute_information_coefficient
 
 RANDOM_SEED = 20121020
 
 
 def match(target,
           features,
-          function=information_coefficient,
+          function=compute_information_coefficient,
           n_jobs=1,
           n_features=0.95,
           n_samplings=30,
@@ -113,8 +114,7 @@ def compute_p_values_and_fdrs(values, random_values):
 
     p_values_g = array([compute_p_value(v, random_values) for v in values])
     p_values_l = array(
-        [compute_p_value(
-            v, random_values, greater=False) for v in values])
+        [compute_p_value(v, random_values, greater=False) for v in values])
 
     p_values = where(p_values_g < p_values_l, p_values_g, p_values_l)
 
@@ -151,7 +151,7 @@ def compute_p_value(value, random_values, greater=True):
 
 def compute_confidence_interval(target,
                                 features,
-                                function=information_coefficient,
+                                function=compute_information_coefficient,
                                 n_samplings=30,
                                 confidence_interval=0.95,
                                 random_seed=RANDOM_SEED):
@@ -206,7 +206,7 @@ def multiprocess_permute_and_score(args):
 
 def permute_and_score(target,
                       features,
-                      function=information_coefficient,
+                      function=compute_information_coefficient,
                       n_permutations=30,
                       random_seed=RANDOM_SEED):
     """
@@ -220,8 +220,6 @@ def permute_and_score(target,
     """
 
     feature_x_permutation = empty((features.shape[0], n_permutations))
-
-    # TODO: Speed up
 
     # Copy for inplace shuffling
     target = array(target)
@@ -253,7 +251,7 @@ def multiprocess_score(args):
     return score(*args)
 
 
-def score(target, features, function=information_coefficient):
+def score(target, features, function=compute_information_coefficient):
     """
     Compute: scores[i] = function(permuted_target, features[i])
     :param target: array; (n_samples)
