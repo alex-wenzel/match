@@ -2,14 +2,15 @@ from numpy import array
 from pandas import DataFrame
 
 from .dataplay.dataplay.a2d import apply_2
-from .information.information.information import information_coefficient
+from .information.information.information import \
+    compute_information_coefficient
 from .plot.plot.plot import plot_clustermap
 from .plot.plot.style import FIGURE_SIZE
 
 
 def make_comparison_panel(a2d0,
                           a2d1,
-                          function=information_coefficient,
+                          function=compute_information_coefficient,
                           axis=0,
                           annotate=True,
                           figure_size=FIGURE_SIZE,

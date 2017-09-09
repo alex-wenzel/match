@@ -151,7 +151,7 @@ def compute_p_value(value, random_values, greater=True):
 
 def compute_confidence_interval(target,
                                 features,
-                                function=compute_information_coefficient,
+                                function,
                                 n_samplings=30,
                                 confidence_interval=0.95,
                                 random_seed=RANDOM_SEED):
@@ -206,7 +206,7 @@ def multiprocess_permute_and_score(args):
 
 def permute_and_score(target,
                       features,
-                      function=compute_information_coefficient,
+                      function,
                       n_permutations=30,
                       random_seed=RANDOM_SEED):
     """
@@ -233,8 +233,7 @@ def permute_and_score(target,
         random_state = get_state()
 
         # Score
-        feature_x_permutation[:, i] = score(
-            target, features, function=function)
+        feature_x_permutation[:, i] = score(target, features, function)
 
         set_state(random_state)
 
@@ -251,7 +250,7 @@ def multiprocess_score(args):
     return score(*args)
 
 
-def score(target, features, function=compute_information_coefficient):
+def score(target, features, function):
     """
     Compute: scores[i] = function(permuted_target, features[i])
     :param target: array; (n_samples)
