@@ -14,7 +14,7 @@ from .helper.helper.iterable import get_uniques_in_order
 from .match import match
 from .plot.plot.decorate import decorate
 from .plot.plot.plot import save_plot
-from .plot.plot.style import (CMAP_BINARY, CMAP_CATEGORICAL,
+from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGER, FONT_LARGEST, FONT_STANDARD)
 
@@ -74,9 +74,6 @@ def make_match_panel(target,
         'p-value', 'FDR'))
     """
 
-    # Make sure target is a Series and features a DataFrame.
-    # Keep samples found in both target and features.
-    # Drop features with less than 2 unique values.
     target, features = _preprocess_target_and_features(
         target, features, keep_only_target_columns_with_value,
         target_ascending, max_n_unique_objects_for_drop_slices)
@@ -93,7 +90,6 @@ def make_match_panel(target,
     scores.sort_values(
         'Score', ascending=result_in_ascending_order, inplace=True)
 
-    # Save
     if file_path_prefix:
         file_path_txt = file_path_prefix + '.match.txt'
         file_path_pdf = file_path_prefix + '.match.pdf'
@@ -301,7 +297,6 @@ def _plot_match(target,
             '\t'.join(a.tolist()).expandtabs(),
             verticalalignment='center',
             **FONT_STANDARD)
-    ########
 
     # Save
     if file_path:
@@ -461,7 +456,7 @@ def _prepare_data_for_plotting(a, data_type, max_std=3):
         return a, -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
-        return a.copy(), 0, unique(a).size, CMAP_CATEGORICAL
+        return a.copy(), 0, unique(a).size, CMAP_CATEGORICAL_TAB20
 
     elif data_type == 'binary':
-        return a.copy(), 0, 1, CMAP_BINARY
+        return a.copy(), 0, 1, CMAP_BINARY_BW
