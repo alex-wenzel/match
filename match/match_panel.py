@@ -9,8 +9,8 @@ from seaborn import heatmap
 from .dataplay.dataplay.a import normalize as a_normalize
 from .dataplay.dataplay.a2d import normalize as a2d_normalize
 from .helper.helper.df import drop_slices, get_top_and_bottom_indices
-from .helper.helper.file import establish_path
 from .helper.helper.iterable import get_uniques_in_order
+from .helper.helper.path import establish_path
 from .match import match
 from .plot.plot.decorate import decorate
 from .plot.plot.plot import save_plot

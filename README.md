@@ -1,3 +1,3 @@
-# Match Library
+# Match
 
-Library for matching features :dancers:
+Library for matching things :dancers:
