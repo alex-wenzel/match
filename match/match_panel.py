@@ -6,17 +6,17 @@ from numpy import array, unique
 from pandas import DataFrame, Series, read_table
 from seaborn import heatmap
 
-from .dataplay.dataplay.a import normalize as a_normalize
-from .dataplay.dataplay.a2d import normalize as a2d_normalize
-from .helper.helper.df import drop_slices, get_top_and_bottom_indices
-from .helper.helper.iterable import get_uniques_in_order
-from .helper.helper.path import establish_path
+from .array_nd.array_nd.array_1d import normalize as array_1d_normalize
+from .array_nd.array_nd.array_2d import normalize as array_2d_normalize
 from .match import match
 from .plot.plot.decorate import decorate
 from .plot.plot.plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGER, FONT_LARGEST, FONT_STANDARD)
+from .support.support.df import drop_slices, get_top_and_bottom_indices
+from .support.support.iterable import get_uniques_in_order
+from .support.support.path import establish_path
 
 RANDOM_SEED = 20121020
 
@@ -446,11 +446,11 @@ def _prepare_data_for_plotting(a, data_type, max_std=3):
     if data_type == 'continuous':
 
         if a.ndim == 1:
-            a_ = a_normalize(a.values, method='-0-')
+            a_ = array_1d_normalize(a.values, method='-0-')
             a = Series(a_, name=a.name, index=a.index)
 
         elif a.ndim == 2:
-            a_ = a2d_normalize(a.values, method='-0-', axis=1)
+            a_ = array_2d_normalize(a.values, method='-0-', axis=1)
             a = DataFrame(a_, index=a.index, columns=a.columns)
 
         return a, -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION

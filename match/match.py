@@ -7,10 +7,10 @@ from pandas import DataFrame
 from scipy.stats import norm
 from statsmodels.sandbox.stats.multicomp import multipletests
 
-from .helper.helper.df import get_top_and_bottom_indices
-from .helper.helper.multiprocess import multiprocess
 from .information.information.information import \
     compute_information_coefficient
+from .support.support.df import get_top_and_bottom_indices
+from .support.support.multiprocess import multiprocess
 
 RANDOM_SEED = 20121020
 
