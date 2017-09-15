@@ -12,7 +12,6 @@ def make_comparison_panel(a2d0,
                           a2d1,
                           function=compute_information_coefficient,
                           axis=0,
-                          annotate=True,
                           figure_size=FIGURE_SIZE,
                           title=None,
                           a2d0_name='',
@@ -20,35 +19,38 @@ def make_comparison_panel(a2d0,
                           file_path_prefix=None):
     """
     Compare a2d0 and a2d1 slices and plot the result as clustermap.
-    :param a2d0: DataFrame | array;
-    :param a2d1: DataFrame | array;
-    :param function: callable; association or distance function
-    :param axis: int; 0 | 1
-    :param annotate: bool; show values in the clustermap cells or not
-    :param title: str; plot title
-    :param a2d0_name: str; a2d0 name
-    :param a2d1_name: str; a2d1 name
-    :param file_path_prefix: str; file_path_prefix.comparison.txt and
-        file_path_prefix.comparison.pdf will be saved
-    :return: DataFrame | array; associations or distances
+    Arguments:
+        a2d0 (array | DataFrame):
+        a2d1 (array | DataFrame):
+        function (callable):
+        axis (int): 0 | 1
+        annotate (bool): Whether to show values on the clustermap
+        title (str): Plot title
+        a2d0_name (str): a2d0 name
+        a2d1_name (str): a2d1 name
+        file_path_prefix (str): file_path_prefix.comparison_panel.txt and
+            file_path_prefix.comparison_panel.png will be saved
+    Returns:
+        array | DataFrame:
     """
 
-    # Compute association or distance matrix, which is returned at the end
     comparison = apply_2(array(a2d1), array(a2d0), function, axis=axis)
 
     if isinstance(a2d0, DataFrame):
-        assert isinstance(a2d1, DataFrame)
+
         if axis == 0:
             comparison = DataFrame(
                 comparison, index=a2d1.columns, columns=a2d0.columns)
+
         elif axis == 1:
             comparison = DataFrame(
                 comparison, index=a2d1.index, columns=a2d0.index)
 
-    if file_path_prefix:  # Save
+    if file_path_prefix:
         comparison.to_csv(
-            '{}.comparison.txt'.format(file_path_prefix), sep='\t')
-        plot_file_path = '{}.comparison.png'.format(file_path_prefix)
+            '{}.comparison_panel.txt'.format(file_path_prefix), sep='\t')
+        plot_file_path = '{}.comparison_panel.png'.format(file_path_prefix)
+
     else:
         plot_file_path = None
 
@@ -58,7 +60,6 @@ def make_comparison_panel(a2d0,
         title=title,
         xlabel=a2d0_name,
         ylabel=a2d1_name,
-        annotate=annotate,
         file_path=plot_file_path)
 
     return comparison

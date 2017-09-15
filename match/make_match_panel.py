@@ -10,10 +10,8 @@ from .support.support.path import establish_path
 RANDOM_SEED = 20121020
 
 
-
 def make_match_panel(target,
                      features,
-                     keep_only_target_columns_with_value=True,
                      target_ascending=False,
                      max_n_unique_objects_for_drop_slices=1,
                      result_in_ascending_order=False,
@@ -30,41 +28,38 @@ def make_match_panel(target,
                      file_path_prefix=None):
     """
     Make match panel.
-        Compute: scores[i] = function(target, features[i]); confidence
-        intervals (CI) for n_features features; p-values; FDRs; and plot
-        n_features features.
-    :param target: Series; (n_samples); DataFrame must have columns matching
-        features' columns
-    :param features: DataFrame; (n_features, n_samples);
-    :param keep_only_target_columns_with_value: bool
-    :param target_ascending: bool; True if target increase from left to right,
-        and False right to left
-    :param max_n_unique_objects_for_drop_slices: int
-    :param result_in_ascending_order: bool; True if result increase from top to
-        bottom, and False bottom to top
-    :param n_jobs: int; number of multiprocess jobs
-    :param n_features: number | None; number of features to compute CI and
-        plot; number threshold if 1 <=, percentile threshold if < 1, and don't
-        compute if None
-    :param max_n_features: int;
-    :param n_samplings: int; number of bootstrap samplings to build
-        distribution to get CI; must be 2 < to compute CI
-    :param n_permutations: int; number of permutations for permutation test to
-        compute p-values and FDR
-    :param random_seed: int | array;
-    :param target_type: str; 'continuous' | 'categorical' | 'binary'
-    :param features_type: str; 'continuous' | 'categorical' | 'binary'
-    :param title: str; plot title
-    :param plot_sample_names: bool; plot column names or not
-    :param file_path_prefix: str; file_path_prefix.match.txt and
-        file_path_prefix.match.pdf will be saved
-    :return: DataFrame; (n_features, 4 ('Score', '<confidence_interval> CI',
-        'p-value', 'FDR'))
+    Arguments:
+        target (Series): (n_samples)
+        features (DataFrame): (n_features, n_samples)
+        target_ascending (bool): True if target increase from left to right,
+            and False right to left
+        max_n_unique_objects_for_drop_slices (int):
+        result_in_ascending_order (bool): True if result increase from top to
+            bottom, and False bottom to top
+        n_jobs (int): Number of multiprocess jobs
+        n_features (number): Number of features to compute CI and
+            plot; number threshold if 1 <=, percentile threshold if < 1, and
+            don't compute if None
+        max_n_features (int):
+        n_samplings (int): Number of bootstrap samplings to build distribution
+            to get CI; must be 2 < to compute CI
+        n_permutations (int): Number of permutations for permutation test to
+            compute p-values and FDR
+        random_seed (int | array):
+        target_type (str): 'continuous' | 'categorical' | 'binary'
+        features_type (str): 'continuous' | 'categorical' | 'binary'
+        title (str): Plot title
+        plot_sample_names (bool): Whether to plot column names
+        file_path_prefix (str): file_path_prefix.match.txt and
+            file_path_prefix.match.pdf will be saved
+    Returns:
+        DataFrame; (n_features, 4 ('Score', '<confidence_interval> CI',
+            'p-value', 'FDR'))
     """
 
     target, features = preprocess_target_and_features(
-        target, features, keep_only_target_columns_with_value,
-        target_ascending, max_n_unique_objects_for_drop_slices)
+        target, features, target_ascending,
+        max_n_unique_objects_for_drop_slices)
 
     print('Matching ...')
     scores = match(

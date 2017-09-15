@@ -9,25 +9,25 @@ def _preprocess_target_and_features(
     """
     Make target Series. Select columns. Drop rows with less than
         max_n_unique_objects unique values.
-    :param target: iterable | Series
-    :param features: DataFrame
-    :param keep_only_target_columns_with_value: bool
-    :param target_ascending: bool
-    :param max_n_unique_objects_for_drop_slices: int
-    :return: Series & DataFrame
+    Arguments:
+        target (iterable | Series):
+        features (DataFrame):
+        keep_only_target_columns_with_value (bool):
+        target_ascending (bool):
+        max_n_unique_objects_for_drop_slices (int):
+    Returns:
+        Series: Target
+        DataFrame: Features
     """
 
-    # Make target Series
+    # Make target Series, assuming ordered
     if not isinstance(target, Series):
         target = Series(target, index=features.columns)
 
     # Select columns
-    if keep_only_target_columns_with_value:
-        i = target.index & features.columns
-        print('Target {} {} and features {} have {} shared columns.'.format(
-            target.name, target.shape, features.shape, len(i)))
-    else:
-        i = target.index
+    i = target.index & features.columns
+    print('Target {} {} and features {} have {} shared columns.'.format(
+        target.name, target.shape, features.shape, len(i)))
 
     if not len(i):
         raise ValueError('0 column.')
@@ -35,7 +35,7 @@ def _preprocess_target_and_features(
     target = target[i]
     target.sort_values(ascending=target_ascending, inplace=True)
 
-    features = features.loc[:, target.index]
+    features = features[target.index]
 
     # Drop rows with less than max_n_unique_objects unique values
     features = drop_slices(

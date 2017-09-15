@@ -27,21 +27,23 @@ def match(target,
     """
     Compute: scores[i] = function(target, features[i]); confidence interval
         (CI) for n_features features; p-value; and FDR.
-    :param target: array; (n_samples)
-    :param features: array; (n_features, n_samples)
-    :param function: callable
-    :param n_jobs: int; number of multiprocess jobs
-    :param n_features: number | None; number of features to compute CI; number
-        threshold if 1 <=, percentile threshold if < 1, and don't compute if
-        None
-    :param n_samplings: int; number of bootstrap samplings to build
-        distributions to get CI; must be 2 < to compute CI
-    :param confidence_interval: float; CI
-    :param n_permutations: int; number of permutations for computing p-value
-        and FDR
-    :param random_seed: int | array;
-    :return: DataFrame; (n_features, 4 ('Score', '<confidence_interval> CI',
-        'p-value', 'FDR'))
+    Arguments:
+        target (array): (n_samples)
+        features (array): (n_features, n_samples)
+        function (callable)
+        n_jobs (int); Number of multiprocess jobs
+        n_features (number): Number of features to compute CI; number
+            threshold if 1 <=, percentile threshold if < 1, and don't compute if
+            None
+        n_samplings (int): Number of bootstrap samplings to build
+            distributions to get CI; must be 2 < to compute CI
+        confidence_interval (float): CI
+        n_permutations (int): Number of permutations for computing p-value
+            and FDR
+        random_seed (int | array):
+    Returns:
+        DataFrame: (n_features, 4 ('Score', '<confidence_interval> CI',
+            'p-value', 'FDR'))
     """
 
     results = DataFrame(columns=[
@@ -105,9 +107,12 @@ def match(target,
 def compute_p_values_and_fdrs(values, random_values):
     """
     Compute p-values and FDRs.
-    :param values: array; (n_features)
-    :param random_values: array; (n_random_values)
-    :return array & array; (n_features) & (n_features); p-values & FDRs
+    Arguments:
+        values (array): (n_features)
+        random_values (array): (n_random_values)
+    Returns:
+        array: (n_features); p-values
+        array: (n_features); FDRs
     """
 
     # Compute p-values
@@ -130,10 +135,12 @@ def compute_p_values_and_fdrs(values, random_values):
 def compute_p_value(value, random_values, greater=True):
     """
     Compute a p-value.
-    :param value: float;
-    :param random_values: array;
-    :param greater: bool;
-    :return: float; p-value
+    Arguments:
+        value (float):
+        random_values (array):
+        greater (bool):
+    Returns:
+        float: p-value
     """
 
     if greater:
@@ -157,14 +164,16 @@ def compute_confidence_interval(target,
                                 random_seed=RANDOM_SEED):
     """
     For n_samplings times, randomly choose 63.2% of the samples, score, build
-    score distribution, and compute CI.
-    :param target: array; (n_samples)
-    :param features: array; (n_features, n_samples)
-    :param function: callable
-    :param n_samplings int;
-    :param cofidence: float;
-    :param random_seed: int | array;
-    :return: array; (n)
+        score distribution, and compute CI.
+    Arguments:
+        target (array): (n_samples)
+        features (array): (n_features, n_samples)
+        function (callable):
+        n_samplings (int):
+        cofidence (float):
+        random_seed (int | array):
+    Returns:
+        array: (n)
     """
 
     feature_x_sampling = empty((features.shape[0], n_samplings))
@@ -197,8 +206,10 @@ def compute_confidence_interval(target,
 def multiprocess_permute_and_score(args):
     """
     Permute_and_score for multiprocess mapping.
-    :param args: iterable; (5)
-    :return: array; (n_features, n_permutations)
+    Arguments:
+        args (iterable): (5); permute_and_score's arguments
+    Returns:
+        array: (n_features, n_permutations)
     """
 
     return permute_and_score(*args)
@@ -211,12 +222,14 @@ def permute_and_score(target,
                       random_seed=RANDOM_SEED):
     """
     Compute: scores[i] = function(permuted_target, features[i])
-    :param target: array; (n_samples)
-    :param features: array; (n_features, n_samples)
-    :param function: callable
-    :param n_permutations: int;
-    :param random_seed: int | array;
-    :return: array; (n_features, n_permutations)
+    Arguments:
+        target (array): (n_samples)
+        features (array): (n_features, n_samples)
+        function (callable):
+        n_permutations (int):
+        random_seed (int | array):
+    Returns:
+        array: (n_features, n_permutations)
     """
 
     feature_x_permutation = empty((features.shape[0], n_permutations))
@@ -243,8 +256,10 @@ def permute_and_score(target,
 def multiprocess_score(args):
     """
     Score for multiprocess mapping.
-    :param args: iterable; (3)
-    :return: array; (n_features, n_permutations)
+    Arguments:
+        args (iterable): (3); score's arguments
+    Returns:
+        array: (n_features)
     """
 
     return score(*args)
@@ -252,11 +267,13 @@ def multiprocess_score(args):
 
 def score(target, features, function):
     """
-    Compute: scores[i] = function(permuted_target, features[i])
-    :param target: array; (n_samples)
-    :param features: array; (n_features, n_samples)
-    :param function: callable
-    :return: array; (n_features, n_permutations)
+    Compute: scores[i] = function(target, features[i])
+    Arguments:
+        target (array): (n_samples)
+        features (array): (n_features, n_samples)
+        function (callable):
+    Returns:
+        array: (n_features)
     """
 
     return apply_along_axis(lambda feature: function(target, feature), 1,

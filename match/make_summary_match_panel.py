@@ -13,7 +13,6 @@ from .preprocess_target_and_features import preprocess_target_and_features
 
 def make_summary_match_panel(target,
                              multiple_features,
-                             keep_only_target_columns_with_value=True,
                              target_ascending=False,
                              max_n_unique_objects_for_drop_slices=1,
                              result_in_ascending_order=False,
@@ -23,6 +22,23 @@ def make_summary_match_panel(target,
                              plot_sample_names=False,
                              file_path=None):
     """
+    Make summary match panel.
+    Arguments:
+        target (Series): (n_samples)
+        multiple_features (iterable): Of features (DataFrame of shape
+            (n_features, n_samples))
+        target_ascending (bool): True if target increase from left to right,
+            and False right to left
+        max_n_unique_objects_for_drop_slices (int):
+        result_in_ascending_order (bool): True if result increase from top to
+            bottom, and False bottom to top
+        target_type (str): 'continuous' | 'categorical' | 'binary'
+        features_type (str): 'continuous' | 'categorical' | 'binary'
+        title (str): Plot title
+        plot_sample_names (bool): Whether to plot column names
+        file_path (str):
+    Returns:
+        None
     """
 
     # Set up figure
@@ -39,9 +55,7 @@ def make_summary_match_panel(target,
     # Set up axis grids
     gridspec = GridSpec(n, 1)
 
-    #
     # Annotate target with features
-    #
     r_i = 0
     if not title:
         title = 'Summary Match Panel for {}'.format(title(target.name))
@@ -50,7 +64,7 @@ def make_summary_match_panel(target,
     for name, features, emphasis, features_type, scores, index, alias in multiple_features:
 
         target, features = preprocess_target_and_features(
-            target, features, keep_only_target_columns_with_value,
+            target, features
             target_ascending, max_n_unique_objects_for_drop_slices)
 
         # Prepare target for plotting

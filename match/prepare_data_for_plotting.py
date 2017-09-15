@@ -9,16 +9,16 @@ from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
 
 def _prepare_data_for_plotting(a, data_type, max_std=3):
     """
-    Prepare data (target | features) for plotting.
+    Normalize a and return good min, max, and matplotlib.cm for plotting.
     Arguments:
          a (array): (n) | (n, m)
          data_type (str): 'continuous' | 'categorical' | 'binary'
          max_std (number):
     Returns:
-         DataFrame:
-         float:
-         float:
-         cmap:
+         Series | DataFrame:
+         float: Minimum
+         float: Maximum
+         matplotlib.cm:
     """
 
     if data_type == 'continuous':

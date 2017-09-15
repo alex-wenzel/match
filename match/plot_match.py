@@ -24,17 +24,19 @@ def _plot_match(target,
                 features_ax=None):
     """
     Plot matches.
-    :param target: Series; (n_elements); must have index matching features'
-        columns
-    :param features: DataFrame; (n_features, n_elements)
-    :param annotations: DataFrame; (n_features, n_annotations); must have index
-        matching features' index
-    :param target_type: str; 'continuous' | 'categorical' | 'binary'
-    :param features_type: str; 'continuous' | 'categorical' | 'binary'
-    :param title: str
-    :param plot_sample_names: bool; plot column names or not
-    :param file_path: str
-    :return: None
+    Arguments:
+        target (Series): (n_samples)
+        features (DataFrame): (n_features, n_samples)
+
+        target_type (str): 'continuous' | 'categorical' | 'binary'
+        features_type (str): 'continuous' | 'categorical' | 'binary'
+        title (str): Plot title
+        plot_sample_names (bool): Whether to plot column names
+        file_path (str):
+        target_ax (matplotlib ax):
+        features_ax (matplotlib ax):
+    Returns:
+        None
     """
 
     # Prepare target for plotting
