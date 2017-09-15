@@ -1,0 +1,137 @@
+from matplotlib.colorbar import ColorbarBase, make_axes
+from matplotlib.colors import Normalize
+from matplotlib.gridspec import GridSpec
+from matplotlib.pyplot import figure, subplot
+from pandas import DataFrame, read_table
+
+from .plot.plot.save_plot import save_plot
+from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
+from .plot_match import plot_match
+from .prepare_data_for_plotting import prepare_data_for_plotting
+from .preprocess_target_and_features import preprocess_target_and_features
+
+
+def make_summary_match_panel(target,
+                             multiple_features,
+                             keep_only_target_columns_with_value=True,
+                             target_ascending=False,
+                             max_n_unique_objects_for_drop_slices=1,
+                             result_in_ascending_order=False,
+                             target_type='continuous',
+                             features_type='continuous',
+                             title=None,
+                             plot_sample_names=False,
+                             file_path=None):
+    """
+    """
+
+    # Set up figure
+    fig = figure(figsize=FIGURE_SIZE)
+
+    # Compute the number of row-grids for setting up a figure
+    n = 0
+    for name, features, emphasis, features_type, scores, index, alias in multiple_features:
+        n += len(index) + 3
+
+    # Add a row for color bar
+    n += 1
+
+    # Set up axis grids
+    gridspec = GridSpec(n, 1)
+
+    #
+    # Annotate target with features
+    #
+    r_i = 0
+    if not title:
+        title = 'Summary Match Panel for {}'.format(title(target.name))
+    fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
+
+    for name, features, emphasis, features_type, scores, index, alias in multiple_features:
+
+        target, features = preprocess_target_and_features(
+            target, features, keep_only_target_columns_with_value,
+            target_ascending, max_n_unique_objects_for_drop_slices)
+
+        # Prepare target for plotting
+        target, target_min, target_max, target_cmap = prepare_data_for_plotting(
+            target, target_type)
+
+        # Prepare features for plotting
+        features, features_min, features_max, features_cmap = prepare_data_for_plotting(
+            features, features_type)
+
+        # Read corresponding match score file
+        scores = read_table(scores, index_col=0)
+
+        # Keep only selected features
+        scores = scores.loc[index]
+
+        # Sort by match score
+        scores.sort_values(
+            'Score', ascending=result_in_ascending_order, inplace=True)
+
+        # Apply the sorted index to featuers
+        features = features.loc[scores.index]
+
+        i_to_a = {i: a for i, a in zip(index, alias)}
+        features.index = features.index.map(lambda i: i_to_a[i])
+
+        print('Making annotations ...')
+        annotations = DataFrame(index=scores.index)
+        # Add IC(confidence interval), p-value, and FDR
+        annotations['IC(\u0394)'] = scores[['Score', '0.95 CI']].apply(
+            lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
+        annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
+        annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
+
+        # Set up axes
+        r_i += 1
+        title_ax = subplot(gridspec[r_i:r_i + 1, 0])
+        title_ax.axis('off')
+
+        r_i += 1
+        target_ax = subplot(gridspec[r_i:r_i + 1, 0])
+
+        r_i += 1
+        features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
+
+        r_i += features.shape[0]
+
+        # Plot title
+        title_ax.text(
+            title_ax.axis()[1] / 2,
+            -title_ax.axis()[2] / 2,
+            '{} (n={})'.format(name, target.size),
+            horizontalalignment='center',
+            **FONT_LARGER)
+
+        plot_match(
+            target,
+            features,
+            annotations,
+            target_type,
+            features_type,
+            None,
+            False,
+            None,
+            target_ax=target_ax,
+            features_ax=features_ax)
+
+        # Plot colorbar
+        if r_i == n - 1:
+            colorbar_ax = subplot(gridspec[r_i:r_i + 1, 0])
+            colorbar_ax.axis('off')
+            cax, kw = make_axes(
+                colorbar_ax,
+                location='bottom',
+                pad=0.026,
+                fraction=0.26,
+                shrink=2.6,
+                aspect=26,
+                cmap=target_cmap,
+                norm=Normalize(-3, 3),
+                ticks=range(-3, 4, 1))
+            ColorbarBase(cax, **kw)
+    # Save
+    save_plot(file_path)
