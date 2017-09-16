@@ -27,7 +27,7 @@ def plot_match(target,
     Arguments:
         target (Series): (n_samples)
         features (DataFrame): (n_features, n_samples)
-
+        annotations (DataFrame): (n_features, 3)
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): Plot title
@@ -61,64 +61,68 @@ def plot_match(target,
     # Plot target, target label, & title
     #
     # Plot target
-    heatmap(
-        DataFrame(target).T,
-        ax=target_ax,
-        vmin=target_min,
-        vmax=target_max,
-        cmap=target_cmap,
-        xticklabels=False,
-        yticklabels=bool(target.name),
-        cbar=False)
+    if target_ax:
+        heatmap(
+            DataFrame(target).T,
+            ax=target_ax,
+            vmin=target_min,
+            vmax=target_max,
+            cmap=target_cmap,
+            xticklabels=False,
+            yticklabels=bool(target.name),
+            cbar=False)
 
-    # Adjust target name
-    decorate(
-        ax=target_ax, despine_kwargs={'left': True,
-                                      'bottom': True}, ylabel='')
+        # Adjust target name
+        decorate(
+            ax=target_ax,
+            despine_kwargs={'left': True,
+                            'bottom': True},
+            ylabel='')
 
-    if target_type in ('binary', 'categorical'):  # Add labels
+        if target_type in ('binary', 'categorical'):  # Add labels
 
-        # Get boundary indices
-        boundary_is = [0]
-        prev_v = target[0]
-        for i, v in enumerate(target[1:]):
-            if prev_v != v:
-                boundary_is.append(i + 1)
-            prev_v = v
-        boundary_is.append(features.shape[1])
+            # Get boundary indices
+            boundary_is = [0]
+            prev_v = target[0]
+            for i, v in enumerate(target[1:]):
+                if prev_v != v:
+                    boundary_is.append(i + 1)
+                prev_v = v
+            boundary_is.append(features.shape[1])
 
-        # Get positions
-        label_xs = []
-        prev_i = 0
-        for i in boundary_is[1:]:
-            label_xs.append(i - (i - prev_i) / 2)
-            prev_i = i
+            # Get positions
+            label_xs = []
+            prev_i = 0
+            for i in boundary_is[1:]:
+                label_xs.append(i - (i - prev_i) / 2)
+                prev_i = i
 
-        # Plot values to their corresponding positions
-        unique_target_labels = get_uniques_in_order(target.values)
-        for i, x in enumerate(label_xs):
+            # Plot values to their corresponding positions
+            unique_target_labels = get_uniques_in_order(target.values)
+            for i, x in enumerate(label_xs):
+                target_ax.text(
+                    x,
+                    target_ax.axis()[3] * (1 + SPACING),
+                    unique_target_labels[i],
+                    horizontalalignment='center',
+                    **FONT_STANDARD)
+
+        if title:
+            # Plot title
             target_ax.text(
-                x,
-                target_ax.axis()[3] * (1 + SPACING),
-                unique_target_labels[i],
+                target_ax.axis()[1] / 2,
+                -target_ax.axis()[2] / 2,
+                title,
                 horizontalalignment='center',
-                **FONT_STANDARD)
+                **FONT_LARGEST)
 
-    if title:  # Plot title
+        # Plot annotation header
         target_ax.text(
-            target_ax.axis()[1] / 2,
-            -target_ax.axis()[2] / 2,
-            title,
-            horizontalalignment='center',
-            **FONT_LARGEST)
-
-    # Plot annotation header
-    target_ax.text(
-        target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
-        target_ax.axis()[2] / 2,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 12 + 'FDR',
-        verticalalignment='center',
-        **FONT_STANDARD)
+            target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
+            target_ax.axis()[2] / 2,
+            ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 12 + 'FDR',
+            verticalalignment='center',
+            **FONT_STANDARD)
 
     heatmap(
         features,

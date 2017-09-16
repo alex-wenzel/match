@@ -2,7 +2,7 @@ from matplotlib.colorbar import ColorbarBase, make_axes
 from matplotlib.colors import Normalize
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
-from pandas import DataFrame, read_table
+from pandas import DataFrame, Index, read_table
 
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
@@ -13,18 +13,20 @@ from .preprocess_target_and_features import preprocess_target_and_features
 
 def make_summary_match_panel(target,
                              multiple_features,
+                             indexs=(),
+                             repeat_plotting_target=True,
                              target_ascending=False,
                              max_n_unique_objects_for_drop_slices=1,
                              result_in_ascending_order=False,
                              target_type='continuous',
                              features_type='continuous',
-                             title=None,
+                             title='Summary Match Panel',
                              plot_sample_names=False,
                              file_path=None):
     """
     Make summary match panel.
     Arguments:
-        target (Series): (n_samples)
+        target (iterable): (n_samples)
         multiple_features (iterable): [
             Feature name (str):,
             Features (DataFrame): (n_features, n_samples),
@@ -35,6 +37,10 @@ def make_summary_match_panel(target,
             Index (iterable): Features to plot,
             Index alias (iterable): Name shown for the features to plot,
         ]
+        indexs (iterable | str): iterable (n_samples_to_plot) | () (for plotting
+            columns shared between target and each feature) | 'only_shared' (for
+            plotting columns shared between target and all features)
+        repeat_plotting_target (bool): Whether to repeat plotting target
         target_ascending (bool): True if target increase from left to right,
             and False right to left
         max_n_unique_objects_for_drop_slices (int):
@@ -65,15 +71,24 @@ def make_summary_match_panel(target,
 
     # Annotate target with features
     r_i = 0
-    if not title:
-        title = 'Summary Match Panel'
     fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
+
+    if indexs == 'only_shared':
+        for name, features, emphasis, features_type, scores, index, alias in multiple_features:
+            if indexs is 'only_shared':
+                indexs = features.columns
+            else:
+                indexs &= features.columns
+    print('Indexs: {}'.format(indexs))
 
     for name, features, emphasis, features_type, scores, index, alias in multiple_features:
 
         target, features = preprocess_target_and_features(
-            target, features, target_ascending,
-            max_n_unique_objects_for_drop_slices)
+            target,
+            features,
+            target_ascending,
+            max_n_unique_objects_for_drop_slices,
+            indexs=indexs)
 
         # Prepare target for plotting
         target, target_min, target_max, target_cmap = prepare_data_for_plotting(
@@ -108,26 +123,33 @@ def make_summary_match_panel(target,
         annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
+        #
         # Set up axes
-        r_i += 1
-        title_ax = subplot(gridspec[r_i:r_i + 1, 0])
-        title_ax.axis('off')
+        #
+        if repeat_plotting_target:
 
-        r_i += 1
-        target_ax = subplot(gridspec[r_i:r_i + 1, 0])
+            r_i += 1
+            title_ax = subplot(gridspec[r_i:r_i + 1, 0])
+            title_ax.axis('off')
+
+            # Plot title
+            title_ax.text(
+                title_ax.axis()[1] / 2,
+                -title_ax.axis()[2] / 2,
+                '{} (n={})'.format(name, target.size),
+                horizontalalignment='center',
+                **FONT_LARGER)
+
+            r_i += 1
+            target_ax = subplot(gridspec[r_i:r_i + 1, 0])
+
+        else:
+            target_ax = False
 
         r_i += 1
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
 
         r_i += features.shape[0]
-
-        # Plot title
-        title_ax.text(
-            title_ax.axis()[1] / 2,
-            -title_ax.axis()[2] / 2,
-            '{} (n={})'.format(name, target.size),
-            horizontalalignment='center',
-            **FONT_LARGER)
 
         plot_match(
             target,
@@ -156,6 +178,6 @@ def make_summary_match_panel(target,
                 norm=Normalize(-3, 3),
                 ticks=range(-3, 4, 1))
             ColorbarBase(cax, **kw)
-    # Save
+
     if file_path:
         save_plot(file_path)
