@@ -7,7 +7,7 @@ from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION)
 
 
-def _prepare_data_for_plotting(a, data_type, max_std=3):
+def prepare_data_for_plotting(a, data_type, max_std=3):
     """
     Normalize a and return good min, max, and matplotlib.cm for plotting.
     Arguments:

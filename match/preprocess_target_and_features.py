@@ -3,16 +3,14 @@ from pandas import Series
 from .support.support.df import drop_slices
 
 
-def _preprocess_target_and_features(
-        target, features, keep_only_target_columns_with_value,
-        target_ascending, max_n_unique_objects_for_drop_slices):
+def preprocess_target_and_features(target, features, target_ascending,
+                                   max_n_unique_objects_for_drop_slices):
     """
     Make target Series. Select columns. Drop rows with less than
         max_n_unique_objects unique values.
     Arguments:
         target (iterable | Series):
         features (DataFrame):
-        keep_only_target_columns_with_value (bool):
         target_ascending (bool):
         max_n_unique_objects_for_drop_slices (int):
     Returns:
@@ -30,7 +28,9 @@ def _preprocess_target_and_features(
         target.name, target.shape, features.shape, len(i)))
 
     if not len(i):
-        raise ValueError('0 column.')
+        raise ValueError(
+            'Target {} {} and features {} have {} shared columns.'.format(
+                target.name, target.shape, features.shape, len(i)))
 
     target = target[i]
     target.sort_values(ascending=target_ascending, inplace=True)

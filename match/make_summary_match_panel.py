@@ -64,8 +64,8 @@ def make_summary_match_panel(target,
     for name, features, emphasis, features_type, scores, index, alias in multiple_features:
 
         target, features = preprocess_target_and_features(
-            target, features
-            target_ascending, max_n_unique_objects_for_drop_slices)
+            target, features, target_ascending,
+            max_n_unique_objects_for_drop_slices)
 
         # Prepare target for plotting
         target, target_min, target_max, target_cmap = prepare_data_for_plotting(

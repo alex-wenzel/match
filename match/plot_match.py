@@ -12,16 +12,16 @@ from .support.support.iterable import get_uniques_in_order
 SPACING = 0.05
 
 
-def _plot_match(target,
-                features,
-                annotations,
-                target_type,
-                features_type,
-                title,
-                plot_sample_names,
-                file_path,
-                target_ax=None,
-                features_ax=None):
+def plot_match(target,
+               features,
+               annotations,
+               target_type,
+               features_type,
+               title,
+               plot_sample_names,
+               file_path,
+               target_ax=None,
+               features_ax=None):
     """
     Plot matches.
     Arguments:
@@ -72,7 +72,9 @@ def _plot_match(target,
         cbar=False)
 
     # Adjust target name
-    decorate(ax=target_ax)
+    decorate(
+        ax=target_ax, despine_kwargs={'left': True,
+                                      'bottom': True}, ylabel='')
 
     if target_type in ('binary', 'categorical'):  # Add labels
 
@@ -127,7 +129,11 @@ def _plot_match(target,
         xticklabels=plot_sample_names,
         cbar=False)
 
-    decorate(ax=features_ax, ylabel='')
+    decorate(
+        ax=features_ax,
+        despine_kwargs={'left': True,
+                        'bottom': True},
+        ylabel='')
 
     # Plot annotations
     for i, (a_i, a) in enumerate(annotations.iterrows()):
