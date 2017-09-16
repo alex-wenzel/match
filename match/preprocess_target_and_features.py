@@ -6,8 +6,8 @@ from .support.support.df import drop_slices
 def preprocess_target_and_features(target, features, target_ascending,
                                    max_n_unique_objects_for_drop_slices):
     """
-    Make target Series. Select columns. Drop rows with less than
-        max_n_unique_objects unique values.
+    Make sure target is a Series. Keep only shared columns. Drop rows with less
+        than max_n_unique_objects unique values.
     Arguments:
         target (iterable | Series):
         features (DataFrame):
@@ -18,11 +18,9 @@ def preprocess_target_and_features(target, features, target_ascending,
         DataFrame: Features
     """
 
-    # Make target Series, assuming ordered
     if not isinstance(target, Series):
         target = Series(target, index=features.columns)
 
-    # Select columns
     i = target.index & features.columns
     print('Target {} {} and features {} have {} shared columns.'.format(
         target.name, target.shape, features.shape, len(i)))
@@ -37,7 +35,6 @@ def preprocess_target_and_features(target, features, target_ascending,
 
     features = features[target.index]
 
-    # Drop rows with less than max_n_unique_objects unique values
     features = drop_slices(
         features,
         max_n_unique_objects=max_n_unique_objects_for_drop_slices,
