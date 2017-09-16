@@ -55,6 +55,8 @@ def make_summary_match_panel(target,
         None
     """
 
+    # TODO: Compute inplace
+
     # Set up figure
     fig = figure(figsize=FIGURE_SIZE)
 
@@ -81,7 +83,8 @@ def make_summary_match_panel(target,
                 indexs &= features.columns
     print('Indexs: {}'.format(indexs))
 
-    for name, features, emphasis, features_type, scores, index, alias in multiple_features:
+    for fi, (name, features, emphasis, features_type, scores, index,
+             alias) in enumerate(multiple_features):
 
         target, features = preprocess_target_and_features(
             target,
@@ -126,31 +129,29 @@ def make_summary_match_panel(target,
         #
         # Set up axes
         #
-        if repeat_plotting_target:
+        r_i += 1
+        title_ax = subplot(gridspec[r_i:r_i + 1, 0])
+        title_ax.axis('off')
 
-            r_i += 1
-            title_ax = subplot(gridspec[r_i:r_i + 1, 0])
-            title_ax.axis('off')
+        # Plot title
+        title_ax.text(
+            title_ax.axis()[1] / 2,
+            -title_ax.axis()[2] / 2,
+            '{} (n={})'.format(name, target.size),
+            horizontalalignment='center',
+            **FONT_LARGER)
 
-            # Plot title
-            title_ax.text(
-                title_ax.axis()[1] / 2,
-                -title_ax.axis()[2] / 2,
-                '{} (n={})'.format(name, target.size),
-                horizontalalignment='center',
-                **FONT_LARGER)
-
+        if fi == 0 or repeat_plotting_target:
             r_i += 1
             target_ax = subplot(gridspec[r_i:r_i + 1, 0])
-
         else:
             target_ax = False
-
         r_i += 1
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
 
         r_i += features.shape[0]
 
+        # Plot match
         plot_match(
             target,
             features,
@@ -158,7 +159,7 @@ def make_summary_match_panel(target,
             target_type,
             features_type,
             None,
-            False,
+            plot_sample_names and fi == len(multiple_features) - 1,
             None,
             target_ax=target_ax,
             features_ax=features_ax)
