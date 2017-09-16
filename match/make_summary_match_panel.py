@@ -25,8 +25,16 @@ def make_summary_match_panel(target,
     Make summary match panel.
     Arguments:
         target (Series): (n_samples)
-        multiple_features (iterable): Of features (DataFrame of shape
-            (n_features, n_samples))
+        multiple_features (iterable): [
+            Feature name (str):,
+            Features (DataFrame): (n_features, n_samples),
+            Emphasis (str): 'High' | 'Low',
+            Feature type (str): 'continuous' | 'categorical' | 'binary',
+            Match (str | DataFrame): Saved file path or returned DataFrame from
+                make_match_panel
+            Index (iterable): Features to plot,
+            Index alias (iterable): Name shown for the features to plot,
+        ]
         target_ascending (bool): True if target increase from left to right,
             and False right to left
         max_n_unique_objects_for_drop_slices (int):
@@ -58,7 +66,7 @@ def make_summary_match_panel(target,
     # Annotate target with features
     r_i = 0
     if not title:
-        title = 'Summary Match Panel for {}'.format(title(target.name))
+        title = 'Summary Match Panel'
     fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
 
     for name, features, emphasis, features_type, scores, index, alias in multiple_features:
@@ -76,7 +84,8 @@ def make_summary_match_panel(target,
             features, features_type)
 
         # Read corresponding match score file
-        scores = read_table(scores, index_col=0)
+        if isinstance(scores, str):
+            scores = read_table(scores, index_col=0)
 
         # Keep only selected features
         scores = scores.loc[index]
@@ -148,4 +157,5 @@ def make_summary_match_panel(target,
                 ticks=range(-3, 4, 1))
             ColorbarBase(cax, **kw)
     # Save
-    save_plot(file_path)
+    if file_path:
+        save_plot(file_path)
