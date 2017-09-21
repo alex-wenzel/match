@@ -23,6 +23,7 @@ def make_match_panel(target,
                      random_seed=RANDOM_SEED,
                      figure_size=None,
                      target_type='continuous',
+                     target_colormap=None,
                      features_type='continuous',
                      title=None,
                      plot_sample_names=False,
@@ -117,8 +118,17 @@ def make_match_panel(target,
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     print('Plotting match panel ...')
-    plot_match(target, target_int_to_o, features_to_plot, annotations,
-               figure_size, target_type, features_type, title,
-               plot_sample_names, file_path_pdf)
+    plot_match(
+        target,
+        target_int_to_o,
+        features_to_plot,
+        annotations,
+        figure_size,
+        target_type,
+        features_type,
+        title,
+        plot_sample_names,
+        file_path_pdf,
+        target_colormap=target_colormap)
 
     return scores
