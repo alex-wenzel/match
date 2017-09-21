@@ -22,12 +22,14 @@ def plot_match(target,
                title,
                plot_sample_names,
                file_path,
+               target_colormap=None,
                target_ax=None,
                features_ax=None):
     """
     Plot matches.
     Arguments:
         target (Series): (n_samples)
+        target_int_to_o (dict):
         features (DataFrame): (n_features, n_samples)
         annotations (DataFrame): (n_features, 3)
         figure_size (tuple):
@@ -36,7 +38,7 @@ def plot_match(target,
         title (str): Plot title
         plot_sample_names (bool): Whether to plot column names
         file_path (str):
-        target_o_to_int (dict):
+
         target_ax (matplotlib ax):
         features_ax (matplotlib ax):
     Returns:
@@ -46,6 +48,9 @@ def plot_match(target,
     # Prepare target for plotting
     target, target_min, target_max, target_cmap = prepare_data_for_plotting(
         target, target_type)
+
+    if target_colormap:
+        target_cmap = target_colormap
 
     # Prepare features for plotting
     features, features_min, features_max, features_cmap = prepare_data_for_plotting(
