@@ -18,7 +18,8 @@ def make_summary_match_panel(target,
                              features_type='continuous',
                              title='Summary Match Panel',
                              plot_sample_names=False,
-                             file_path=None):
+                             file_path=None,
+                             dpi=100):
     """
     Make summary match panel.
     Arguments:
@@ -44,21 +45,10 @@ def make_summary_match_panel(target,
         title (str): Plot title
         plot_sample_names (bool): Whether to plot column names
         file_path (str):
+        dpi (int):
     Returns:
         None
     """
-
-    target_o_to_int = {}
-    target_int_to_o = {}
-
-    if target.dtype == 'O':
-
-        for i, o in enumerate(target.unique()):
-            target_o_to_int[o] = i
-            target_int_to_o[i] = o
-
-        # Make target numerical
-        target = target.map(target_o_to_int)
 
     # Set up figure
     fig = figure(figsize=FIGURE_SIZE)
@@ -92,6 +82,15 @@ def make_summary_match_panel(target,
         target, features = preprocess_target_and_features(
             target, features, indexs, target_ascending,
             max_n_unique_objects_for_drop_slices)
+
+        target_o_to_int = {}
+        target_int_to_o = {}
+        if target.dtype == 'O':
+            for i, o in enumerate(target.unique()):
+                target_o_to_int[o] = i
+                target_int_to_o[i] = o
+            # Make target numerical
+            target = target.map(target_o_to_int)
 
         # Prepare target for plotting
         target, target_min, target_max, target_cmap = prepare_data_for_plotting(
@@ -155,6 +154,7 @@ def make_summary_match_panel(target,
             None,
             plot_sample_names and fi == len(multiple_features) - 1,
             None,
+            dpi,
             target_ax=target_ax,
             features_ax=features_ax)
 

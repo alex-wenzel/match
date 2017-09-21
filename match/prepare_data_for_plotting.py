@@ -35,7 +35,7 @@ def prepare_data_for_plotting(a, data_type, max_std=3):
         return a, -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
-        n = a.unique().size
+        n = unique(a).size
 
         if CMAP_CATEGORICAL_TAB20.N < n:
             # Make and use a Colormap with random colors

@@ -23,7 +23,6 @@ def plot_match(target,
                plot_sample_names,
                file_path,
                dpi,
-               target_colormap=None,
                target_ax=None,
                features_ax=None):
     """
@@ -40,7 +39,6 @@ def plot_match(target,
         plot_sample_names (bool): Whether to plot column names
         file_path (str):
         dpi (int):
-        target_colormap (matplotlib.Colormap):
         target_ax (matplotlib ax):
         features_ax (matplotlib ax):
     Returns:
@@ -50,9 +48,6 @@ def plot_match(target,
     # Prepare target for plotting
     target, target_min, target_max, target_cmap = prepare_data_for_plotting(
         target, target_type)
-
-    if target_colormap:
-        target_cmap = target_colormap
 
     # Prepare features for plotting
     features, features_min, features_max, features_cmap = prepare_data_for_plotting(
@@ -71,31 +66,41 @@ def plot_match(target,
         target_ax = subplot(gridspec[:1, 0])
         features_ax = subplot(gridspec[1:, 0])
 
-    #
-    # Plot target, target label, & title
-    #
-    # Plot target
+    # Plot title, target heatmap, target label, and annotation header
     if target_ax:
 
+        # Plot target heatmap
         heatmap(
             DataFrame(target).T,
             ax=target_ax,
+            vmin=target_min,
+            vmax=target_max,
             cmap=target_cmap,
             xticklabels=False,
             yticklabels=bool(target.name),
             cbar=False)
 
-        # Adjust target name
+        # Decorate target heatmap
         decorate(
             ax=target_ax,
             despine_kwargs={'left': True,
                             'bottom': True},
             ylabel='')
 
-        if target_type in ('binary', 'categorical'):
-            # Add target annotations
+        # Plot title
+        if title:
 
-            # Get boundary indices
+            target_ax.text(
+                target_ax.axis()[1] / 2,
+                -target_ax.axis()[2],
+                title,
+                horizontalalignment='center',
+                **FONT_LARGEST)
+
+        # Plot target label
+        if target_type in ('binary', 'categorical'):
+
+            # Get boundary index
             boundary_indexs = [0]
             prev_v = target[0]
             for i, v in enumerate(target[1:]):
@@ -104,17 +109,16 @@ def plot_match(target,
                 prev_v = v
             boundary_indexs.append(features.shape[1])
 
-            # Get positions
-            label_xs = []
+            # Get label position
+            label_positions = []
             prev_i = 0
             for i in boundary_indexs[1:]:
-                label_xs.append(i - (i - prev_i) / 2)
+                label_positions.append(i - (i - prev_i) / 2)
                 prev_i = i
 
-            # Plot values to their corresponding positions
+            # Plot target label
             unique_target_labels = get_uniques_in_order(target.values)
-
-            for i, x in enumerate(label_xs):
+            for i, x in enumerate(label_positions):
 
                 if target_int_to_o:
                     t = target_int_to_o[unique_target_labels[i]]
@@ -128,16 +132,6 @@ def plot_match(target,
                     rotation=90,
                     **FONT_SMALLEST)
 
-        if title:
-
-            # Plot title
-            target_ax.text(
-                target_ax.axis()[1] / 2,
-                -target_ax.axis()[2],
-                title,
-                horizontalalignment='center',
-                **FONT_LARGEST)
-
         # Plot annotation header
         target_ax.text(
             target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
@@ -146,13 +140,17 @@ def plot_match(target,
             verticalalignment='center',
             **FONT_STANDARD)
 
+    # Plot features heatmap
     heatmap(
         features,
         ax=features_ax,
+        vmin=features_min,
+        vmax=features_max,
         cmap=features_cmap,
         xticklabels=plot_sample_names,
         cbar=False)
 
+    # Decorate features heatmap
     decorate(
         ax=features_ax,
         despine_kwargs={'left': True,

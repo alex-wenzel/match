@@ -1,5 +1,6 @@
 from pandas import DataFrame
 
+from .array_nd.array_nd.array_2d import cluster_within_group
 from .match import match
 from .plot_match import plot_match
 from .preprocess_target_and_features import preprocess_target_and_features
@@ -23,7 +24,6 @@ def make_match_panel(target,
                      random_seed=RANDOM_SEED,
                      figure_size=None,
                      target_type='continuous',
-                     target_colormap=None,
                      features_type='continuous',
                      title=None,
                      plot_sample_names=False,
@@ -61,21 +61,23 @@ def make_match_panel(target,
             'p-value', 'FDR'))
     """
 
-    target_o_to_int = {}
-    target_int_to_o = {}
-
-    if target.dtype == 'O':
-
-        for i, o in enumerate(target.unique()):
-            target_o_to_int[o] = i
-            target_int_to_o[i] = o
-
-        # Make target numerical
-        target = target.map(target_o_to_int)
-
     target, features = preprocess_target_and_features(
         target, features, indexs, target_ascending,
         max_n_unique_objects_for_drop_slices)
+
+    target_o_to_int = {}
+    target_int_to_o = {}
+    if target.dtype == 'O':
+        for i, o in enumerate(target.unique()):
+            target_o_to_int[o] = i
+            target_int_to_o[i] = o
+        # Make target numerical
+        target = target.map(target_o_to_int)
+
+    if target_type in ('binary', 'categorical'):
+        print('Clustering within group ...')
+        columns = cluster_within_group(target.values, features.values)
+        features = features.iloc[:, columns]
 
     print('Matching ...')
     scores = match(
@@ -120,18 +122,8 @@ def make_match_panel(target,
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     print('Plotting match panel ...')
-    plot_match(
-        target,
-        target_int_to_o,
-        features_to_plot,
-        annotations,
-        figure_size,
-        target_type,
-        features_type,
-        title,
-        plot_sample_names,
-        file_path_pdf,
-        dpi,
-        target_colormap=target_colormap)
+    plot_match(target, target_int_to_o, features_to_plot, annotations,
+               figure_size, target_type, features_type, title,
+               plot_sample_names, file_path_pdf, dpi)
 
     return scores
