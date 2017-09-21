@@ -5,7 +5,7 @@ from seaborn import heatmap
 
 from .plot.plot.decorate import decorate
 from .plot.plot.plot import save_plot
-from .plot.plot.style import FONT_LARGEST, FONT_STANDARD
+from .plot.plot.style import FONT_LARGEST, FONT_SMALLER, FONT_STANDARD
 from .prepare_data_for_plotting import prepare_data_for_plotting
 from .support.support.iterable import get_uniques_in_order
 
@@ -15,6 +15,7 @@ SPACING = 0.05
 def plot_match(target,
                features,
                annotations,
+               figure_size,
                target_type,
                features_type,
                title,
@@ -28,6 +29,7 @@ def plot_match(target,
         target (Series): (n_samples)
         features (DataFrame): (n_features, n_samples)
         annotations (DataFrame): (n_features, 3)
+        figure_size (tuple):
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): Plot title
@@ -48,8 +50,11 @@ def plot_match(target,
         features, features_type)
 
     # Set up figure
-    figure(figsize=(min(pow(features.shape[1], 0.7), 7), pow(
-        features.shape[0], 0.9)))
+    if not figure_size:
+        figure_size = (min(pow(features.shape[1], 0.8), 10), pow(
+            features.shape[0], 0.8))
+
+    figure(figsize=figure_size)
 
     # Set up grids & axes
     if target_ax is None or features_ax is None:
@@ -102,16 +107,18 @@ def plot_match(target,
             for i, x in enumerate(label_xs):
                 target_ax.text(
                     x,
-                    target_ax.axis()[3] * (1 + SPACING),
+                    -target_ax.axis()[2] / 8,
                     unique_target_labels[i],
                     horizontalalignment='center',
-                    **FONT_STANDARD)
+                    verticalalignment='bottom',
+                    rotation=90,
+                    **FONT_SMALLER)
 
         if title:
             # Plot title
             target_ax.text(
                 target_ax.axis()[1] / 2,
-                -target_ax.axis()[2] / 2,
+                -target_ax.axis()[2],
                 title,
                 horizontalalignment='center',
                 **FONT_LARGEST)

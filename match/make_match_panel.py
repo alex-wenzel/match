@@ -21,6 +21,7 @@ def make_match_panel(target,
                      n_samplings=30,
                      n_permutations=30,
                      random_seed=RANDOM_SEED,
+                     figure_size=None,
                      target_type='continuous',
                      features_type='continuous',
                      title=None,
@@ -46,6 +47,7 @@ def make_match_panel(target,
         n_permutations (int): Number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
+        figure_size (tuple):
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): Plot title
@@ -98,14 +100,7 @@ def make_match_panel(target,
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     print('Plotting match panel ...')
-    plot_match(
-        target,
-        features_to_plot,
-        annotations,
-        target_type=target_type,
-        features_type=features_type,
-        title=title,
-        plot_sample_names=plot_sample_names,
-        file_path=file_path_pdf)
+    plot_match(target, features_to_plot, annotations, figure_size, target_type,
+               features_type, title, plot_sample_names, file_path_pdf)
 
     return scores
