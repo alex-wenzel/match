@@ -1,8 +1,6 @@
-from matplotlib.colorbar import ColorbarBase, make_axes
-from matplotlib.colors import Normalize
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
-from pandas import DataFrame, read_table
+from pandas import DataFrame
 
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
