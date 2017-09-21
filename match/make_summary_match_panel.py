@@ -14,10 +14,8 @@ from .preprocess_target_and_features import preprocess_target_and_features
 def make_summary_match_panel(target,
                              multiple_features,
                              indexs=(),
-                             repeat_plotting_target=True,
                              target_ascending=False,
                              max_n_unique_objects_for_drop_slices=1,
-                             result_in_ascending_order=False,
                              target_type='continuous',
                              features_type='continuous',
                              title='Summary Match Panel',
@@ -30,22 +28,19 @@ def make_summary_match_panel(target,
         multiple_features (iterable): [
             Feature name (str):,
             Features (DataFrame): (n_features, n_samples),
-            Emphasis (str): 'High' | 'Low',
+            Increasing (bool): True (scores increase from top to bottom) | False,
             Feature type (str): 'continuous' | 'categorical' | 'binary',
-            Match (str | DataFrame): Saved file path or returned DataFrame from
-                make_match_panel
+            Scores (DataFrame): Scores DataFrame returned from make_match_panel,
             Index (iterable): Features to plot,
             Index alias (iterable): Name shown for the features to plot,
         ]
         indexs (iterable | str): iterable (n_samples_to_plot) | () (for plotting
-            columns shared between target and each feature) | 'only_shared' (for
-            plotting columns shared between target and all features)
-        repeat_plotting_target (bool): Whether to repeat plotting target
+            columns shared between target and each feature) |
+            'shared_by_target_and_all_features' (for plotting columns shared
+            among target and all features)
         target_ascending (bool): True if target increase from left to right,
             and False right to left
         max_n_unique_objects_for_drop_slices (int):
-        result_in_ascending_order (bool): True if result increase from top to
-            bottom, and False bottom to top
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): Plot title
@@ -55,18 +50,25 @@ def make_summary_match_panel(target,
         None
     """
 
-    # TODO: Compute inplace
+    target_o_to_int = {}
+    target_int_to_o = {}
+
+    if target.dtype == 'O':
+
+        for i, o in enumerate(target.unique()):
+            target_o_to_int[o] = i
+            target_int_to_o[i] = o
+
+        # Make target numerical
+        target = target.map(target_o_to_int)
 
     # Set up figure
     fig = figure(figsize=FIGURE_SIZE)
 
     # Compute the number of row-grids for setting up a figure
     n = 0
-    for name, features, emphasis, features_type, scores, index, alias in multiple_features:
-        n += len(index) + 3
-
-    # Add a row for color bar
-    n += 1
+    for f in multiple_features:
+        n += len(f[5]) + 3
 
     # Set up axis grids
     gridspec = GridSpec(n, 1)
@@ -75,23 +77,23 @@ def make_summary_match_panel(target,
     r_i = 0
     fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
 
-    if indexs == 'only_shared':
-        for name, features, emphasis, features_type, scores, index, alias in multiple_features:
-            if indexs is 'only_shared':
-                indexs = features.columns
+    if indexs == 'shared_by_target_and_all_features':
+
+        indexs = None
+        for f in multiple_features:
+            if indexs is None:
+                indexs = f[1].columns
             else:
-                indexs &= features.columns
+                indexs &= f[1].columns
+
     print('Indexs: {}'.format(indexs))
 
-    for fi, (name, features, emphasis, features_type, scores, index,
+    for fi, (name, features, increasing, features_type, scores, index,
              alias) in enumerate(multiple_features):
 
         target, features = preprocess_target_and_features(
-            target,
-            features,
-            target_ascending,
-            max_n_unique_objects_for_drop_slices,
-            indexs=indexs)
+            target, features, indexs, target_ascending,
+            max_n_unique_objects_for_drop_slices)
 
         # Prepare target for plotting
         target, target_min, target_max, target_cmap = prepare_data_for_plotting(
@@ -101,16 +103,8 @@ def make_summary_match_panel(target,
         features, features_min, features_max, features_cmap = prepare_data_for_plotting(
             features, features_type)
 
-        # Read corresponding match score file
-        if isinstance(scores, str):
-            scores = read_table(scores, index_col=0)
-
-        # Keep only selected features
-        scores = scores.loc[index]
-
-        # Sort by match score
-        scores.sort_values(
-            'Score', ascending=result_in_ascending_order, inplace=True)
+        # Keep only selected features and sort by match score
+        scores = scores.loc[index].sort_values('Score', ascending=increasing)
 
         # Apply the sorted index to featuers
         features = features.loc[scores.index]
@@ -120,32 +114,32 @@ def make_summary_match_panel(target,
 
         print('Making annotations ...')
         annotations = DataFrame(index=scores.index)
-        # Add IC(confidence interval), p-value, and FDR
+
+        # Add IC(confidence interval)
         annotations['IC(\u0394)'] = scores[['Score', '0.95 CI']].apply(
             lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
+
+        # Add p-value
         annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
+
+        # Add FDR
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
-        #
-        # Set up axes
-        #
+        # Plot title
         r_i += 1
         title_ax = subplot(gridspec[r_i:r_i + 1, 0])
         title_ax.axis('off')
 
-        # Plot title
         title_ax.text(
             title_ax.axis()[1] / 2,
-            -title_ax.axis()[2] / 2,
+            0,
             '{} (n={})'.format(name, target.size),
             horizontalalignment='center',
             **FONT_LARGER)
 
-        if fi == 0 or repeat_plotting_target:
-            r_i += 1
-            target_ax = subplot(gridspec[r_i:r_i + 1, 0])
-        else:
-            target_ax = False
+        r_i += 1
+        target_ax = subplot(gridspec[r_i:r_i + 1, 0])
+
         r_i += 1
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
 
@@ -154,6 +148,7 @@ def make_summary_match_panel(target,
         # Plot match
         plot_match(
             target,
+            target_int_to_o,
             features,
             annotations,
             None,
@@ -164,22 +159,6 @@ def make_summary_match_panel(target,
             None,
             target_ax=target_ax,
             features_ax=features_ax)
-
-        # Plot colorbar
-        if r_i == n - 1:
-            colorbar_ax = subplot(gridspec[r_i:r_i + 1, 0])
-            colorbar_ax.axis('off')
-            cax, kw = make_axes(
-                colorbar_ax,
-                location='bottom',
-                pad=0.026,
-                fraction=0.26,
-                shrink=2.6,
-                aspect=26,
-                cmap=target_cmap,
-                norm=Normalize(-3, 3),
-                ticks=range(-3, 4, 1))
-            ColorbarBase(cax, **kw)
 
     if file_path:
         save_plot(file_path)

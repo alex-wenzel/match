@@ -13,6 +13,7 @@ SPACING = 0.05
 
 
 def plot_match(target,
+               target_int_to_o,
                features,
                annotations,
                figure_size,
@@ -35,6 +36,7 @@ def plot_match(target,
         title (str): Plot title
         plot_sample_names (bool): Whether to plot column names
         file_path (str):
+        target_o_to_int (dict):
         target_ax (matplotlib ax):
         features_ax (matplotlib ax):
     Returns:
@@ -67,6 +69,7 @@ def plot_match(target,
     #
     # Plot target
     if target_ax:
+
         heatmap(
             DataFrame(target).T,
             ax=target_ax,
@@ -84,37 +87,44 @@ def plot_match(target,
                             'bottom': True},
             ylabel='')
 
-        if target_type in ('binary', 'categorical'):  # Add labels
+        if target_type in ('binary', 'categorical'):
+            # Add target annotations
 
             # Get boundary indices
-            boundary_is = [0]
+            boundary_indexs = [0]
             prev_v = target[0]
             for i, v in enumerate(target[1:]):
                 if prev_v != v:
-                    boundary_is.append(i + 1)
+                    boundary_indexs.append(i + 1)
                 prev_v = v
-            boundary_is.append(features.shape[1])
+            boundary_indexs.append(features.shape[1])
 
             # Get positions
             label_xs = []
             prev_i = 0
-            for i in boundary_is[1:]:
+            for i in boundary_indexs[1:]:
                 label_xs.append(i - (i - prev_i) / 2)
                 prev_i = i
 
             # Plot values to their corresponding positions
             unique_target_labels = get_uniques_in_order(target.values)
+
             for i, x in enumerate(label_xs):
+
+                if target_int_to_o:
+                    t = target_int_to_o[unique_target_labels[i]]
+
                 target_ax.text(
                     x,
                     -target_ax.axis()[2] / 8,
-                    unique_target_labels[i],
+                    t,
                     horizontalalignment='center',
                     verticalalignment='bottom',
                     rotation=90,
                     **FONT_SMALLER)
 
         if title:
+
             # Plot title
             target_ax.text(
                 target_ax.axis()[1] / 2,

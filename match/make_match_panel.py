@@ -1,4 +1,3 @@
-from numpy import array
 from pandas import DataFrame
 
 from .match import match
@@ -12,9 +11,10 @@ RANDOM_SEED = 20121020
 
 def make_match_panel(target,
                      features,
+                     indexs=(),
                      target_ascending=False,
                      max_n_unique_objects_for_drop_slices=1,
-                     result_in_ascending_order=False,
+                     increasing=False,
                      n_jobs=1,
                      n_features=0.99,
                      max_n_features=100,
@@ -30,13 +30,12 @@ def make_match_panel(target,
     """
     Make match panel.
     Arguments:
-        target (Series): (n_samples)
+        target (iterable): (n_samples)
         features (DataFrame): (n_features, n_samples)
         target_ascending (bool): True if target increase from left to right,
             and False right to left
         max_n_unique_objects_for_drop_slices (int):
-        result_in_ascending_order (bool): True if result increase from top to
-            bottom, and False bottom to top
+        increasing (bool): True (scores increase from top to bottom) | False
         n_jobs (int): Number of multiprocess jobs
         n_features (number): Number of features to compute CI and
             plot; number threshold if 1 <=, percentile threshold if < 1, and
@@ -59,26 +58,39 @@ def make_match_panel(target,
             'p-value', 'FDR'))
     """
 
+    target_o_to_int = {}
+    target_int_to_o = {}
+
+    if target.dtype == 'O':
+
+        for i, o in enumerate(target.unique()):
+            target_o_to_int[o] = i
+            target_int_to_o[i] = o
+
+        # Make target numerical
+        target = target.map(target_o_to_int)
+
     target, features = preprocess_target_and_features(
-        target, features, target_ascending,
+        target, features, indexs, target_ascending,
         max_n_unique_objects_for_drop_slices)
 
     print('Matching ...')
     scores = match(
-        array(target),
-        array(features),
+        target.values,
+        features.values,
         n_jobs=n_jobs,
         n_features=n_features,
         n_samplings=n_samplings,
         n_permutations=n_permutations,
         random_seed=random_seed)
+
     scores.index = features.index
-    scores.sort_values(
-        'Score', ascending=result_in_ascending_order, inplace=True)
+
+    scores.sort_values('Score', ascending=increasing, inplace=True)
 
     if file_path_prefix:
         file_path_txt = file_path_prefix + '.match.txt'
-        file_path_pdf = file_path_prefix + '.match.pdf'
+        file_path_pdf = file_path_prefix + '.match.png'
         establish_path(file_path_txt)
         scores.to_csv(file_path_txt, sep='\t')
     else:
@@ -93,14 +105,20 @@ def make_match_panel(target,
 
     print('Making annotations ...')
     annotations = DataFrame(index=scores_to_plot.index)
-    # Add IC(confidence interval), p-value, and FDR
+
+    # Add IC(confidence interval)
     annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 CI']].apply(
         lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
+
+    # Add p-value
     annotations['p-value'] = scores_to_plot['p-value'].apply('{:.2e}'.format)
+
+    # Add FDR
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     print('Plotting match panel ...')
-    plot_match(target, features_to_plot, annotations, figure_size, target_type,
-               features_type, title, plot_sample_names, file_path_pdf)
+    plot_match(target, target_int_to_o, features_to_plot, annotations,
+               figure_size, target_type, features_type, title,
+               plot_sample_names, file_path_pdf)
 
     return scores
