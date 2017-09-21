@@ -5,7 +5,7 @@ from seaborn import heatmap
 
 from .plot.plot.decorate import decorate
 from .plot.plot.plot import save_plot
-from .plot.plot.style import FONT_LARGEST, FONT_SMALLER, FONT_STANDARD
+from .plot.plot.style import FONT_LARGEST, FONT_SMALLEST, FONT_STANDARD
 from .prepare_data_for_plotting import prepare_data_for_plotting
 from .support.support.iterable import get_uniques_in_order
 
@@ -22,6 +22,7 @@ def plot_match(target,
                title,
                plot_sample_names,
                file_path,
+               dpi,
                target_colormap=None,
                target_ax=None,
                features_ax=None):
@@ -38,7 +39,8 @@ def plot_match(target,
         title (str): Plot title
         plot_sample_names (bool): Whether to plot column names
         file_path (str):
-
+        dpi (int):
+        target_colormap (matplotlib.Colormap):
         target_ax (matplotlib ax):
         features_ax (matplotlib ax):
     Returns:
@@ -78,8 +80,6 @@ def plot_match(target,
         heatmap(
             DataFrame(target).T,
             ax=target_ax,
-            vmin=target_min,
-            vmax=target_max,
             cmap=target_cmap,
             xticklabels=False,
             yticklabels=bool(target.name),
@@ -126,7 +126,7 @@ def plot_match(target,
                     horizontalalignment='center',
                     verticalalignment='bottom',
                     rotation=90,
-                    **FONT_SMALLER)
+                    **FONT_SMALLEST)
 
         if title:
 
@@ -149,8 +149,6 @@ def plot_match(target,
     heatmap(
         features,
         ax=features_ax,
-        vmin=features_min,
-        vmax=features_max,
         cmap=features_cmap,
         xticklabels=plot_sample_names,
         cbar=False)
@@ -172,4 +170,4 @@ def plot_match(target,
 
     # Save
     if file_path:
-        save_plot(file_path)
+        save_plot(file_path, dpi=dpi)

@@ -27,7 +27,8 @@ def make_match_panel(target,
                      features_type='continuous',
                      title=None,
                      plot_sample_names=False,
-                     file_path_prefix=None):
+                     file_path_prefix=None,
+                     dpi=100):
     """
     Make match panel.
     Arguments:
@@ -54,6 +55,7 @@ def make_match_panel(target,
         plot_sample_names (bool): Whether to plot column names
         file_path_prefix (str): file_path_prefix.match.txt and
             file_path_prefix.match.pdf will be saved
+        dpi (int):
     Returns:
         DataFrame; (n_features, 4 ('Score', '<confidence_interval> CI',
             'p-value', 'FDR'))
@@ -129,6 +131,7 @@ def make_match_panel(target,
         title,
         plot_sample_names,
         file_path_pdf,
+        dpi,
         target_colormap=target_colormap)
 
     return scores

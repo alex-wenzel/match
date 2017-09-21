@@ -3,6 +3,7 @@ from pandas import DataFrame, Series
 
 from .array_nd.array_nd.array_1d import normalize as array_1d_normalize
 from .array_nd.array_nd.array_2d import normalize as array_2d_normalize
+from .plot.plot.make_random_colormap import make_random_colormap
 from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION)
 
@@ -34,7 +35,15 @@ def prepare_data_for_plotting(a, data_type, max_std=3):
         return a, -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
 
     elif data_type == 'categorical':
-        return a.copy(), 0, unique(a).size, CMAP_CATEGORICAL_TAB20
+        n = a.unique().size
+
+        if CMAP_CATEGORICAL_TAB20.N < n:
+            # Make and use a Colormap with random colors
+            cmap = make_random_colormap(n_colors=n)
+        else:
+            cmap = CMAP_CATEGORICAL_TAB20
+
+        return a.copy(), 0, unique(a).size, cmap
 
     elif data_type == 'binary':
         return a.copy(), 0, 1, CMAP_BINARY_BW
