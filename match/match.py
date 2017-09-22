@@ -19,7 +19,8 @@ def match(target,
           features,
           function=compute_information_coefficient,
           n_jobs=1,
-          n_features=0.95,
+          n_features=0.99,
+          max_n_features=100,
           n_samplings=30,
           confidence_interval=0.95,
           n_permutations=30,
@@ -30,35 +31,31 @@ def match(target,
     Arguments:
         target (array): (n_samples)
         features (array): (n_features, n_samples)
-        function (callable)
-        n_jobs (int); Number of multiprocess jobs
-        n_features (number): Number of features to compute CI; number
-            threshold if 1 <=, percentile threshold if < 1, and don't compute if
-            None
-        n_samplings (int): Number of bootstrap samplings to build
-            distributions to get CI; must be 2 < to compute CI
+        function (callable):
+        n_jobs (int): Number of multiprocess jobs
+        n_features (number): Number of features to compute CI and
+            plot; number threshold if 1 <=, percentile threshold if < 1, and
+            don't compute if None
+        max_n_features (int):
+        n_samplings (int): Number of bootstrap samplings to build distribution
+            to get CI; must be 2 < to compute CI
         confidence_interval (float): CI
-        n_permutations (int): Number of permutations for computing p-value
-            and FDR
+        n_permutations (int): Number of permutations for permutation test to
+            compute p-values and FDR
         random_seed (int | array):
     Returns:
-        DataFrame: (n_features, 4 ('Score', '<confidence_interval> CI',
-            'p-value', 'FDR'))
+        DataFrame: (n_features, 4 ['Score', '<confidence_interval> CI',
+            'p-value', 'FDR'])
     """
 
     results = DataFrame(columns=[
-        'Score',
-        '{} CI'.format(confidence_interval),
-        'p-value',
-        'FDR',
+        'Score', '{} CI'.format(confidence_interval), 'p-value', 'FDR'
     ])
 
-    # Split features for parallel computing
-    print('Using {} process{} ...'.format(n_jobs, ['es', ''][n_jobs == 1]))
+    print('Matching using {} process ...'.format(n_jobs))
     split_features = array_split(features, n_jobs)
 
     print('Computing scores[i] = function(target, features[i]) ...')
-
     results['Score'] = concatenate(
         multiprocess(multiprocess_score, [(target, fs, function)
                                           for fs in split_features], n_jobs))
@@ -71,9 +68,10 @@ def match(target,
     else:
         print('\tWith {} bootstrapped distributions ...'.format(n_samplings))
 
-    indices = get_top_and_bottom_indices(results, 'Score', n_features)
+    indices = get_top_and_bottom_indices(
+        results, 'Score', n_features, max_n=max_n_features)
 
-    results.ix[indices, '{} CI'.format(
+    results.loc[indices, '{} CI'.format(
         confidence_interval)] = compute_confidence_interval(
             target,
             features[indices],
@@ -89,7 +87,6 @@ def match(target,
         print('\tBy scoring against {} permuted targets ...'.format(
             n_permutations))
 
-    # Permute and score
     permutation_scores = concatenate(
         multiprocess(multiprocess_permute_and_score,
                      [(target, f, function, n_permutations, random_seed)
@@ -97,7 +94,6 @@ def match(target,
 
     p_values, fdrs = compute_p_values_and_fdrs(results['Score'],
                                                permutation_scores.flatten())
-
     results['p-value'] = p_values
     results['FDR'] = fdrs
 
@@ -115,15 +111,14 @@ def compute_p_values_and_fdrs(values, random_values):
         array: (n_features); FDRs
     """
 
-    # Compute p-values
-
+    # Compute p-value
     p_values_g = array([compute_p_value(v, random_values) for v in values])
     p_values_l = array(
         [compute_p_value(v, random_values, greater=False) for v in values])
 
     p_values = where(p_values_g < p_values_l, p_values_g, p_values_l)
 
-    # Compute FDRs
+    # Compute FDR
     fdrs_g = multipletests(p_values_g, method='fdr_bh')[1]
     fdrs_l = multipletests(p_values_l, method='fdr_bh')[1]
 
