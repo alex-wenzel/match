@@ -41,21 +41,15 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
         None
     """
 
-    # Normalize target for plotting
-    target = Series(
-        array_1d_normalize(target.values, method='-0-'),
-        name=target.name,
-        index=target.index)
-
-    # Normalize featuers for plotting
-    features = DataFrame(
-        array_2d_normalize(features.values, method='-0-', axis=1),
-        index=features.index,
-        columns=features.columns)
-
     # Set target min, max, and colormap
     if target_type == 'continuous':
+        # Normalize target for plotting
+        target = Series(
+            array_1d_normalize(target.values, method='-0-'),
+            name=target.name,
+            index=target.index)
         target_min, target_max, target_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+
     elif target_type == 'categorical':
         n = unique(target).size
         if CMAP_CATEGORICAL_TAB20.N < n:
@@ -64,14 +58,22 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
         else:
             cmap = CMAP_CATEGORICAL_TAB20
         target_min, target_max, target_cmap = 0, n, cmap
+
     elif target_type == 'binary':
         target_min, target_max, target_cmap = 0, 1, CMAP_BINARY_BW
+
     else:
         raise ValueError('Unknown target_type: {}.'.format(target_type))
 
     # Set features min, max, and colormap
     if features_type == 'continuous':
+        # Normalize featuers for plotting
+        features = DataFrame(
+            array_2d_normalize(features.values, method='-0-', axis=1),
+            index=features.index,
+            columns=features.columns)
         features_min, features_max, features_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+
     elif features_type == 'categorical':
         n = unique(features).size
         if CMAP_CATEGORICAL_TAB20.N < n:
@@ -80,8 +82,10 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
         else:
             cmap = CMAP_CATEGORICAL_TAB20
         features_min, features_max, features_cmap = 0, n, cmap
+
     elif features_type == 'binary':
         features_min, features_max, features_cmap = 0, 1, CMAP_BINARY_BW
+
     else:
         raise ValueError('Unknown features_type: {}.'.format(features_type))
 

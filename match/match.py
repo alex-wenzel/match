@@ -1,7 +1,7 @@
 from math import ceil, sqrt
 
 from numpy import (apply_along_axis, array, array_split, concatenate, empty,
-                   where)
+                   isnan, where)
 from numpy.random import choice, get_state, seed, set_state, shuffle
 from pandas import DataFrame
 from scipy.stats import norm
@@ -271,5 +271,13 @@ def score(target, features, function):
         array: (n_features)
     """
 
-    return apply_along_axis(lambda feature: function(target, feature), 1,
-                            features)
+    def f(x, y):
+        """
+        """
+        # Drop indices with missing value in either x or y
+        nans = isnan(x) | isnan(y)
+        x = x[~nans]
+        y = y[~nans]
+        return function(x, y)
+
+    return apply_along_axis(f, 1, features)

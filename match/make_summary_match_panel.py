@@ -22,6 +22,7 @@ def make_summary_match_panel(
         title='Summary Match Panel',
         target_type='continuous',
         features_type='continuous',
+        max_std=3,
         plot_sample_names=False,
         file_path=None,
         dpi=100):
@@ -51,6 +52,7 @@ def make_summary_match_panel(
         title (str): Plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
+        max_std (number):
         plot_sample_names (bool): Whether to plot column names
         file_path (str):
         dpi (int):
@@ -87,7 +89,7 @@ def make_summary_match_panel(
         # Extract specified indexs from features
         features = features.loc[features_indexs]
 
-        # Sort target and features.columns
+        # Sort target and features.columns (based on target.index)
         target = target.loc[columns & features.columns].sort_values(
             ascending=target_ascending or target.dtype == 'O')
         features = features[target.index]
@@ -107,6 +109,7 @@ def make_summary_match_panel(
             features = features.iloc[:, columns]
 
         if scores is None:
+            # Match
             scores = match(
                 target.values,
                 features.values,
@@ -131,19 +134,18 @@ def make_summary_match_panel(
 
         # Make annotations
         annotations = DataFrame(index=scores.index)
-        # Make IC(confidence interval)
+        # Make IC(confidence interval)s
         annotations['IC(\u0394)'] = scores[['Score', '0.95 CI']].apply(
             lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-        # Make p-value
+        # Make p-values
         annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
-        # Make FDR
+        # Make FDRs
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
         # Plot features title
         title_ax = subplot(gridspec[r_i:r_i + 1, 0])
         r_i += 1
         title_ax.axis('off')
-
         title_ax.text(
             title_ax.axis()[1] / 2,
             0,
@@ -158,10 +160,10 @@ def make_summary_match_panel(
         r_i += features.shape[0]
 
         # Plot match panel
-        plot_match(target, target_int_to_o, features, annotations, None,
-                   target_ax, features_ax, target_type, features_type, None,
-                   plot_sample_names and fi == len(multiple_features) - 1,
-                   None, dpi)
+        plot_match(target, target_int_to_o, features, max_std, annotations,
+                   None, target_ax, features_ax, target_type, features_type,
+                   None, plot_sample_names
+                   and fi == len(multiple_features) - 1, None, dpi)
 
     if file_path:
         save_plot(file_path)
