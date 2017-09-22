@@ -1,26 +1,32 @@
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
-from pandas import DataFrame
+from numpy import unique
+from pandas import DataFrame, Series
 from seaborn import heatmap
 
+from .array_nd.array_nd.array_1d import normalize as array_1d_normalize
+from .array_nd.array_nd.array_2d import normalize as array_2d_normalize
 from .plot.plot.decorate import decorate
+from .plot.plot.make_random_colormap import make_random_colormap
 from .plot.plot.plot import save_plot
-from .plot.plot.style import FONT_LARGEST, FONT_SMALLEST, FONT_STANDARD
-from .prepare_data_for_plotting import prepare_data_for_plotting
+from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
+                              CMAP_CONTINUOUS_ASSOCIATION, FONT_LARGEST,
+                              FONT_SMALLEST, FONT_STANDARD)
 from .support.support.iterable import get_uniques_in_order
 
 SPACING = 0.05
 
 
-def plot_match(target, target_int_to_o, features, annotations, figure_size,
-               target_ax, features_ax, target_type, features_type, title,
-               plot_sample_names, file_path, dpi):
+def plot_match(target, target_int_to_o, features, max_std, annotations,
+               figure_size, target_ax, features_ax, target_type, features_type,
+               title, plot_sample_names, file_path, dpi):
     """
     Plot matches.
     Arguments:
         target (Series): (n_samples)
         target_int_to_o (dict):
         features (DataFrame): (n_features, n_samples)
+        max_std (number):
         annotations (DataFrame): (n_features, 3)
         figure_size (tuple):
         target_ax (matplotlib ax):
@@ -35,100 +41,129 @@ def plot_match(target, target_int_to_o, features, annotations, figure_size,
         None
     """
 
-    # Prepare target for plotting
-    target, target_min, target_max, target_cmap = prepare_data_for_plotting(
-        target, target_type)
+    # Normalize target for plotting
+    target = Series(
+        array_1d_normalize(target.values, method='-0-'),
+        name=target.name,
+        index=target.index)
 
-    # Prepare features for plotting
-    features, features_min, features_max, features_cmap = prepare_data_for_plotting(
-        features, features_type)
+    # Normalize featuers for plotting
+    features = DataFrame(
+        array_2d_normalize(features.values, method='-0-', axis=1),
+        index=features.index,
+        columns=features.columns)
+
+    # Set target min, max, and colormap
+    if target_type == 'continuous':
+        target_min, target_max, target_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+    elif target_type == 'categorical':
+        n = unique(target).size
+        if CMAP_CATEGORICAL_TAB20.N < n:
+            # Make and use a Colormap with random colors
+            cmap = make_random_colormap(n_colors=n)
+        else:
+            cmap = CMAP_CATEGORICAL_TAB20
+        target_min, target_max, target_cmap = 0, n, cmap
+    elif target_type == 'binary':
+        target_min, target_max, target_cmap = 0, 1, CMAP_BINARY_BW
+    else:
+        raise ValueError('Unknown target_type: {}.'.format(target_type))
+
+    # Set features min, max, and colormap
+    if features_type == 'continuous':
+        features_min, features_max, features_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
+    elif features_type == 'categorical':
+        n = unique(features).size
+        if CMAP_CATEGORICAL_TAB20.N < n:
+            # Make and use a Colormap with random colors
+            cmap = make_random_colormap(n_colors=n)
+        else:
+            cmap = CMAP_CATEGORICAL_TAB20
+        features_min, features_max, features_cmap = 0, n, cmap
+    elif features_type == 'binary':
+        features_min, features_max, features_cmap = 0, 1, CMAP_BINARY_BW
+    else:
+        raise ValueError('Unknown features_type: {}.'.format(features_type))
 
     # Set up figure
     if not figure_size:
         figure_size = (min(pow(features.shape[1], 0.8), 10), pow(
             features.shape[0], 0.8))
 
-    figure(figsize=figure_size)
-
-    # Set up grids & axes
+    # Set up grids and axes if target_ax or features_ax is not specified
     if target_ax is None or features_ax is None:
+        figure(figsize=figure_size)
         gridspec = GridSpec(features.shape[0] + 1, 1)
         target_ax = subplot(gridspec[:1, 0])
         features_ax = subplot(gridspec[1:, 0])
 
-    # Plot title, target heatmap, target label, and annotation header
-    if target_ax:
+    # Plot target heatmap
+    heatmap(
+        DataFrame(target).T,
+        ax=target_ax,
+        vmin=target_min,
+        vmax=target_max,
+        cmap=target_cmap,
+        xticklabels=False,
+        yticklabels=bool(target.name),
+        cbar=False)
 
-        # Plot target heatmap
-        heatmap(
-            DataFrame(target).T,
-            ax=target_ax,
-            vmin=target_min,
-            vmax=target_max,
-            cmap=target_cmap,
-            xticklabels=False,
-            yticklabels=bool(target.name),
-            cbar=False)
+    # Decorate target heatmap
+    decorate(
+        ax=target_ax, despine_kwargs={'left': True,
+                                      'bottom': True}, ylabel='')
 
-        # Decorate target heatmap
-        decorate(
-            ax=target_ax,
-            despine_kwargs={'left': True,
-                            'bottom': True},
-            ylabel='')
+    # Plot title
+    if title:
+        target_ax.text(
+            target_ax.axis()[1] / 2,
+            -target_ax.axis()[2],
+            title,
+            horizontalalignment='center',
+            **FONT_LARGEST)
 
-        # Plot title
-        if title:
+    # Plot target label
+    if target_type in ('binary', 'categorical'):
 
-            target_ax.text(
-                target_ax.axis()[1] / 2,
-                -target_ax.axis()[2],
-                title,
-                horizontalalignment='center',
-                **FONT_LARGEST)
+        # Get boundary index
+        boundary_indexs = [0]
+        prev_v = target[0]
+        for i, v in enumerate(target[1:]):
+            if prev_v != v:
+                boundary_indexs.append(i + 1)
+            prev_v = v
+        boundary_indexs.append(features.shape[1])
+
+        # Get label position
+        label_positions = []
+        prev_i = 0
+        for i in boundary_indexs[1:]:
+            label_positions.append(i - (i - prev_i) / 2)
+            prev_i = i
 
         # Plot target label
-        if target_type in ('binary', 'categorical'):
+        unique_target_labels = get_uniques_in_order(target.values)
+        for i, x in enumerate(label_positions):
 
-            # Get boundary index
-            boundary_indexs = [0]
-            prev_v = target[0]
-            for i, v in enumerate(target[1:]):
-                if prev_v != v:
-                    boundary_indexs.append(i + 1)
-                prev_v = v
-            boundary_indexs.append(features.shape[1])
+            if target_int_to_o:
+                t = target_int_to_o[unique_target_labels[i]]
 
-            # Get label position
-            label_positions = []
-            prev_i = 0
-            for i in boundary_indexs[1:]:
-                label_positions.append(i - (i - prev_i) / 2)
-                prev_i = i
+            target_ax.text(
+                x,
+                -target_ax.axis()[2] / 8,
+                t,
+                horizontalalignment='center',
+                verticalalignment='bottom',
+                rotation=90,
+                **FONT_SMALLEST)
 
-            # Plot target label
-            unique_target_labels = get_uniques_in_order(target.values)
-            for i, x in enumerate(label_positions):
-
-                if target_int_to_o:
-                    t = target_int_to_o[unique_target_labels[i]]
-
-                target_ax.text(
-                    x,
-                    -target_ax.axis()[2] / 8,
-                    t,
-                    horizontalalignment='center',
-                    verticalalignment='bottom',
-                    rotation=90,
-                    **FONT_SMALLEST)
-
-        # Plot annotation header
-        target_ax.text(
-            target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
-            target_ax.axis()[2] / 2,
-            ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 12 + 'FDR',
-            verticalalignment='center',
-            **FONT_STANDARD)
+    # Plot annotation header
+    target_ax.text(
+        target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
+        target_ax.axis()[2] / 2,
+        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 12 + 'FDR',
+        verticalalignment='center',
+        **FONT_STANDARD)
 
     # Plot features heatmap
     heatmap(

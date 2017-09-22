@@ -36,7 +36,7 @@ def make_summary_match_panel(
             Index alias (iterable): Name shown for the features to plot,
             Scores (None | DataFrame): None (to compute match scores) |
                 DataFrame (returned from make_match_panel)
-            score_ascending (bool): True (scores increase from top to bottom) |
+            scores_ascending (bool): True (scores increase from top to bottom) |
                 False
             Feature type (str): 'continuous' | 'categorical' | 'binary',
         ]
@@ -61,50 +61,52 @@ def make_summary_match_panel(
     # Set up figure
     fig = figure(figsize=FIGURE_SIZE)
 
-    # Compute the number of row-grids for setting up a figure
+    # Compute the number of rows needed for plotting
     n = 0
     for f in multiple_features:
         n += len(f[2]) + 3
 
-    # Set up axis grids
+    # Set up ax grids
     gridspec = GridSpec(n, 1)
 
-    # Annotate target with features
-    r_i = 0
+    # Plot title
     fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
+    r_i = 0
 
-    indexs = target.index
+    # Set columns to be plotted
+    columns = target.index
     if plot_only_columns_shared_by_target_and_all_features:
         for f in multiple_features:
-            indexs &= f[1].columns
+            columns &= f[1].columns
 
+    # Plot multiple_features
     for fi, (features_name, features, features_indexs, features_index_aliases,
              scores, scores_ascending,
              features_type) in enumerate(multiple_features):
 
+        # Extract specified indexs from features
         features = features.loc[features_indexs]
 
-        print('Sorting target and features.columns ...')
-        target = target.loc[indexs & features.columns].sort_values(
+        # Sort target and features.columns
+        target = target.loc[columns & features.columns].sort_values(
             ascending=target_ascending or target.dtype == 'O')
         features = features[target.index]
 
         target_o_to_int = {}
         target_int_to_o = {}
         if target.dtype == 'O':
-            print('Making target numerical ...')
+            # Make target numerical
             for i, o in enumerate(target.unique()):
                 target_o_to_int[o] = i
                 target_int_to_o[i] = o
             target = target.map(target_o_to_int)
 
         if target_type in ('binary', 'categorical'):
-            print('Clustering within categories ...')
+            # Cluster within categories
             columns = cluster_within_group(target.values, features.values)
             features = features.iloc[:, columns]
 
         if scores is None:
-            print('Matching ...')
             scores = match(
                 target.values,
                 features.values,
@@ -116,7 +118,7 @@ def make_summary_match_panel(
         else:
             scores = scores.loc[features_indexs]
 
-        print('Sorting score ...')
+        # Sort scores
         scores = scores.sort_values('Score', ascending=scores_ascending)
         features = features.loc[scores.index]
 
@@ -127,7 +129,7 @@ def make_summary_match_panel(
         }
         features.index = features.index.map(lambda i: i_to_a[i])
 
-        print('Making annotations ...')
+        # Make annotations
         annotations = DataFrame(index=scores.index)
         # Make IC(confidence interval)
         annotations['IC(\u0394)'] = scores[['Score', '0.95 CI']].apply(
@@ -137,9 +139,9 @@ def make_summary_match_panel(
         # Make FDR
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
-        # Plot title
-        r_i += 1
+        # Plot features title
         title_ax = subplot(gridspec[r_i:r_i + 1, 0])
+        r_i += 1
         title_ax.axis('off')
 
         title_ax.text(
@@ -149,14 +151,13 @@ def make_summary_match_panel(
             horizontalalignment='center',
             **FONT_LARGER)
 
-        r_i += 1
         target_ax = subplot(gridspec[r_i:r_i + 1, 0])
-
         r_i += 1
-        features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
 
+        features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
         r_i += features.shape[0]
-        print('Plotting match panel ...')
+
+        # Plot match panel
         plot_match(target, target_int_to_o, features, annotations, None,
                    target_ax, features_ax, target_type, features_type, None,
                    plot_sample_names and fi == len(multiple_features) - 1,
