@@ -12,19 +12,9 @@ from .support.support.iterable import get_uniques_in_order
 SPACING = 0.05
 
 
-def plot_match(target,
-               target_int_to_o,
-               features,
-               annotations,
-               figure_size,
-               target_type,
-               features_type,
-               title,
-               plot_sample_names,
-               file_path,
-               dpi,
-               target_ax=None,
-               features_ax=None):
+def plot_match(target, target_int_to_o, features, annotations, figure_size,
+               target_ax, features_ax, target_type, features_type, title,
+               plot_sample_names, file_path, dpi):
     """
     Plot matches.
     Arguments:
@@ -33,14 +23,14 @@ def plot_match(target,
         features (DataFrame): (n_features, n_samples)
         annotations (DataFrame): (n_features, 3)
         figure_size (tuple):
+        target_ax (matplotlib ax):
+        features_ax (matplotlib ax):
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): Plot title
         plot_sample_names (bool): Whether to plot column names
         file_path (str):
         dpi (int):
-        target_ax (matplotlib ax):
-        features_ax (matplotlib ax):
     Returns:
         None
     """

@@ -9,8 +9,8 @@ from statsmodels.sandbox.stats.multicomp import multipletests
 
 from .information.information.information import \
     compute_information_coefficient
-from .support.support.df import get_top_and_bottom_indices
 from .support.support.multiprocess import multiprocess
+from .support.support.s import get_top_and_bottom_indexs
 
 RANDOM_SEED = 20121020
 
@@ -62,19 +62,19 @@ def match(target,
 
     print('Computing {} CI ...'.format(confidence_interval))
     if n_samplings < 2:
-        print('\tSkipping because n_samplings < 2.')
+        print('\tskipped because n_samplings < 2.')
     elif ceil(0.632 * target.size) < 3:
-        print('\tSkipping because 0.632 * n_samples < 3.')
+        print('\tskipped because 0.632 * n_samples < 3.')
     else:
-        print('\tWith {} bootstrapped distributions ...'.format(n_samplings))
+        print('\twith {} bootstrapped distributions ...'.format(n_samplings))
 
-    indices = get_top_and_bottom_indices(
-        results, 'Score', n_features, max_n=max_n_features)
+    indexs = get_top_and_bottom_indexs(
+        results['Score'], n_features, max_n=max_n_features)
 
-    results.loc[indices, '{} CI'.format(
+    results.loc[indexs, '{} CI'.format(
         confidence_interval)] = compute_confidence_interval(
             target,
-            features[indices],
+            features[indexs],
             function,
             n_samplings=n_samplings,
             confidence_interval=confidence_interval,
@@ -82,9 +82,9 @@ def match(target,
 
     print('Computing p-value and FDR ...')
     if n_permutations < 1:
-        print('\tSkipping because n_perm < 1.')
+        print('\tskipped because n_perm < 1.')
     else:
-        print('\tBy scoring against {} permuted targets ...'.format(
+        print('\tby scoring against {} permuted targets ...'.format(
             n_permutations))
 
     permutation_scores = concatenate(

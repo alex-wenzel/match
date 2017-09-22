@@ -3,8 +3,8 @@ from pandas import DataFrame
 from .array_nd.array_nd.array_2d import cluster_within_group
 from .match import match
 from .plot_match import plot_match
-from .support.support.df import get_top_and_bottom_indices
 from .support.support.path import establish_path
+from .support.support.s import get_top_and_bottom_indexs
 
 RANDOM_SEED = 20121020
 
@@ -58,19 +58,19 @@ def make_match_panel(target,
             'p-value', 'FDR'))
     """
 
-    if not target.index.symmetrix_difference(features.columns).empty:
+    if not target.index.symmetric_difference(features.columns).empty:
         raise ValueError(
             'target.index and features.columns have different object.')
 
-    print('Sorting target and features.columns ...')
+    print('Sorting target and features.columns (based on target.index) ...')
     target = target.sort_values(ascending=target_ascending
                                 or target.dtype == 'O')
     features = features[target.index]
 
+    target_o_to_int = {}
+    target_int_to_o = {}
     if target.dtype == 'O':
         print('Making target numerical ...')
-        target_o_to_int = {}
-        target_int_to_o = {}
         for i, o in enumerate(target.unique()):
             target_o_to_int[o] = i
             target_int_to_o[i] = o
@@ -108,28 +108,25 @@ def make_match_panel(target,
         file_path_plot = None
 
     # Keep only scores and features to plot
-    indices = get_top_and_bottom_indices(
-        scores, 'Score', n_features, max_n=max_n_features)
+    indexs = get_top_and_bottom_indexs(
+        scores['Score'], n_features, max_n=max_n_features)
 
-    scores_to_plot = scores.loc[indices]
-    features_to_plot = features.loc[indices]
+    scores_to_plot = scores.loc[indexs]
+    features_to_plot = features.loc[indexs]
 
     print('Making annotations ...')
     annotations = DataFrame(index=scores_to_plot.index)
-
     # Make IC(confidence interval)
     annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 CI']].apply(
         lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-
     # Make p-value
     annotations['p-value'] = scores_to_plot['p-value'].apply('{:.2e}'.format)
-
     # Make FDR
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     print('Plotting match panel ...')
     plot_match(target, target_int_to_o, features_to_plot, annotations,
-               figure_size, target_type, features_type, title,
+               figure_size, None, None, target_type, features_type, title,
                plot_sample_names, file_path_plot, dpi)
 
     return scores
