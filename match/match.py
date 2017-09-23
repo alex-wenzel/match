@@ -1,11 +1,8 @@
-from math import ceil, sqrt
+from math import ceil
 
-from numpy import (apply_along_axis, array, array_split, concatenate, empty,
-                   isnan, where)
+from numpy import apply_along_axis, array, array_split, concatenate, empty
 from numpy.random import choice, get_state, seed, set_state, shuffle
 from pandas import DataFrame
-from scipy.stats import norm
-from statsmodels.sandbox.stats.multicomp import multipletests
 
 from .information.information.information import \
     compute_information_coefficient
@@ -140,19 +137,6 @@ def compute_margin_of_errors(target,
     return apply_along_axis(compute_margin_of_error, 1, feature_x_sampling)
 
 
-def compute_margin_of_error(a, confidence=0.95):
-    """
-    Compute margin of error.
-    Arguments:
-        a (array):
-        confidence (float):
-    Returns:
-        float
-    """
-
-    return norm.ppf(q=confidence) * a.std() / sqrt(a.size)
-
-
 def permute_and_match_target_and_features(target,
                                           features,
                                           function,
@@ -197,65 +181,6 @@ def permute_and_match_target_and_features(target,
     return feature_x_permutation
 
 
-def compute_p_values_and_fdrs(values, random_values):
-    """
-    Compute p-values and FDRs.
-    Arguments:
-        values (array): (n_features)
-        random_values (array): (n_random_values)
-    Returns:
-        array: (n_features); p-values
-        array: (n_features); FDRs
-    """
-
-    # Compute p-value
-    p_values_l = array(
-        [compute_p_value(v, random_values, 'left') for v in values])
-
-    p_values_r = array(
-        [compute_p_value(v, random_values, 'right') for v in values])
-
-    # Take smaller p-value
-    p_values = where(p_values_l < p_values_r, p_values_l, p_values_r)
-
-    # Compute FDR
-    fdrs_l = multipletests(p_values_l, method='fdr_bh')[1]
-    fdrs_r = multipletests(p_values_r, method='fdr_bh')[1]
-
-    # Take smaller FDR
-    fdrs = where(fdrs_l < fdrs_r, fdrs_l, fdrs_r)
-
-    return p_values, fdrs
-
-
-def compute_p_value(value, random_values, direction):
-    """
-    Compute a p-value.
-    Arguments:
-        value (float):
-        random_values (array):
-        direction (str): 'left' | 'right'
-    Returns:
-        float: p-value
-    """
-
-    if direction == 'left':
-        significant_random = random_values <= value
-
-    elif direction == 'right':
-        significant_random = value <= random_values
-
-    else:
-        raise ValueError('Unknown direction: {}.'.format(direction))
-
-    p_value = significant_random.sum() / random_values.size
-
-    if not p_value:
-        p_value = 1 / random_values.size
-
-    return p_value
-
-
 def match_target_and_features(target, features, function):
     """
     Remove indexs that are nan in either target or features[i] and compute:
@@ -270,21 +195,3 @@ def match_target_and_features(target, features, function):
 
     return apply_along_axis(remove_nans_and_match_a0_and_a1, 1, features,
                             target, function)
-
-
-def remove_nans_and_match_a0_and_a1(a0, a1, function):
-    """
-    Remove indexs that are nan in either a0 or a1 and call function(a0, a1).
-    Arguments:
-        a0 (array): (n)
-        a1 (array): (n)
-        function (callable):
-    Returns:
-        float:
-    """
-
-    nans = isnan(a0) | isnan(a1)
-    a0 = a0[~nans]
-    a1 = a1[~nans]
-
-    return function(a0.astype(float), a1.astype(float))
