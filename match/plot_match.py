@@ -130,18 +130,18 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
     if target_type in ('binary', 'categorical'):
 
         # Get boundary index
-        boundary_indexs = [0]
+        boundary_indices = [0]
         prev_v = target[0]
         for i, v in enumerate(target[1:]):
             if prev_v != v:
-                boundary_indexs.append(i + 1)
+                boundary_indices.append(i + 1)
             prev_v = v
-        boundary_indexs.append(features.shape[1])
+        boundary_indices.append(features.shape[1])
 
         # Get label position
         label_positions = []
         prev_i = 0
-        for i in boundary_indexs[1:]:
+        for i in boundary_indices[1:]:
             label_positions.append(i - (i - prev_i) / 2)
             prev_i = i
 

@@ -82,12 +82,12 @@ def make_summary_match_panel(
             columns &= f[1].columns
 
     # Plot multiple_features
-    for fi, (features_name, features, features_indexs, features_index_aliases,
+    for fi, (features_name, features, features_indices, features_index_aliases,
              scores, scores_ascending,
              features_type) in enumerate(multiple_features):
 
-        # Extract specified indexs from features
-        features = features.loc[features_indexs]
+        # Extract specified indices from features
+        features = features.loc[features_indices]
 
         # Sort target and features.columns (based on target.index)
         target = target.loc[columns & features.columns].sort_values(
@@ -119,7 +119,7 @@ def make_summary_match_panel(
                 random_seed=random_seed)
             scores.index = features.index
         else:
-            scores = scores.loc[features_indexs]
+            scores = scores.loc[features_indices]
 
         # Sort scores
         scores = scores.sort_values('Score', ascending=scores_ascending)
@@ -128,7 +128,7 @@ def make_summary_match_panel(
         # Use alias
         i_to_a = {
             i: a
-            for i, a in zip(features_indexs, features_index_aliases)
+            for i, a in zip(features_indices, features_index_aliases)
         }
         features.index = features.index.map(lambda i: i_to_a[i])
 

@@ -7,7 +7,7 @@ from pandas import DataFrame
 from .information.information.information import \
     compute_information_coefficient
 from .support.support.multiprocess import multiprocess
-from .support.support.s import get_top_and_bottom_indexs
+from .support.support.s import get_top_and_bottom_indices
 
 RANDOM_SEED = 20121020
 
@@ -58,17 +58,17 @@ def match(target,
                          for features in array_split(features, n_jobs)],
                      n_jobs))
 
-    # Get top and bottom indexs
-    indexs = get_top_and_bottom_indexs(
+    # Get top and bottom indices
+    indices = get_top_and_bottom_indices(
         results['Score'], n_features, max_n=max_n_features)
 
     # Compute CI
     if 3 <= n_samplings and 3 <= ceil(0.632 * target.size):
 
-        results.loc[indexs, '{} CI'.format(
+        results.loc[indices, '{} CI'.format(
             confidence_interval)] = compute_confidence_interval(
                 target,
-                features[indexs],
+                features[indices],
                 function,
                 n_samplings=n_samplings,
                 confidence_interval=confidence_interval,
@@ -78,7 +78,7 @@ def match(target,
     if 1 <= n_permutations:
 
         permutation_scores = permute_and_match_target_and_features(
-            target, features[indexs], function, n_permutations, random_seed)
+            target, features[indices], function, n_permutations, random_seed)
 
         p_values, fdrs = compute_p_values_and_fdrs(
             results['Score'], permutation_scores.flatten())
@@ -121,9 +121,9 @@ def compute_margin_of_errors(target,
     for i in range(n_samplings):
 
         # Sample randomly
-        random_indexs = choice(target.size, ceil(0.632 * target.size))
-        sampled_target = target[random_indexs]
-        sampled_features = features[:, random_indexs]
+        random_indices = choice(target.size, ceil(0.632 * target.size))
+        sampled_target = target[random_indices]
+        sampled_features = features[:, random_indices]
 
         random_state = get_state()
 
@@ -143,7 +143,7 @@ def permute_and_match_target_and_features(target,
                                           n_permutations=30,
                                           random_seed=RANDOM_SEED):
     """
-    Permute target, remove indexs that are nan in either target or features[i]
+    Permute target, remove indices that are nan in either target or features[i]
         and compute: scores[i] = function(permuted_target, features[i]).
     Arguments:
         target (array): (n_samples)
@@ -183,7 +183,7 @@ def permute_and_match_target_and_features(target,
 
 def match_target_and_features(target, features, function):
     """
-    Remove indexs that are nan in either target or features[i] and compute:
+    Remove indices that are nan in either target or features[i] and compute:
         scores[i] = function(target, features[i]).
     Arguments:
         target (array): (n_samples)

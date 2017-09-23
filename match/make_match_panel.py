@@ -4,7 +4,7 @@ from .array_nd.array_nd.array_2d import cluster_within_group
 from .match import match
 from .plot_match import plot_match
 from .support.support.path import establish_path
-from .support.support.s import get_top_and_bottom_indexs
+from .support.support.s import get_top_and_bottom_indices
 
 RANDOM_SEED = 20121020
 
@@ -107,11 +107,11 @@ def make_match_panel(target,
     else:
         file_path_plot = None
 
-    # Select indexs to plot
-    indexs = get_top_and_bottom_indexs(
+    # Select indices to plot
+    indices = get_top_and_bottom_indices(
         scores['Score'], n_features, max_n=max_n_features)
 
-    scores_to_plot = scores.loc[indexs]
+    scores_to_plot = scores.loc[indices]
     features_to_plot = features.loc[scores_to_plot.index]
 
     # Make annotations
