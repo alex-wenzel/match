@@ -74,8 +74,8 @@ def make_match_panel(target,
     if target.dtype == 'O':
         # Make target numerical
         for i, o in enumerate(target.unique()):
-            target_o_to_int[o] = float(i)
-            target_int_to_o[float(i)] = o
+            target_o_to_int[o] = i
+            target_int_to_o[i] = o
         target = target.map(target_o_to_int)
 
     if target_type in ('binary', 'categorical'):

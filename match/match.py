@@ -53,10 +53,13 @@ def match(target,
     ])
 
     # Compute scores[i] = function(target, features[i]) ...')
+    def f(args):
+        return match_target_and_features(*args)
+
     results['Score'] = concatenate(
-        multiprocess(multiprocess_score, [(target, fs, function)
-                                          for fs in array_split(
-                                              features, n_jobs)], n_jobs))
+        multiprocess(f, [(target, features, function)
+                         for features in array_split(features, n_jobs)],
+                     n_jobs))
 
     # Get top and bottom indexs
     indexs = get_top_and_bottom_indexs(
@@ -77,7 +80,7 @@ def match(target,
     # Compute p-value and FDR
     if 1 <= n_permutations:
 
-        permutation_scores = permute_and_score(
+        permutation_scores = permute_and_match_target_and_features(
             target, features[indexs], function, n_permutations, random_seed)
 
         p_values, fdrs = compute_p_values_and_fdrs(
@@ -89,15 +92,15 @@ def match(target,
     return results
 
 
-def compute_confidence_interval(target,
-                                features,
-                                function,
-                                n_samplings=30,
-                                confidence_interval=0.95,
-                                random_seed=RANDOM_SEED):
+def compute_margin_of_errors(target,
+                             features,
+                             function,
+                             n_samplings=30,
+                             confidence_interval=0.95,
+                             random_seed=RANDOM_SEED):
     """
-    For n_samplings times, randomly choose 63.2% of the samples, score, build
-        score distribution, and compute CI.
+    For n_samplings times, randomly choose 63.2% of the samples and match.
+        Then compute margin of error.
     Arguments:
         target (array): (n_samples); 3 <= 0.632 * n_samples
         features (array): (n_features, n_samples)
@@ -128,31 +131,41 @@ def compute_confidence_interval(target,
         random_state = get_state()
 
         # Score
-        feature_x_sampling[:, i] = score(sampled_target, sampled_features,
-                                         function)
+        feature_x_sampling[:, i] = match_target_and_features(
+            sampled_target, sampled_features, function)
 
         set_state(random_state)
 
     # Compute CI using bootstrapped score distributions
-    # TODO: Simplify calculation
-    return apply_along_axis(
-        lambda f: norm.ppf(q=confidence_interval) * f.std() / sqrt(n_samplings),
-        1,
-        feature_x_sampling)
+    return apply_along_axis(compute_margin_of_error, 1, feature_x_sampling)
 
 
-def permute_and_score(target,
-                      features,
-                      function,
-                      n_permutations=30,
-                      random_seed=RANDOM_SEED):
+def compute_margin_of_error(a, confidence=0.95):
     """
-    Compute: scores[i] = function(permuted_target, features[i])
+    Compute margin of error.
+    Arguments:
+        a (array):
+        confidence (float):
+    Returns:
+        float
+    """
+
+    return norm.ppf(q=confidence) * a.std() / sqrt(a.size)
+
+
+def permute_and_match_target_and_features(target,
+                                          features,
+                                          function,
+                                          n_permutations=30,
+                                          random_seed=RANDOM_SEED):
+    """
+    Permute target, remove indexs that are nan in either target or features[i]
+        and compute: scores[i] = function(permuted_target, features[i]).
     Arguments:
         target (array): (n_samples)
         features (array): (n_features, n_samples)
         function (callable):
-        n_permutations (int):
+        n_permutations (int): 1 <=
         random_seed (int | array):
     Returns:
         array: (n_features, n_permutations)
@@ -165,18 +178,19 @@ def permute_and_score(target,
     feature_x_permutation = empty((features.shape[0], n_permutations))
 
     # Copy for inplace shuffling
-    target = array(target)
+    permuted_target = array(target)
 
     seed(random_seed)
     for i in range(n_permutations):
 
         # Permute
-        shuffle(target)
+        shuffle(permuted_target)
 
         random_state = get_state()
 
         # Score
-        feature_x_permutation[:, i] = score(target, features, function)
+        feature_x_permutation[:, i] = match_target_and_features(
+            permuted_target, features, function)
 
         set_state(random_state)
 
@@ -242,21 +256,10 @@ def compute_p_value(value, random_values, direction):
     return p_value
 
 
-def multiprocess_score(args):
+def match_target_and_features(target, features, function):
     """
-    Score for multiprocess mapping.
-    Arguments:
-        args (iterable): (3); score's arguments
-    Returns:
-        array: (n_features)
-    """
-
-    return score(*args)
-
-
-def score(target, features, function):
-    """
-    Compute: scores[i] = function(target, features[i])
+    Remove indexs that are nan in either target or features[i] and compute:
+        scores[i] = function(target, features[i]).
     Arguments:
         target (array): (n_samples)
         features (array): (n_features, n_samples)
@@ -265,13 +268,23 @@ def score(target, features, function):
         array: (n_features)
     """
 
-    def f(a0, a1):
-        """
-        """
-        # Drop indices with missing value in either x or y
-        nans = isnan(a0) | isnan(a1)
-        a0 = a0[~nans]
-        a1 = a1[~nans]
-        return function(a0, a1)
+    return apply_along_axis(remove_nans_and_match_a0_and_a1, 1, features,
+                            target, function)
 
-    return apply_along_axis(f, 1, features, target)
+
+def remove_nans_and_match_a0_and_a1(a0, a1, function):
+    """
+    Remove indexs that are nan in either a0 or a1 and call function(a0, a1).
+    Arguments:
+        a0 (array): (n)
+        a1 (array): (n)
+        function (callable):
+    Returns:
+        float:
+    """
+
+    nans = isnan(a0) | isnan(a1)
+    a0 = a0[~nans]
+    a1 = a1[~nans]
+
+    return function(a0.astype(float), a1.astype(float))

@@ -13,6 +13,7 @@ def make_comparison_panel(a2d0,
                           function=compute_information_coefficient,
                           axis=0,
                           figure_size=FIGURE_SIZE,
+                          annotate='auto',
                           title=None,
                           a2d0_name='',
                           a2d1_name='',
@@ -24,7 +25,9 @@ def make_comparison_panel(a2d0,
         a2d1 (array | DataFrame):
         function (callable):
         axis (int): 0 | 1
-        annotate (bool): Whether to show values on the clustermap
+        figure_size (tuple):
+        annotate (str | bool): Whether to show values on the clustermap 'auto' |
+            True | False
         title (str): Plot title
         a2d0_name (str): a2d0 name
         a2d1_name (str): a2d1 name
@@ -50,13 +53,13 @@ def make_comparison_panel(a2d0,
         comparison.to_csv(
             '{}.comparison_panel.txt'.format(file_path_prefix), sep='\t')
         plot_file_path = '{}.comparison_panel.png'.format(file_path_prefix)
-
     else:
         plot_file_path = None
 
     plot_clustermap(
         comparison,
         figure_size=figure_size,
+        annotate=annotate,
         title=title,
         xlabel=a2d0_name,
         ylabel=a2d1_name,
