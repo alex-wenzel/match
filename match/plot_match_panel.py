@@ -10,16 +10,16 @@ from .plot.plot.decorate import decorate
 from .plot.plot.make_random_colormap import make_random_colormap
 from .plot.plot.plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
-                              CMAP_CONTINUOUS_ASSOCIATION, FONT_LARGEST,
-                              FONT_SMALLEST, FONT_STANDARD)
+                              CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
+                              FONT_LARGEST, FONT_STANDARD)
+from .support.support.dict_ import merge_dicts_with_function
 from .support.support.iterable import get_unique_objects_in_order
 
-SPACING = 0.05
 
-
-def plot_match(target, target_int_to_o, features, max_std, annotations,
-               figure_size, target_ax, features_ax, target_type, features_type,
-               title, plot_sample_names, file_path, dpi):
+def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
+                     figure_size, target_ax, features_ax, target_type,
+                     features_type, title, target_annotation_kwargs,
+                     plot_sample_names, file_path, dpi):
     """
     Plot matches.
     Arguments:
@@ -34,6 +34,7 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): plot title
+        target_annotation_kwargs (dict):
         plot_sample_names (bool): whether to plot column names
         file_path (str):
         dpi (int):
@@ -91,8 +92,8 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
 
     # Set up figure
     if not figure_size:
-        figure_size = (min(pow(features.shape[1], 0.8), 10), pow(
-            features.shape[0], 0.8))
+        figure_size = (min(pow(features.shape[1], 1.8), FIGURE_SIZE[1]),
+                       features.shape[0])
 
     # Set up grids and axes if target_ax or features_ax is not specified
     if target_ax is None or features_ax is None:
@@ -159,11 +160,12 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
                 horizontalalignment='center',
                 verticalalignment='bottom',
                 rotation=90,
-                **FONT_SMALLEST)
+                **merge_dicts_with_function(
+                    FONT_STANDARD, target_annotation_kwargs, lambda a, b: b))
 
     # Plot annotation header
     target_ax.text(
-        target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
+        target_ax.axis()[1] * 1.018,
         target_ax.axis()[2] / 2,
         ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'FDR',
         verticalalignment='center',
@@ -189,7 +191,7 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
     # Plot annotations
     for i, (a_i, a) in enumerate(annotations.iterrows()):
         features_ax.text(
-            features_ax.axis()[1] + features_ax.axis()[1] * SPACING,
+            target_ax.axis()[1] * 1.018,
             features_ax.axis()[3] + i + 0.5,
             '\t'.join(a.tolist()).expandtabs(),
             verticalalignment='center',

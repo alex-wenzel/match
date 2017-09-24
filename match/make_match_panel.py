@@ -3,7 +3,7 @@ from pandas import DataFrame
 from .array_nd.array_nd.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
 from .match import match
-from .plot_match import plot_match
+from .plot_match_panel import plot_match_panel
 from .support.support.path import establish_path
 from .support.support.s import get_top_and_bottom_indices
 
@@ -21,10 +21,11 @@ def make_match_panel(target,
                      n_permutations=30,
                      random_seed=RANDOM_SEED,
                      figure_size=None,
-                     title=None,
+                     title='Match Panel',
                      target_type='continuous',
                      features_type='continuous',
                      max_std=3,
+                     target_annotation_kwargs={'fontsize': 12},
                      plot_sample_names=False,
                      file_path_prefix=None,
                      dpi=100):
@@ -53,6 +54,7 @@ def make_match_panel(target,
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (number):
+        target_annotation_kwargs (dict):
         plot_sample_names (bool): whether to plot column names
         file_path_prefix (str): file_path_prefix.match.txt and
             file_path_prefix.match.png will be saved
@@ -119,15 +121,16 @@ def make_match_panel(target,
 
     # Make annotations
     annotations = DataFrame(index=scores_to_plot.index)
-    # Make IC(confidence interval)s
+    # Make IC(MoE)s
     annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 MoE']].apply(
         lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
     # Make FDRs
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     # Plot match panel
-    plot_match(target, target_int_to_o, features_to_plot, max_std, annotations,
-               figure_size, None, None, target_type, features_type, title,
-               plot_sample_names, file_path_plot, dpi)
+    plot_match_panel(target, target_int_to_o, features_to_plot, max_std,
+                     annotations, figure_size, None, None, target_type,
+                     features_type, title, target_annotation_kwargs,
+                     plot_sample_names, file_path_plot, dpi)
 
     return scores

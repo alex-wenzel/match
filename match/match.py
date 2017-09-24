@@ -55,13 +55,10 @@ def match(target,
         columns=['Score', '{} MoE'.format(confidence), 'p-value', 'FDR'])
 
     # Match
-    def f(args):
-        return match_target_and_features(*args)
-
     results['Score'] = concatenate(
-        multiprocess(f, [(target, features, function)
-                         for features in array_split(features, n_jobs)],
-                     n_jobs))
+        multiprocess(match_target_and_features, [(
+            target, features_split, function
+        ) for features_split in array_split(features, n_jobs)], n_jobs))
 
     # Get top and bottom indices
     indices = get_top_and_bottom_indices(

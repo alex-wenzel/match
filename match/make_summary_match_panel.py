@@ -7,7 +7,7 @@ from .array_nd.array_nd.cluster_2d_array_slices_by_group import \
 from .match import match
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
-from .plot_match import plot_match
+from .plot_match_panel import plot_match_panel
 
 RANDOM_SEED = 20121020
 
@@ -24,6 +24,7 @@ def make_summary_match_panel(
         target_type='continuous',
         features_type='continuous',
         max_std=3,
+        target_annotation_kwargs={'fontsize': 12},
         plot_sample_names=False,
         file_path=None,
         dpi=100):
@@ -46,7 +47,7 @@ def make_summary_match_panel(
         target_ascending (bool): True if target increase from left to right,
             and False right to left
         n_samplings (int): number of bootstrap samplings to build distribution
-            to get CI; must be 2 < to compute CI
+            to compute MoE; 3 <= n_samplings
         n_permutations (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
@@ -54,6 +55,7 @@ def make_summary_match_panel(
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (number):
+        target_annotation_kwargs (dict):
         plot_sample_names (bool): whether to plot column names
         file_path (str):
         dpi (int):
@@ -86,8 +88,15 @@ def make_summary_match_panel(
     for fi, (features_name, features, features_indices, features_index_aliases,
              scores, scores_ascending,
              features_type) in enumerate(multiple_features):
+        print('Making match panel for {} ...'.format(features_name))
 
         # Extract specified indices from features
+        missing_indices = [
+            i for i in features_indices if i not in features.index
+        ]
+        if any(missing_indices):
+            raise ValueError(
+                'features don\'t have indices {}.'.format(missing_indices))
         features = features.loc[features_indices]
 
         # Sort target and features.columns (based on target.index)
@@ -136,11 +145,9 @@ def make_summary_match_panel(
 
         # Make annotations
         annotations = DataFrame(index=scores.index)
-        # Make IC(confidence interval)s
-        annotations['IC(\u0394)'] = scores[['Score', '0.95 CI']].apply(
+        # Make IC(MoE)s
+        annotations['IC(\u0394)'] = scores[['Score', '0.95 MoE']].apply(
             lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-        # Make p-values
-        annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
         # Make FDRs
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
@@ -162,10 +169,11 @@ def make_summary_match_panel(
         r_i += features.shape[0]
 
         # Plot match panel
-        plot_match(target, target_int_to_o, features, max_std, annotations,
-                   None, target_ax, features_ax, target_type, features_type,
-                   None, plot_sample_names
-                   and fi == len(multiple_features) - 1, None, dpi)
+        plot_match_panel(target, target_int_to_o, features, max_std,
+                         annotations, None, target_ax, features_ax,
+                         target_type, features_type, None,
+                         target_annotation_kwargs, plot_sample_names
+                         and fi == len(multiple_features) - 1, None, dpi)
 
     if file_path:
         save_plot(file_path)
