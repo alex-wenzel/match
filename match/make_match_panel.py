@@ -1,6 +1,7 @@
 from pandas import DataFrame
 
-from .array_nd.array_nd.array_2d import cluster_within_group
+from .array_nd.array_nd.cluster_2d_array_slices_by_group import \
+    cluster_2d_array_slices_by_group
 from .match import match
 from .plot_match import plot_match
 from .support.support.path import establish_path
@@ -30,19 +31,20 @@ def make_match_panel(target,
     """
     Make match panel.
     Arguments:
-        target (Series): (n_samples)
+        target (Series): (n_samples); must be 3 <= 0.632 * n_samples to compute
+            MoE
         features (DataFrame): (n_features, n_samples)
         target_ascending (bool): True if target increase from left to right,
             and False right to left
         n_jobs (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
-        n_features (number): number of features to compute CI and
-            plot; number threshold if 1 <=, percentile threshold if < 1, and
-            don't compute if None
+        n_features (number): number of features to compute MoE, p-value, and
+            FDR; number threshold if 1 <= n_features, percentile threshold
+            if n_features < 1, and don't compute if None
         max_n_features (int):
         n_samplings (int): number of bootstrap samplings to build distribution
-            to get CI; must be 2 < to compute CI
+            to compute MoE; 3 <= n_samplings
         n_permutations (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
@@ -56,8 +58,8 @@ def make_match_panel(target,
             file_path_prefix.match.png will be saved
         dpi (int):
     Returns:
-        DataFrame; (n_features, 4 ('Score', '<confidence_interval> CI',
-            'p-value', 'FDR'))
+        DataFrame: (n_features, 4 ['Score', '<confidence> MoE', 'p-value',
+            'FDR'])
     """
 
     if not target.index.symmetric_difference(features.columns).empty:
@@ -79,8 +81,9 @@ def make_match_panel(target,
         target = target.map(target_o_to_int)
 
     if target_type in ('binary', 'categorical'):
-        # Cluster within categories
-        columns = cluster_within_group(target.values, features.values)
+        # Cluster by group
+        columns = cluster_2d_array_slices_by_group(features.values,
+                                                   target.values)
         features = features.iloc[:, columns]
 
     # Match
@@ -117,10 +120,8 @@ def make_match_panel(target,
     # Make annotations
     annotations = DataFrame(index=scores_to_plot.index)
     # Make IC(confidence interval)s
-    annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 CI']].apply(
+    annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 MoE']].apply(
         lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-    # Make p-values
-    annotations['p-value'] = scores_to_plot['p-value'].apply('{:.2e}'.format)
     # Make FDRs
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 

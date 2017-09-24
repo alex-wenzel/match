@@ -1,8 +1,9 @@
 from numpy import array
 from pandas import DataFrame
 
-from .array_nd.array_nd.array_2d import apply_2
-from .information.information.information import \
+from .array_nd.array_nd.apply_function_on_2_2d_arrays_slices import \
+    apply_function_on_2_2d_arrays_slices
+from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .plot.plot.plot import plot_clustermap
 from .plot.plot.style import FIGURE_SIZE
@@ -37,7 +38,7 @@ def make_comparison_panel(array_2d_0,
         array | DataFrame:
     """
 
-    comparison = apply_2(
+    comparison = apply_function_on_2_2d_arrays_slices(
         array(array_2d_1), array(array_2d_0), function, axis=axis)
 
     if isinstance(array_2d_0, DataFrame):

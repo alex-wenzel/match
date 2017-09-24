@@ -4,6 +4,11 @@ from numpy import apply_along_axis, array, array_split, concatenate, empty
 from numpy.random import choice, get_state, seed, set_state, shuffle
 from pandas import DataFrame
 
+from .array_nd.array_nd.compute_empirical_p_values_and_fdrs import \
+    compute_empirical_p_values_and_fdrs
+from .array_nd.array_nd.compute_margin_of_error import compute_margin_of_error
+from .array_nd.array_nd.drop_nan_and_apply_function_on_2_1d_arrays import \
+    drop_nan_and_apply_function_on_2_1d_arrays
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .support.support.multiprocess import multiprocess
@@ -19,37 +24,37 @@ def match(target,
           n_features=0.99,
           max_n_features=100,
           n_samplings=30,
-          confidence_interval=0.95,
+          confidence=0.95,
           n_permutations=30,
           random_seed=RANDOM_SEED):
     """
-    Compute: scores[i] = function(target, features[i]); confidence interval
-        (CI) for n_features features; p-value; and FDR.
+    Compute: scores[i] = function(target, features[i]); compute margin of error
+        (MoE), p-value, and FDR for n_features features.
     Arguments:
-        target (array): (n_samples)
+        target (array): (n_samples); must be 3 <= 0.632 * n_samples to compute
+            MoE
         features (array): (n_features, n_samples)
         function (callable):
         n_jobs (int): number of multiprocess jobs
-        n_features (number): number of features to compute CI and
-            plot; number threshold if 1 <=, percentile threshold if < 1, and
-            don't compute if None
+        n_features (number): number of features to compute MoE, p-value, and
+            FDR; number threshold if 1 <= n_features, percentile threshold
+            if n_features < 1, and don't compute if None
         max_n_features (int):
         n_samplings (int): number of bootstrap samplings to build distribution
-            to get CI; must be 2 < to compute CI
-        confidence_interval (float): CI
+            to compute MoE; 3 <= n_samplings
+        confidence (float):
         n_permutations (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
     Returns:
-        DataFrame: (n_features, 4 ['Score', '<confidence_interval> CI',
-            'p-value', 'FDR'])
+        DataFrame: (n_features, 4 ['Score', '<confidence> MoE', 'p-value',
+            'FDR'])
     """
 
-    results = DataFrame(columns=[
-        'Score', '{} CI'.format(confidence_interval), 'p-value', 'FDR'
-    ])
+    results = DataFrame(
+        columns=['Score', '{} MoE'.format(confidence), 'p-value', 'FDR'])
 
-    # Compute scores[i] = function(target, features[i]) ...')
+    # Match
     def f(args):
         return match_target_and_features(*args)
 
@@ -62,25 +67,26 @@ def match(target,
     indices = get_top_and_bottom_indices(
         results['Score'], n_features, max_n=max_n_features)
 
-    # Compute CI
+    # Compute MoE
     if 3 <= n_samplings and 3 <= ceil(0.632 * target.size):
 
-        results.loc[indices, '{} CI'.format(
-            confidence_interval)] = compute_confidence_interval(
-                target,
-                features[indices],
-                function,
-                n_samplings=n_samplings,
-                confidence_interval=confidence_interval,
-                random_seed=random_seed)
+        results.loc[indices, '{} MoE'.format(
+            confidence
+        )] = match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
+            target,
+            features[indices],
+            function,
+            n_samplings=n_samplings,
+            confidence=confidence,
+            random_seed=random_seed)
 
     # Compute p-value and FDR
     if 1 <= n_permutations:
 
-        permutation_scores = permute_and_match_target_and_features(
+        permutation_scores = permute_target_and_match_target_and_features(
             target, features[indices], function, n_permutations, random_seed)
 
-        p_values, fdrs = compute_p_values_and_fdrs(
+        p_values, fdrs = compute_empirical_p_values_and_fdrs(
             results['Score'], permutation_scores.flatten())
 
         results['p-value'] = p_values
@@ -89,20 +95,21 @@ def match(target,
     return results
 
 
-def compute_margin_of_errors(target,
-                             features,
-                             function,
-                             n_samplings=30,
-                             confidence_interval=0.95,
-                             random_seed=RANDOM_SEED):
+def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
+        target,
+        features,
+        function,
+        n_samplings=30,
+        confidence=0.95,
+        random_seed=RANDOM_SEED):
     """
-    For n_samplings times, randomly choose 63.2% of the samples and match.
-        Then compute margin of error.
-    Arguments:
-        target (array): (n_samples); 3 <= 0.632 * n_samples
+    Match randomly sampled target and features to compute margin of errors.
+    Arguments
+        target (array): (n_samples); must be 3 <= 0.632 * n_samples to compute
+            MoE
         features (array): (n_features, n_samples)
         function (callable):
-        n_samplings (int): 2 <
+        n_samplings (int): 3 <= n_samplings
         cofidence (float):
         random_seed (int | array):
     Returns:
@@ -110,10 +117,10 @@ def compute_margin_of_errors(target,
     """
 
     if n_samplings < 3:
-        raise ValueError('Cannot compute CI because n_samplings < 3.')
+        raise ValueError('Cannot compute MoE because n_samplings < 3.')
 
     if ceil(0.632 * target.size) < 3:
-        raise ValueError('Cannot compute CI because 0.632 * n_samples < 3.')
+        raise ValueError('Cannot compute MoE because 0.632 * n_samples < 3.')
 
     feature_x_sampling = empty((features.shape[0], n_samplings))
 
@@ -133,23 +140,22 @@ def compute_margin_of_errors(target,
 
         set_state(random_state)
 
-    # Compute CI using bootstrapped score distributions
+    # Compute MoE using bootstrapped score distributions
     return apply_along_axis(compute_margin_of_error, 1, feature_x_sampling)
 
 
-def permute_and_match_target_and_features(target,
-                                          features,
-                                          function,
-                                          n_permutations=30,
-                                          random_seed=RANDOM_SEED):
+def permute_target_and_match_target_and_features(target,
+                                                 features,
+                                                 function,
+                                                 n_permutations=30,
+                                                 random_seed=RANDOM_SEED):
     """
-    Permute target, remove indices that are nan in either target or features[i]
-        and compute: scores[i] = function(permuted_target, features[i]).
+    Permute target and match target and features.
     Arguments:
         target (array): (n_samples)
         features (array): (n_features, n_samples)
         function (callable):
-        n_permutations (int): 1 <=
+        n_permutations (int): 1 <= n_permutations
         random_seed (int | array):
     Returns:
         array: (n_features, n_permutations)
@@ -172,7 +178,7 @@ def permute_and_match_target_and_features(target,
 
         random_state = get_state()
 
-        # Score
+        # Match
         feature_x_permutation[:, i] = match_target_and_features(
             permuted_target, features, function)
 
@@ -183,8 +189,8 @@ def permute_and_match_target_and_features(target,
 
 def match_target_and_features(target, features, function):
     """
-    Remove indices that are nan in either target or features[i] and compute:
-        scores[i] = function(target, features[i]).
+    Drop nan from target and features[i] and compute: scores[i] = function(
+        target, features[i]).
     Arguments:
         target (array): (n_samples)
         features (array): (n_features, n_samples)
@@ -193,5 +199,5 @@ def match_target_and_features(target, features, function):
         array: (n_features)
     """
 
-    return apply_along_axis(remove_nans_and_match_a0_and_a1, 1, features,
-                            target, function)
+    return apply_along_axis(drop_nan_and_apply_function_on_2_1d_arrays, 1,
+                            features, target, function)

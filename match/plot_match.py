@@ -4,15 +4,15 @@ from numpy import unique
 from pandas import DataFrame, Series
 from seaborn import heatmap
 
-from .array_nd.array_nd.array_1d import normalize as array_1d_normalize
-from .array_nd.array_nd.array_2d import normalize as array_2d_normalize
+from .array_nd.array_nd.normalize_1d_array import normalize_1d_array
+from .array_nd.array_nd.normalize_2d_array import normalize_2d_array
 from .plot.plot.decorate import decorate
 from .plot.plot.make_random_colormap import make_random_colormap
 from .plot.plot.plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION, FONT_LARGEST,
                               FONT_SMALLEST, FONT_STANDARD)
-from .support.support.iterable import get_uniques_in_order
+from .support.support.iterable import get_unique_objects_in_order
 
 SPACING = 0.05
 
@@ -45,7 +45,7 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
     if target_type == 'continuous':
         # Normalize target for plotting
         target = Series(
-            array_1d_normalize(target.values, method='-0-'),
+            normalize_1d_array(target.values, method='-0-'),
             name=target.name,
             index=target.index)
         target_min, target_max, target_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
@@ -69,7 +69,7 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
     if features_type == 'continuous':
         # Normalize featuers for plotting
         features = DataFrame(
-            array_2d_normalize(features.values, method='-0-', axis=1),
+            normalize_2d_array(features.values, method='-0-', axis=1),
             index=features.index,
             columns=features.columns)
         features_min, features_max, features_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
@@ -146,7 +146,7 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
             prev_i = i
 
         # Plot target label
-        unique_target_labels = get_uniques_in_order(target.values)
+        unique_target_labels = get_unique_objects_in_order(target.values)
         for i, x in enumerate(label_positions):
 
             if target_int_to_o:
@@ -165,7 +165,7 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
     target_ax.text(
         target_ax.axis()[1] + target_ax.axis()[1] * SPACING,
         target_ax.axis()[2] / 2,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'p-value' + ' ' * 12 + 'FDR',
+        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
 

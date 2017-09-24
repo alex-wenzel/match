@@ -2,7 +2,8 @@ from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
 from pandas import DataFrame
 
-from .array_nd.array_nd.array_2d import cluster_within_group
+from .array_nd.array_nd.cluster_2d_array_slices_by_group import \
+    cluster_2d_array_slices_by_group
 from .match import match
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
@@ -105,7 +106,8 @@ def make_summary_match_panel(
 
         if target_type in ('binary', 'categorical'):
             # Cluster within categories
-            columns = cluster_within_group(target.values, features.values)
+            columns = cluster_2d_array_slices_by_group(features.values,
+                                                       target.values)
             features = features.iloc[:, columns]
 
         if scores is None:
