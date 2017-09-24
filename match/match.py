@@ -4,7 +4,7 @@ from numpy import apply_along_axis, array, array_split, concatenate, empty
 from numpy.random import choice, get_state, seed, set_state, shuffle
 from pandas import DataFrame
 
-from .information.information.information import \
+from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .support.support.multiprocess import multiprocess
 from .support.support.s import get_top_and_bottom_indices
