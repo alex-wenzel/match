@@ -29,15 +29,15 @@ def match(target,
         target (array): (n_samples)
         features (array): (n_features, n_samples)
         function (callable):
-        n_jobs (int): Number of multiprocess jobs
-        n_features (number): Number of features to compute CI and
+        n_jobs (int): number of multiprocess jobs
+        n_features (number): number of features to compute CI and
             plot; number threshold if 1 <=, percentile threshold if < 1, and
             don't compute if None
         max_n_features (int):
-        n_samplings (int): Number of bootstrap samplings to build distribution
+        n_samplings (int): number of bootstrap samplings to build distribution
             to get CI; must be 2 < to compute CI
         confidence_interval (float): CI
-        n_permutations (int): Number of permutations for permutation test to
+        n_permutations (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
     Returns:

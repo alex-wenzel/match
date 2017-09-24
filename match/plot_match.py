@@ -33,8 +33,8 @@ def plot_match(target, target_int_to_o, features, max_std, annotations,
         features_ax (matplotlib ax):
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
-        title (str): Plot title
-        plot_sample_names (bool): Whether to plot column names
+        title (str): plot title
+        plot_sample_names (bool): whether to plot column names
         file_path (str):
         dpi (int):
     Returns:

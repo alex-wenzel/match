@@ -33,8 +33,8 @@ def make_summary_match_panel(
         multiple_features (iterable): [
             Features name (str):,
             Features (DataFrame): (n_features, n_samples),
-            Index (iterable): Features to plot,
-            Index alias (iterable): Name shown for the features to plot,
+            Index (iterable): features to plot,
+            Index alias (iterable): name shown for the features to plot,
             Scores (None | DataFrame): None (to compute match scores) |
                 DataFrame (returned from make_match_panel)
             scores_ascending (bool): True (scores increase from top to bottom) |
@@ -44,16 +44,16 @@ def make_summary_match_panel(
         plot_only_columns_shared_by_target_and_all_features (bool):
         target_ascending (bool): True if target increase from left to right,
             and False right to left
-        n_samplings (int): Number of bootstrap samplings to build distribution
+        n_samplings (int): number of bootstrap samplings to build distribution
             to get CI; must be 2 < to compute CI
-        n_permutations (int): Number of permutations for permutation test to
+        n_permutations (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
-        title (str): Plot title
+        title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (number):
-        plot_sample_names (bool): Whether to plot column names
+        plot_sample_names (bool): whether to plot column names
         file_path (str):
         dpi (int):
     Returns:

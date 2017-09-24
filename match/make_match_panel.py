@@ -34,24 +34,24 @@ def make_match_panel(target,
         features (DataFrame): (n_features, n_samples)
         target_ascending (bool): True if target increase from left to right,
             and False right to left
-        n_jobs (int): Number of multiprocess jobs
+        n_jobs (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
-        n_features (number): Number of features to compute CI and
+        n_features (number): number of features to compute CI and
             plot; number threshold if 1 <=, percentile threshold if < 1, and
             don't compute if None
         max_n_features (int):
-        n_samplings (int): Number of bootstrap samplings to build distribution
+        n_samplings (int): number of bootstrap samplings to build distribution
             to get CI; must be 2 < to compute CI
-        n_permutations (int): Number of permutations for permutation test to
+        n_permutations (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
         figure_size (tuple):
-        title (str): Plot title
+        title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (number):
-        plot_sample_names (bool): Whether to plot column names
+        plot_sample_names (bool): whether to plot column names
         file_path_prefix (str): file_path_prefix.match.txt and
             file_path_prefix.match.png will be saved
         dpi (int):
