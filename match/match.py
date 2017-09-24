@@ -55,6 +55,9 @@ def match(target,
         columns=['Score', '{} MoE'.format(confidence), 'p-value', 'FDR'])
 
     # Match
+    print('Computing match score with {} ({} process) ...'.format(
+        function, n_jobs))
+
     results['Score'] = concatenate(
         multiprocess(match_target_and_features, [(
             target, features_split, function
@@ -114,10 +117,12 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
     """
 
     if n_samplings < 3:
-        raise ValueError('Cannot compute MoE because n_samplings < 3.')
+        raise ValueError('Cannot compute MoEs because n_samplings < 3.')
 
     if ceil(0.632 * target.size) < 3:
-        raise ValueError('Cannot compute MoE because 0.632 * n_samples < 3.')
+        raise ValueError('Cannot compute MoEs because 0.632 * n_samples < 3.')
+
+    print('Computing MoEs with {} samplings ...'.format(n_samplings))
 
     feature_x_sampling = empty((features.shape[0], n_samplings))
 
@@ -161,6 +166,9 @@ def permute_target_and_match_target_and_features(target,
     if n_permutations < 1:
         raise ValueError(
             'Not computing p-value and FDR because n_permutations < 1.')
+
+    print('Computing p-values and FDRs with {} permutations ...'.format(
+        n_permutations))
 
     feature_x_permutation = empty((features.shape[0], n_permutations))
 
