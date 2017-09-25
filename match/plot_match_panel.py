@@ -8,7 +8,7 @@ from .array_nd.array_nd.normalize_1d_array import normalize_1d_array
 from .array_nd.array_nd.normalize_2d_array import normalize_2d_array
 from .plot.plot.decorate import decorate
 from .plot.plot.make_random_colormap import make_random_colormap
-from .plot.plot.plot import save_plot
+from .plot.plot.save_plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGEST, FONT_STANDARD)

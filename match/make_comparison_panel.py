@@ -5,7 +5,7 @@ from .array_nd.array_nd.apply_function_on_2_2d_arrays_slices import \
     apply_function_on_2_2d_arrays_slices
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
-from .plot.plot.plot import plot_clustermap
+from .plot.plot.plot_clustermap import plot_clustermap
 from .plot.plot.style import FIGURE_SIZE
 
 
