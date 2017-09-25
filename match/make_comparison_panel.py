@@ -39,19 +39,19 @@ def make_comparison_panel(array_2d_0,
     """
 
     comparison = apply_function_on_2_2d_arrays_slices(
-        array(array_2d_1), array(array_2d_0), function, axis=axis)
+        array(array_2d_0), array(array_2d_1), function, axis=axis)
 
     if isinstance(array_2d_0, DataFrame):
 
         if axis == 0:
             comparison = DataFrame(
                 comparison,
-                index=array_2d_1.columns,
-                columns=array_2d_0.columns)
+                index=array_2d_0.columns,
+                columns=array_2d_1.columns)
 
         elif axis == 1:
             comparison = DataFrame(
-                comparison, index=array_2d_1.index, columns=array_2d_0.index)
+                comparison, index=array_2d_0.index, columns=array_2d_1.index)
 
     if file_path_prefix:
         comparison.to_csv(
@@ -65,8 +65,8 @@ def make_comparison_panel(array_2d_0,
         figure_size=figure_size,
         annotate=annotate,
         title=title,
-        xlabel=array_2d_0_name,
-        ylabel=array_2d_1_name,
+        xlabel=array_2d_1_name,
+        ylabel=array_2d_0_name,
         file_path=plot_file_path)
 
     return comparison
