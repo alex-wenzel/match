@@ -120,12 +120,14 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
     # Plot title
     if title:
+
         target_ax.text(
-            target_ax.axis()[1] / 2,
-            -target_ax.axis()[2],
+            target_ax.get_xlim()[1] / 2,
+            -1,
             title,
             horizontalalignment='center',
-            **FONT_LARGEST)
+            **merge_dicts_with_function(FONT_LARGEST, {'color': '#9017E6'},
+                                        lambda a, b: b))
 
     # Plot target label
     if target_type in ('binary', 'categorical'):
@@ -155,7 +157,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
             target_ax.text(
                 x,
-                -target_ax.axis()[2] / 8,
+                -0.18,
                 t,
                 horizontalalignment='center',
                 verticalalignment='bottom',
@@ -165,11 +167,21 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
     # Plot annotation header
     target_ax.text(
-        target_ax.axis()[1] * 1.018,
-        target_ax.axis()[2] / 2,
-        ' ' * 6 + 'IC(\u0394)' + ' ' * 12 + 'FDR',
+        target_ax.get_xlim()[1] * 1.018,
+        0.5,
+        ' ' * 3 + 'IC(\u0394)' + ' ' * 15 + 'p-value' + ' ' * 12 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
+
+    # Plot annotation header separator line
+    target_ax.plot(
+        [target_ax.get_xlim()[1] * 1.02,
+         target_ax.get_xlim()[1] * 1.4], [1, 1],
+        '-',
+        linewidth=1,
+        color='#20D9BA',
+        clip_on=False,
+        aa=True)
 
     # Plot features heatmap
     heatmap(
@@ -184,15 +196,17 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
     # Decorate features heatmap
     decorate(
         ax=features_ax,
-        despine_kwargs={'left': True,
-                        'bottom': True},
+        despine_kwargs={
+            'left': True,
+            'bottom': True,
+        },
         ylabel='')
 
     # Plot annotations
     for i, (a_i, a) in enumerate(annotations.iterrows()):
         features_ax.text(
             target_ax.axis()[1] * 1.018,
-            features_ax.axis()[3] + i + 0.5,
+            i + 0.5,
             '\t'.join(a.tolist()).expandtabs(),
             verticalalignment='center',
             **FONT_STANDARD)

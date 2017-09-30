@@ -8,6 +8,7 @@ from .match import match
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
 from .plot_match_panel import plot_match_panel
+from .support.support.dict_ import merge_dicts_with_function
 
 RANDOM_SEED = 20121020
 
@@ -75,7 +76,11 @@ def make_summary_match_panel(
     gridspec = GridSpec(n, 1)
 
     # Plot title
-    fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
+    fig.suptitle(
+        title,
+        horizontalalignment='center',
+        **merge_dicts_with_function(FONT_LARGEST, {'color': '#9017E6'},
+                                    lambda a, b: b))
     r_i = 0
 
     # Set columns to be plotted
@@ -145,6 +150,8 @@ def make_summary_match_panel(
 
         # Make annotations
         annotations = DataFrame(index=scores.index)
+        # Make p-value
+        annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
         # Make IC(MoE)s
         annotations['IC(\u0394)'] = scores[['Score', '0.95 MoE']].apply(
             lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
@@ -156,7 +163,7 @@ def make_summary_match_panel(
         r_i += 1
         title_ax.axis('off')
         title_ax.text(
-            title_ax.axis()[1] / 2,
+            0.5,
             0,
             '{} (n={})'.format(features_name, target.size),
             horizontalalignment='center',
