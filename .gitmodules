@@ -1,9 +1,6 @@
 [submodule "match/support"]
 	path = match/support
 	url = https://github.com/kwatme/support
-[submodule "match/array_nd"]
-	path = match/array_nd
-	url = https://github.com/kwatme/array_nd
 [submodule "match/plot"]
 	path = match/plot
 	url = https://github.com/kwatme/plot
