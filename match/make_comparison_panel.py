@@ -1,7 +1,7 @@
 from numpy import array
 from pandas import DataFrame
 
-from .array_nd.array_nd.apply_function_on_2_2d_arrays_slices import \
+from .nd_array.nd_array.apply_function_on_2_2d_arrays_slices import \
     apply_function_on_2_2d_arrays_slices
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient

@@ -1,6 +1,6 @@
 from pandas import DataFrame
 
-from .array_nd.array_nd.cluster_2d_array_slices_by_group import \
+from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
 from .match import match
 from .plot_match_panel import plot_match_panel

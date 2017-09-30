@@ -4,10 +4,10 @@ from numpy import apply_along_axis, array, array_split, concatenate, empty
 from numpy.random import choice, get_state, seed, set_state, shuffle
 from pandas import DataFrame
 
-from .array_nd.array_nd.compute_empirical_p_values_and_fdrs import \
+from .nd_array.nd_array.compute_empirical_p_values_and_fdrs import \
     compute_empirical_p_values_and_fdrs
-from .array_nd.array_nd.compute_margin_of_error import compute_margin_of_error
-from .array_nd.array_nd.drop_nan_and_apply_function_on_2_1d_arrays import \
+from .nd_array.nd_array.compute_margin_of_error import compute_margin_of_error
+from .nd_array.nd_array.drop_nan_and_apply_function_on_2_1d_arrays import \
     drop_nan_and_apply_function_on_2_1d_arrays
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient

@@ -4,8 +4,8 @@ from numpy import unique
 from pandas import DataFrame, Series
 from seaborn import heatmap
 
-from .array_nd.array_nd.normalize_1d_array import normalize_1d_array
-from .array_nd.array_nd.normalize_2d_array import normalize_2d_array
+from .nd_array.nd_array.normalize_1d_array import normalize_1d_array
+from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
 from .plot.plot.decorate import decorate
 from .plot.plot.make_random_colormap import make_random_colormap
 from .plot.plot.save_plot import save_plot
