@@ -1,9 +1,9 @@
-[submodule "match/nd_array"]
-	path = match/nd_array
-	url = https://github.com/kwatme/nd_array
 [submodule "match/support"]
 	path = match/support
 	url = https://github.com/kwatme/support
+[submodule "match/nd_array"]
+	path = match/nd_array
+	url = https://github.com/kwatme/nd_array
 [submodule "match/information"]
 	path = match/information
 	url = https://github.com/kwatme/information
