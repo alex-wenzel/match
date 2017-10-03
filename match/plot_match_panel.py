@@ -9,7 +9,7 @@ from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
 from .plot.plot.decorate import decorate
 from .plot.plot.make_random_colormap import make_random_colormap
 from .plot.plot.save_plot import save_plot
-from .plot.plot.style import (CMAP_BINARY_BW, CMAP_CATEGORICAL_TAB20,
+from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGEST, FONT_STANDARD)
 from .support.support.dict_ import merge_dicts_with_function
@@ -61,7 +61,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         target_min, target_max, target_cmap = 0, n, cmap
 
     elif target_type == 'binary':
-        target_min, target_max, target_cmap = 0, 1, CMAP_BINARY_BW
+        target_min, target_max, target_cmap = 0, 1, CMAP_BINARY_WB
 
     else:
         raise ValueError('Unknown target_type: {}.'.format(target_type))
@@ -85,7 +85,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         features_min, features_max, features_cmap = 0, n, cmap
 
     elif features_type == 'binary':
-        features_min, features_max, features_cmap = 0, 1, CMAP_BINARY_BW
+        features_min, features_max, features_cmap = 0, 1, CMAP_BINARY_WB
 
     else:
         raise ValueError('Unknown features_type: {}.'.format(features_type))
