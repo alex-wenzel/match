@@ -126,8 +126,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
             -1,
             title,
             horizontalalignment='center',
-            **merge_dicts_with_function(FONT_LARGEST, {'color': '#9017E6'},
-                                        lambda a, b: b))
+            **FONT_LARGEST)
 
     # Plot target label
     if target_type in ('binary', 'categorical'):
