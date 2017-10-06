@@ -121,11 +121,11 @@ def make_match_panel(target,
 
     # Make annotations
     annotations = DataFrame(index=scores_to_plot.index)
-    # Make p-value
-    annotations['p-value'] = scores_to_plot['p-value'].apply('{:.2e}'.format)
     # Make IC(MoE)s
     annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 MoE']].apply(
         lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
+    # Make p-value
+    annotations['p-value'] = scores_to_plot['p-value'].apply('{:.2e}'.format)
     # Make FDRs
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 

@@ -2,9 +2,9 @@ from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
 from pandas import DataFrame
 
+from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
-from .match import match
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
 from .plot_match_panel import plot_match_panel
@@ -150,11 +150,11 @@ def make_summary_match_panel(
 
         # Make annotations
         annotations = DataFrame(index=scores.index)
-        # Make p-value
-        annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
         # Make IC(MoE)s
         annotations['IC(\u0394)'] = scores[['Score', '0.95 MoE']].apply(
             lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
+        # Make p-value
+        annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
         # Make FDRs
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
