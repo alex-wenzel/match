@@ -110,13 +110,16 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         vmax=target_max,
         cmap=target_cmap,
         xticklabels=False,
-        yticklabels=bool(target.name),
+        yticklabels=[target.name],
         cbar=False)
 
     # Decorate target heatmap
     decorate(
-        ax=target_ax, despine_kwargs={'left': True,
-                                      'bottom': True}, ylabel='')
+        ax=target_ax,
+        despine_kwargs={'left': True,
+                        'bottom': True},
+        xlabel='',
+        ylabel='')
 
     # Plot title
     if title:
@@ -153,6 +156,8 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
             if target_int_to_o:
                 t = target_int_to_o[unique_target_labels[i]]
+            else:
+                t = unique_target_labels[i]
 
             target_ax.text(
                 x,
@@ -199,6 +204,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
             'left': True,
             'bottom': True,
         },
+        xlabel='',
         ylabel='')
 
     # Plot annotations
