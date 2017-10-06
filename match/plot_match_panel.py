@@ -7,7 +7,8 @@ from seaborn import heatmap
 from .nd_array.nd_array.normalize_1d_array import normalize_1d_array
 from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
 from .plot.plot.decorate import decorate
-from .plot.plot.make_random_colormap import make_random_colormap
+from .plot.plot.make_random_categorical_colormap import \
+    make_random_categorical_colormap
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
@@ -55,7 +56,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         n = unique(target).size
         if CMAP_CATEGORICAL_TAB20.N < n:
             # Make and use a Colormap with random colors
-            cmap = make_random_colormap(n_colors=n)
+            cmap = make_random_categorical_colormap(n_colors=n)
         else:
             cmap = CMAP_CATEGORICAL_TAB20
         target_min, target_max, target_cmap = 0, n, cmap
@@ -79,7 +80,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         n = unique(features).size
         if CMAP_CATEGORICAL_TAB20.N < n:
             # Make and use a Colormap with random colors
-            cmap = make_random_colormap(n_colors=n)
+            cmap = make_random_categorical_colormap(n_colors=n)
         else:
             cmap = CMAP_CATEGORICAL_TAB20
         features_min, features_max, features_cmap = 0, n, cmap
