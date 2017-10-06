@@ -1,10 +1,10 @@
 from numpy import array
 from pandas import DataFrame
 
-from .nd_array.nd_array.apply_function_on_2_2d_arrays_slices import \
-    apply_function_on_2_2d_arrays_slices
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
+from .nd_array.nd_array.apply_function_on_2_2d_arrays_slices import \
+    apply_function_on_2_2d_arrays_slices
 from .plot.plot.plot_clustermap import plot_clustermap
 from .plot.plot.style import FIGURE_SIZE
 
@@ -26,7 +26,7 @@ def make_comparison_panel(array_2d_0,
         array_2d_1 (array | DataFrame):
         function (callable):
         axis (int): 0 | 1
-        figure_size (tuple):
+        figure_size (iterable):
         annotate (str | bool): whether to show values on the clustermap 'auto' |
             True | False
         title (str): plot title

@@ -1,11 +1,11 @@
 from pandas import DataFrame
 
+from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
-from .match import match
 from .plot_match_panel import plot_match_panel
 from .support.support.path import establish_path
-from .support.support.s import get_top_and_bottom_indices
+from .support.support.series import get_top_and_bottom_series_indices
 
 RANDOM_SEED = 20121020
 
@@ -49,7 +49,7 @@ def make_match_panel(target,
         n_permutations (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
-        figure_size (tuple):
+        figure_size (iterable):
         title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
@@ -113,7 +113,7 @@ def make_match_panel(target,
         file_path_plot = None
 
     # Select indices to plot
-    indices = get_top_and_bottom_indices(
+    indices = get_top_and_bottom_series_indices(
         scores['Score'], n_features, max_n=max_n_features)
 
     scores_to_plot = scores.loc[indices]

@@ -28,7 +28,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         features (DataFrame): (n_features, n_samples)
         max_std (number):
         annotations (DataFrame): (n_features, 3)
-        figure_size (tuple):
+        figure_size (iterable):
         target_ax (matplotlib ax):
         features_ax (matplotlib ax):
         target_type (str): 'continuous' | 'categorical' | 'binary'
