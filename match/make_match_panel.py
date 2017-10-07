@@ -64,9 +64,9 @@ def make_match_panel(target,
             'FDR'])
     """
 
-    if not target.index.symmetric_difference(features.columns).empty:
-        raise ValueError(
-            'target.index and features.columns have different object.')
+    common_indices = target.index & features.columns
+    target = target.loc[common_indices]
+    features = features.loc[:, common_indices]
 
     # Sort target and features.columns (based on target.index)
     target = target.sort_values(ascending=target_ascending
