@@ -104,7 +104,7 @@ def make_summary_match_panel(
                 'features don\'t have indices {}.'.format(missing_indices))
         features = features.loc[features_indices]
 
-        # Sort target and features.columns (based on target.index)
+        # Sort target and features.columns (based on target )
         target = target.loc[columns & features.columns].sort_values(
             ascending=target_ascending or target.dtype == 'O')
         features = features[target.index]

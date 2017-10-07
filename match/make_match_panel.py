@@ -64,13 +64,9 @@ def make_match_panel(target,
             'FDR'])
     """
 
-    common_indices = target.index & features.columns
-    target = target.loc[common_indices]
-    features = features.loc[:, common_indices]
-
-    # Sort target and features.columns (based on target.index)
-    target = target.sort_values(ascending=target_ascending
-                                or target.dtype == 'O')
+    # Sort target and features.columns (based on target)
+    target = target.loc[target.index & features.columns].sort_values(
+        ascending=target_ascending or target.dtype == 'O')
     features = features[target.index]
 
     target_o_to_int = {}
