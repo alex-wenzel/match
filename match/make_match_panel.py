@@ -4,6 +4,7 @@ from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
 from .plot_match_panel import plot_match_panel
+from .support.support.df import drop_df_slices
 from .support.support.path import establish_path
 from .support.support.series import get_top_and_bottom_series_indices
 
@@ -67,7 +68,8 @@ def make_match_panel(target,
     # Sort target and features.columns (based on target)
     target = target.loc[target.index & features.columns].sort_values(
         ascending=target_ascending or target.dtype == 'O')
-    features = features[target.index]
+    features = drop_df_slices(
+        features[target.index], 1, max_n_unique_objects=1)
 
     target_o_to_int = {}
     target_int_to_o = {}
@@ -109,8 +111,10 @@ def make_match_panel(target,
         file_path_plot = None
 
     # Select indices to plot
-    indices = get_top_and_bottom_series_indices(
-        scores['Score'], n_features, max_n=max_n_features)
+    indices = get_top_and_bottom_series_indices(scores['Score'], n_features)
+    if max_n_features < indices.size:
+        indices = indices[:max_n_features // 2].append(
+            indices[-max_n_features // 2:])
 
     scores_to_plot = scores.loc[indices]
     features_to_plot = features.loc[scores_to_plot.index]

@@ -8,6 +8,7 @@ from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
 from .plot_match_panel import plot_match_panel
+from .support.support.df import drop_df_slices
 from .support.support.dict_ import merge_dicts_with_function
 
 RANDOM_SEED = 20121020
@@ -76,11 +77,7 @@ def make_summary_match_panel(
     gridspec = GridSpec(n, 1)
 
     # Plot title
-    fig.suptitle(
-        title,
-        horizontalalignment='center',
-        **merge_dicts_with_function(FONT_LARGEST, {'color': '#9017E6'},
-                                    lambda a, b: b))
+    fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
     r_i = 0
 
     # Set columns to be plotted
@@ -102,7 +99,8 @@ def make_summary_match_panel(
         if any(missing_indices):
             raise ValueError(
                 'features don\'t have indices {}.'.format(missing_indices))
-        features = features.loc[features_indices]
+        features = drop_df_slices(
+            features.loc[features_indices], 1, max_n_unique_objects=1)
 
         # Sort target and features.columns (based on target)
         target = target.loc[columns & features.columns].sort_values(

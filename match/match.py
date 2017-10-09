@@ -59,13 +59,15 @@ def match(target,
         function, n_jobs))
 
     results['Score'] = concatenate(
-        multiprocess(match_target_and_features, [(
-            target, features_split, function
-        ) for features_split in array_split(features, n_jobs)], n_jobs))
+        multiprocess(match_target_and_features,
+                     [(target, fs, function)
+                      for fs in array_split(features, n_jobs)], n_jobs))
 
     # Get top and bottom indices
-    indices = get_top_and_bottom_series_indices(
-        results['Score'], n_features, max_n=max_n_features)
+    indices = get_top_and_bottom_series_indices(results['Score'], n_features)
+    if max_n_features < indices.size:
+        indices = indices[:max_n_features // 2].append(
+            indices[-max_n_features // 2:])
 
     # Compute MoE
     if 3 <= n_samplings and 3 <= ceil(0.632 * target.size):
@@ -83,8 +85,10 @@ def match(target,
     # Compute p-value and FDR
     if 1 <= n_permutations:
 
-        permutation_scores = permute_target_and_match_target_and_features(
-            target, features[indices], function, n_permutations, random_seed)
+        permutation_scores = concatenate(
+            multiprocess(permute_target_and_match_target_and_features,
+                         [(target, fs, function, n_permutations, random_seed)
+                          for fs in array_split(features, n_jobs)], n_jobs))
 
         p_values, fdrs = compute_empirical_p_values_and_fdrs(
             results['Score'], permutation_scores.flatten())
@@ -177,6 +181,8 @@ def permute_target_and_match_target_and_features(target,
 
     seed(random_seed)
     for i in range(n_permutations):
+        if i % ceil(10000 / features.shape[0]) == 0:
+            print('\t{}/{} ...'.format(i + 1, n_permutations))
 
         # Permute
         shuffle(permuted_target)
