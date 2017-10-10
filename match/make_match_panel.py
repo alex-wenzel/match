@@ -68,6 +68,8 @@ def make_match_panel(target,
     # Sort target and features.columns (based on target)
     target = target.loc[target.index & features.columns].sort_values(
         ascending=target_ascending or target.dtype == 'O')
+
+    # Drop constant rows
     features = drop_df_slices(
         features[target.index], 1, max_n_unique_objects=1)
 

@@ -9,7 +9,6 @@ from .plot.plot.save_plot import save_plot
 from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
 from .plot_match_panel import plot_match_panel
 from .support.support.df import drop_df_slices
-from .support.support.dict_ import merge_dicts_with_function
 
 RANDOM_SEED = 20121020
 
@@ -24,7 +23,6 @@ def make_summary_match_panel(
         random_seed=RANDOM_SEED,
         title='Summary Match Panel',
         target_type='continuous',
-        features_type='continuous',
         max_std=3,
         target_annotation_kwargs={'fontsize': 12},
         plot_sample_names=False,
@@ -34,17 +32,15 @@ def make_summary_match_panel(
     Make summary match panel.
     Arguments:
         target (Series): (n_samples)
-        multiple_features (iterable): [
-            Features name (str):,
-            Features (DataFrame): (n_features, n_samples),
-            Index (iterable): features to plot,
-            Index alias (iterable): name shown for the features to plot,
-            Scores (None | DataFrame): None (to compute match scores) |
-                DataFrame (returned from make_match_panel)
-            scores_ascending (bool): True (scores increase from top to bottom) |
-                False
-            Feature type (str): 'continuous' | 'categorical' | 'binary',
-        ]
+        multiple_features (dict): {
+            name : {
+                df,
+                indices,
+                index_aliases,
+                emphasis,
+                data_type,
+                }
+            }
         plot_only_columns_shared_by_target_and_all_features (bool):
         target_ascending (bool): True if target increase from left to right,
             and False right to left
@@ -55,7 +51,6 @@ def make_summary_match_panel(
         random_seed (int | array):
         title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
-        features_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (number):
         target_annotation_kwargs (dict):
         plot_sample_names (bool): whether to plot column names
@@ -87,25 +82,29 @@ def make_summary_match_panel(
             columns &= f[1].columns
 
     # Plot multiple_features
-    for fi, (features_name, features, features_indices, features_index_aliases,
-             scores, scores_ascending,
-             features_type) in enumerate(multiple_features):
-        print('Making match panel for {} ...'.format(features_name))
+    for fi, (name, d) in enumerate(multiple_features.items()):
+        print('Making match panel for {} ...'.format(name))
+
+        features = d['df']
+        indices = d['indices']
+        index_aliases = d['index_aliases']
+        emphasis = d['emphasis']
+        data_type = d['data_type']
 
         # Extract specified indices from features
-        missing_indices = [
-            i for i in features_indices if i not in features.index
-        ]
+        missing_indices = [i for i in indices if i not in features.index]
         if any(missing_indices):
             raise ValueError(
                 'features don\'t have indices {}.'.format(missing_indices))
-        features = drop_df_slices(
-            features.loc[features_indices], 1, max_n_unique_objects=1)
 
         # Sort target and features.columns (based on target)
         target = target.loc[columns & features.columns].sort_values(
             ascending=target_ascending or target.dtype == 'O')
         features = features[target.index]
+
+        # Drop constant rows
+        features = drop_df_slices(
+            features.loc[indices], 1, max_n_unique_objects=1)
 
         target_o_to_int = {}
         target_int_to_o = {}
@@ -122,28 +121,22 @@ def make_summary_match_panel(
                                                        target.values)
             features = features.iloc[:, columns]
 
-        if scores is None:
-            # Match
-            scores = match(
-                target.values,
-                features.values,
-                n_features=features.shape[0],
-                n_samplings=n_samplings,
-                n_permutations=n_permutations,
-                random_seed=random_seed)
-            scores.index = features.index
-        else:
-            scores = scores.loc[features_indices]
+        # Match
+        scores = match(
+            target.values,
+            features.values,
+            n_features=features.shape[0],
+            n_samplings=n_samplings,
+            n_permutations=n_permutations,
+            random_seed=random_seed)
+        scores.index = features.index
 
         # Sort scores
-        scores = scores.sort_values('Score', ascending=scores_ascending)
+        scores = scores.sort_values('Score', ascending=emphasis == 'low')
         features = features.loc[scores.index]
 
         # Use alias
-        i_to_a = {
-            i: a
-            for i, a in zip(features_indices, features_index_aliases)
-        }
+        i_to_a = {i: a for i, a in zip(indices, index_aliases)}
         features.index = features.index.map(lambda i: i_to_a[i])
 
         # Make annotations
@@ -163,7 +156,7 @@ def make_summary_match_panel(
         title_ax.text(
             0.5,
             0,
-            '{} (n={})'.format(features_name, target.size),
+            '{} (n={})'.format(name, target.size),
             horizontalalignment='center',
             **FONT_LARGER)
 
@@ -176,7 +169,7 @@ def make_summary_match_panel(
         # Plot match panel
         plot_match_panel(target, target_int_to_o, features, max_std,
                          annotations, None, target_ax, features_ax,
-                         target_type, features_type, None,
+                         target_type, data_type, None,
                          target_annotation_kwargs, plot_sample_names
                          and fi == len(multiple_features) - 1, None, dpi)
 
