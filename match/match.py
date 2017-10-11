@@ -194,6 +194,7 @@ def permute_target_and_match_target_and_features(target,
             permuted_target, features, function)
 
         set_state(random_state)
+    print('\t{}/{} - done.'.format(i + 1, n_permutations))
 
     return feature_x_permutation
 
