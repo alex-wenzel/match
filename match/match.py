@@ -181,7 +181,7 @@ def permute_target_and_match_target_and_features(target,
 
     seed(random_seed)
     for i in range(n_permutations):
-        if i % ceil(10000 / features.shape[0]) == 0:
+        if i % ceil(1000 / features.shape[0]) == 0:
             print('\t{}/{} ...'.format(i + 1, n_permutations))
 
         # Permute
