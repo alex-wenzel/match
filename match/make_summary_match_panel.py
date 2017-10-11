@@ -65,8 +65,8 @@ def make_summary_match_panel(
 
     # Compute the number of rows needed for plotting
     n = 0
-    for f in multiple_features:
-        n += len(f[2]) + 3
+    for name, d in multiple_features.items():
+        n += len(d['indices']) + 3
 
     # Set up ax grids
     gridspec = GridSpec(n, 1)
@@ -78,8 +78,8 @@ def make_summary_match_panel(
     # Set columns to be plotted
     columns = target.index
     if plot_only_columns_shared_by_target_and_all_features:
-        for f in multiple_features:
-            columns &= f[1].columns
+        for name, d in multiple_features.items():
+            columns &= d['df'].columns
 
     # Plot multiple_features
     for fi, (name, d) in enumerate(multiple_features.items()):
