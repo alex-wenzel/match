@@ -7,12 +7,14 @@ from .plot_match_panel import plot_match_panel
 from .support.support.df import drop_df_slices
 from .support.support.path import establish_path
 from .support.support.series import get_top_and_bottom_series_indices
+from .information.information.compute_information_coefficient import compute_information_coefficient
 
 RANDOM_SEED = 20121020
 
 
 def make_match_panel(target,
                      features,
+                     function=compute_information_coefficient,
                      target_ascending=False,
                      n_jobs=1,
                      scores_ascending=False,
@@ -36,6 +38,7 @@ def make_match_panel(target,
         target (Series): (n_samples); must be 3 <= 0.632 * n_samples to compute
             MoE
         features (DataFrame): (n_features, n_samples)
+        function (callable): the function to use to compute similarity between target and features.
         target_ascending (bool): True if target increase from left to right,
             and False right to left
         n_jobs (int): number of multiprocess jobs
@@ -92,6 +95,7 @@ def make_match_panel(target,
     scores = match(
         target.values,
         features.values,
+        function=function,
         n_jobs=n_jobs,
         n_features=n_features,
         max_n_features=max_n_features,
