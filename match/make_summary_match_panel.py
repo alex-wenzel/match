@@ -2,6 +2,8 @@ from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
 from pandas import DataFrame
 
+from .information.information.compute_information_coefficient import \
+    compute_information_coefficient
 from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
@@ -18,6 +20,7 @@ def make_summary_match_panel(
         multiple_features,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
+        function=compute_information_coefficient,
         n_samplings=30,
         n_permutations=30,
         random_seed=RANDOM_SEED,
@@ -44,6 +47,8 @@ def make_summary_match_panel(
         plot_only_columns_shared_by_target_and_all_features (bool):
         target_ascending (bool): True if target increase from left to right,
             and False right to left
+        function (callable): function for computing match scores between the
+            target and each feature
         n_samplings (int): number of bootstrap samplings to build distribution
             to compute MoE; 3 <= n_samplings
         n_permutations (int): number of permutations for permutation test to
@@ -60,19 +65,29 @@ def make_summary_match_panel(
         None
     """
 
-    # Set up figure
-    fig = figure(figsize=FIGURE_SIZE)
-
     # Compute the number of rows needed for plotting
     n = 0
+    max_width = 0
     for name, d in multiple_features.items():
         n += len(d['indices']) + 3
+        w = d['df'].shape[1]
+        if max_width < w:
+            max_width = w
+
+    # Set up figure
+    fig = figure(figsize=(min(pow(max_width, 1.8), FIGURE_SIZE[1]), n))
 
     # Set up ax grids
     gridspec = GridSpec(n, 1)
 
     # Plot title
-    fig.suptitle(title, horizontalalignment='center', **FONT_LARGEST)
+    fig.text(
+        0.5,
+        0.88,
+        title,
+        horizontalalignment='center',
+        verticalalignment='bottom',
+        **FONT_LARGEST)
     r_i = 0
 
     # Set columns to be plotted
@@ -125,6 +140,7 @@ def make_summary_match_panel(
         scores = match(
             target.values,
             features.values,
+            function,
             n_features=features.shape[0],
             n_samplings=n_samplings,
             n_permutations=n_permutations,

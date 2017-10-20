@@ -41,8 +41,8 @@ def make_match_panel(target,
         features (DataFrame): (n_features, n_samples)
         target_ascending (bool): True if target increase from left to right,
             and False right to left
-        function (callable): the function to use to compute similarity between
-            target and features
+        function (callable): function for computing match scores between the
+            target and each feature
         n_jobs (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
@@ -97,7 +97,7 @@ def make_match_panel(target,
     scores = match(
         target.values,
         features.values,
-        function=function,
+        function,
         n_jobs=n_jobs,
         n_features=n_features,
         max_n_features=max_n_features,

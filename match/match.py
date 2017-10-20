@@ -4,8 +4,6 @@ from numpy import apply_along_axis, array, array_split, concatenate, empty
 from numpy.random import choice, get_state, seed, set_state, shuffle
 from pandas import DataFrame
 
-from .information.information.compute_information_coefficient import \
-    compute_information_coefficient
 from .nd_array.nd_array.compute_empirical_p_values_and_fdrs import \
     compute_empirical_p_values_and_fdrs
 from .nd_array.nd_array.compute_margin_of_error import compute_margin_of_error
@@ -19,7 +17,7 @@ RANDOM_SEED = 20121020
 
 def match(target,
           features,
-          function=compute_information_coefficient,
+          function,
           n_jobs=1,
           n_features=0.99,
           max_n_features=100,
