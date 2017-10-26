@@ -1,3 +1,4 @@
+from numpy import nan_to_num
 from pandas import DataFrame
 
 from .information.information.compute_information_coefficient import \
@@ -89,8 +90,8 @@ def make_match_panel(target,
 
     if target_type in ('binary', 'categorical'):
         # Cluster by group
-        columns = cluster_2d_array_slices_by_group(features.values,
-                                                   target.values)
+        columns = cluster_2d_array_slices_by_group(
+            nan_to_num(features.values), nan_to_num(target.values))
         features = features.iloc[:, columns]
 
     # Match
