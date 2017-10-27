@@ -20,7 +20,7 @@ from .support.support.iterable import get_unique_objects_in_order
 def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
                      figure_size, target_ax, features_ax, target_type,
                      features_type, title, target_annotation_kwargs,
-                     plot_sample_names, file_path, dpi):
+                     plot_sample_names, max_ytick_size, file_path, dpi):
     """
     Plot matches.
     Arguments:
@@ -37,6 +37,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         title (str): plot title
         target_annotation_kwargs (dict):
         plot_sample_names (bool): whether to plot column names
+        max_ytick_size (int):
         file_path (str):
         dpi (int):
     Returns:
@@ -120,7 +121,8 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         despine_kwargs={'left': True,
                         'bottom': True},
         xlabel='',
-        ylabel='')
+        ylabel='',
+        max_ytick_size=max_ytick_size)
 
     # Plot title
     if title:
@@ -206,7 +208,8 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
             'bottom': True,
         },
         xlabel='',
-        ylabel='')
+        ylabel='',
+        max_ytick_size=max_ytick_size)
 
     # Plot annotations
     for i, (a_i, a) in enumerate(annotations.iterrows()):

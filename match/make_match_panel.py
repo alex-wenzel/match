@@ -32,6 +32,7 @@ def make_match_panel(target,
                      max_std=3,
                      target_annotation_kwargs={'fontsize': 12},
                      plot_sample_names=False,
+                     max_ytick_size=26,
                      file_path_prefix=None,
                      dpi=100):
     """
@@ -63,6 +64,7 @@ def make_match_panel(target,
         max_std (number):
         target_annotation_kwargs (dict):
         plot_sample_names (bool): whether to plot column names
+        max_ytick_size (int):
         file_path_prefix (str): file_path_prefix.match.txt and
             file_path_prefix.match.png will be saved
         dpi (int):
@@ -142,6 +144,6 @@ def make_match_panel(target,
     plot_match_panel(target, target_int_to_o, features_to_plot, max_std,
                      annotations, figure_size, None, None, target_type,
                      features_type, title, target_annotation_kwargs,
-                     plot_sample_names, file_path_plot, dpi)
+                     plot_sample_names, max_ytick_size, file_path_plot, dpi)
 
     return scores

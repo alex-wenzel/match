@@ -29,6 +29,7 @@ def make_summary_match_panel(
         max_std=3,
         target_annotation_kwargs={'fontsize': 12},
         plot_sample_names=False,
+        max_ytick_size=26,
         file_path=None,
         dpi=100):
     """
@@ -59,6 +60,7 @@ def make_summary_match_panel(
         max_std (number):
         target_annotation_kwargs (dict):
         plot_sample_names (bool): whether to plot column names
+        max_ytick_size (int):
         file_path (str):
         dpi (int):
     Returns:
@@ -183,11 +185,11 @@ def make_summary_match_panel(
         r_i += features.shape[0]
 
         # Plot match panel
-        plot_match_panel(target, target_int_to_o, features, max_std,
-                         annotations, None, target_ax, features_ax,
-                         target_type, data_type, None,
-                         target_annotation_kwargs, plot_sample_names
-                         and fi == len(multiple_features) - 1, None, dpi)
+        plot_match_panel(
+            target, target_int_to_o, features, max_std, annotations, None,
+            target_ax, features_ax, target_type, data_type, None,
+            target_annotation_kwargs, plot_sample_names
+            and fi == len(multiple_features) - 1, max_ytick_size, None, dpi)
 
     if file_path:
         save_plot(file_path)
