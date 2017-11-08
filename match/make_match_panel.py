@@ -66,7 +66,7 @@ def make_match_panel(target,
         plot_sample_names (bool): whether to plot column names
         max_ytick_size (int):
         file_path_prefix (str): file_path_prefix.match.txt and
-            file_path_prefix.match.png will be saved
+            file_path_prefix.match.pdf will be saved
         dpi (int):
     Returns:
         DataFrame: (n_features, 4 ['Score', '<confidence> MoE', 'p-value',
@@ -114,7 +114,7 @@ def make_match_panel(target,
 
     if file_path_prefix:
         file_path_txt = file_path_prefix + '.match.txt'
-        file_path_plot = file_path_prefix + '.match.png'
+        file_path_plot = file_path_prefix + '.match.pdf'
         # Save scores
         establish_path(file_path_txt)
         scores.to_csv(file_path_txt, sep='\t')
