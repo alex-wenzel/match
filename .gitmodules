@@ -1,12 +1,12 @@
 [submodule "match/support"]
 	path = match/support
-	url = https://github.com/kwatme/support
+	url = https://github.com/KwatME/support
 [submodule "match/nd_array"]
 	path = match/nd_array
-	url = https://github.com/kwatme/nd_array
+	url = https://github.com/KwatME/nd_array
 [submodule "match/information"]
 	path = match/information
-	url = https://github.com/kwatme/information
+	url = https://github.com/KwatME/information
 [submodule "match/plot"]
 	path = match/plot
-	url = https://github.com/kwatme/plot
+	url = https://github.com/KwatME/plot
