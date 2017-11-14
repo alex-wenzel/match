@@ -17,21 +17,23 @@ RANDOM_SEED = 20121020
 def make_match_panel(target,
                      features,
                      target_ascending=False,
+                     scores=None,
                      function=compute_information_coefficient,
                      n_jobs=1,
                      scores_ascending=False,
-                     n_features=25,
+                     n_top_features=25,
                      max_n_features=100,
                      n_samplings=3,
                      n_permutations=3,
                      random_seed=RANDOM_SEED,
+                     indices=None,
                      figure_size=None,
                      title='Match Panel',
                      target_type='continuous',
                      features_type='continuous',
                      max_std=3,
                      target_annotation_kwargs={'fontsize': 12},
-                     plot_sample_names=False,
+                     plot_column_names=False,
                      max_ytick_size=26,
                      file_path_prefix=None,
                      dpi=100):
@@ -45,25 +47,28 @@ def make_match_panel(target,
             and False right to left
         function (callable): function for computing match scores between the
             target and each feature
+        scores (DataFrame): (n_features, 4 ['Score', '<confidence> MoE',
+            'p-value', 'FDR'])
         n_jobs (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
-        n_features (number): number of features to compute MoE, p-value, and
-            FDR; number threshold if 1 <= n_features, percentile threshold
-            if n_features < 1, and don't compute if None
+        n_top_features (number): number of features to compute MoE, p-value, and
+            FDR; number threshold if 1 <= n_top_features, percentile threshold
+            if n_top_features < 1, and don't compute if None
         max_n_features (int):
         n_samplings (int): number of bootstrap samplings to build distribution
             to compute MoE; 3 <= n_samplings
         n_permutations (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
+        indices (iterable):
         figure_size (iterable):
         title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (number):
         target_annotation_kwargs (dict):
-        plot_sample_names (bool): whether to plot column names
+        plot_column_names (bool): whether to plot column names
         max_ytick_size (int):
         file_path_prefix (str): file_path_prefix.match.txt and
             file_path_prefix.match.pdf will be saved
@@ -96,37 +101,41 @@ def make_match_panel(target,
             nan_to_num(features.values), nan_to_num(target.values))
         features = features.iloc[:, columns]
 
-    # Match
-    scores = match(
-        target.values,
-        features.values,
-        function,
-        n_jobs=n_jobs,
-        n_features=n_features,
-        max_n_features=max_n_features,
-        n_samplings=n_samplings,
-        n_permutations=n_permutations,
-        random_seed=random_seed)
-    scores.index = features.index
+    if scores is None:
+        # Match
+        scores = match(
+            target.values,
+            features.values,
+            function,
+            n_jobs=n_jobs,
+            n_top_features=n_top_features,
+            max_n_features=max_n_features,
+            n_samplings=n_samplings,
+            n_permutations=n_permutations,
+            random_seed=random_seed)
+        scores.index = features.index
 
-    # Sort scores
-    scores.sort_values('Score', ascending=scores_ascending, inplace=True)
+        # Sort scores
+        scores.sort_values('Score', ascending=scores_ascending, inplace=True)
 
-    if file_path_prefix:
-        file_path_txt = file_path_prefix + '.match.txt'
-        file_path_plot = file_path_prefix + '.match.pdf'
-        # Save scores
-        establish_path(file_path_txt)
-        scores.to_csv(file_path_txt, sep='\t')
-    else:
-        file_path_plot = None
+        if file_path_prefix:
+            # Save scores
+            file_path_txt = file_path_prefix + '.match.txt'
+            establish_path(file_path_txt)
+            scores.to_csv(file_path_txt, sep='\t')
 
     # Select indices to plot
-    indices = get_top_and_bottom_series_indices(scores['Score'], n_features)
-    if max_n_features < indices.size:
-        indices = indices[:max_n_features // 2].append(
-            indices[-max_n_features // 2:])
-
+    if indices is None:
+        indices = get_top_and_bottom_series_indices(scores['Score'],
+                                                    n_top_features)
+        if max_n_features < indices.size:
+            indices = indices[:max_n_features // 2].append(
+                indices[-max_n_features // 2:])
+    else:
+        indices = sorted(
+            indices,
+            key=lambda i: scores.loc[i, 'Score'],
+            reverse=not scores_ascending)
     scores_to_plot = scores.loc[indices]
     features_to_plot = features.loc[scores_to_plot.index]
 
@@ -141,9 +150,13 @@ def make_match_panel(target,
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     # Plot match panel
+    if file_path_prefix:
+        file_path_plot = file_path_prefix + '.match.pdf'
+    else:
+        file_path_plot = None
     plot_match_panel(target, target_int_to_o, features_to_plot, max_std,
                      annotations, figure_size, None, None, target_type,
                      features_type, title, target_annotation_kwargs,
-                     plot_sample_names, max_ytick_size, file_path_plot, dpi)
+                     plot_column_names, max_ytick_size, file_path_plot, dpi)
 
     return scores

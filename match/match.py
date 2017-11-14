@@ -19,7 +19,7 @@ def match(target,
           features,
           function,
           n_jobs=1,
-          n_features=0.99,
+          n_top_features=0.99,
           max_n_features=100,
           n_samplings=30,
           confidence=0.95,
@@ -27,16 +27,16 @@ def match(target,
           random_seed=RANDOM_SEED):
     """
     Compute: scores[i] = function(target, features[i]); compute margin of error
-        (MoE), p-value, and FDR for n_features features.
+        (MoE), p-value, and FDR for n_top_features features.
     Arguments:
         target (array): (n_samples); must be 3 <= 0.632 * n_samples to compute
             MoE
         features (array): (n_features, n_samples)
         function (callable):
         n_jobs (int): number of multiprocess jobs
-        n_features (number): number of features to compute MoE, p-value, and
-            FDR; number threshold if 1 <= n_features, percentile threshold
-            if n_features < 1, and don't compute if None
+        n_top_features (number): number of features to compute MoE, p-value, and
+            FDR; number threshold if 1 <= n_top_features, percentile threshold
+            if n_top_features < 1, and don't compute if None
         max_n_features (int):
         n_samplings (int): number of bootstrap samplings to build distribution
             to compute MoE; 3 <= n_samplings
@@ -62,7 +62,8 @@ def match(target,
                       for fs in array_split(features, n_jobs)], n_jobs))
 
     # Get top and bottom indices
-    indices = get_top_and_bottom_series_indices(results['Score'], n_features)
+    indices = get_top_and_bottom_series_indices(results['Score'],
+                                                n_top_features)
     if max_n_features < indices.size:
         indices = indices[:max_n_features // 2].append(
             indices[-max_n_features // 2:])

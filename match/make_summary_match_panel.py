@@ -28,7 +28,7 @@ def make_summary_match_panel(
         target_type='continuous',
         max_std=3,
         target_annotation_kwargs={'fontsize': 12},
-        plot_sample_names=False,
+        plot_column_names=False,
         max_ytick_size=26,
         file_path=None,
         dpi=100):
@@ -59,7 +59,7 @@ def make_summary_match_panel(
         target_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (number):
         target_annotation_kwargs (dict):
-        plot_sample_names (bool): whether to plot column names
+        plot_column_names (bool): whether to plot column names
         max_ytick_size (int):
         file_path (str):
         dpi (int):
@@ -143,7 +143,7 @@ def make_summary_match_panel(
             target.values,
             features.values,
             function,
-            n_features=features.shape[0],
+            n_top_features=features.shape[0],
             n_samplings=n_samplings,
             n_permutations=n_permutations,
             random_seed=random_seed)
@@ -188,7 +188,7 @@ def make_summary_match_panel(
         plot_match_panel(
             target, target_int_to_o, features, max_std, annotations, None,
             target_ax, features_ax, target_type, data_type, None,
-            target_annotation_kwargs, plot_sample_names
+            target_annotation_kwargs, plot_column_names
             and fi == len(multiple_features) - 1, max_ytick_size, None, dpi)
 
     if file_path:

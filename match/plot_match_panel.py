@@ -20,7 +20,7 @@ from .support.support.iterable import get_unique_objects_in_order
 def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
                      figure_size, target_ax, features_ax, target_type,
                      features_type, title, target_annotation_kwargs,
-                     plot_sample_names, max_ytick_size, file_path, dpi):
+                     plot_column_names, max_ytick_size, file_path, dpi):
     """
     Plot matches.
     Arguments:
@@ -36,7 +36,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): plot title
         target_annotation_kwargs (dict):
-        plot_sample_names (bool): whether to plot column names
+        plot_column_names (bool): whether to plot column names
         max_ytick_size (int):
         file_path (str):
         dpi (int):
@@ -197,7 +197,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         vmin=features_min,
         vmax=features_max,
         cmap=features_cmap,
-        xticklabels=plot_sample_names,
+        xticklabels=plot_column_names,
         cbar=False)
 
     # Decorate features heatmap
