@@ -1,5 +1,5 @@
 from matplotlib.gridspec import GridSpec
-from matplotlib.pyplot import figure, subplot
+from matplotlib.pyplot import figure, show, subplot
 from numpy import unique
 from pandas import DataFrame, Series
 from seaborn import heatmap
@@ -103,6 +103,9 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         gridspec = GridSpec(features.shape[0] + 1, 1)
         target_ax = subplot(gridspec[:1, 0])
         features_ax = subplot(gridspec[1:, 0])
+        save_and_show = True
+    else:
+        save_and_show = False
 
     # Plot target heatmap
     heatmap(
@@ -220,6 +223,9 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
             verticalalignment='center',
             **FONT_STANDARD)
 
-    # Save
-    if file_path:
-        save_plot(file_path, dpi=dpi)
+    if save_and_show:
+
+        if file_path:
+            save_plot(file_path)
+
+        show()
