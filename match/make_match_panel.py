@@ -18,6 +18,7 @@ def make_match_panel(target,
                      features,
                      target_ascending=False,
                      scores=None,
+                     min_n_samples=3,
                      function=compute_information_coefficient,
                      n_jobs=1,
                      scores_ascending=False,
@@ -45,6 +46,7 @@ def make_match_panel(target,
         features (DataFrame): (n_features, n_samples)
         target_ascending (bool): True if target increase from left to right,
             and False right to left
+        min_n_samples (int):
         function (callable): function for computing match scores between the
             target and each feature
         scores (DataFrame): (n_features, 4 ['Score', '<confidence> MoE',
@@ -81,10 +83,10 @@ def make_match_panel(target,
     # Sort target and features.columns (based on target)
     target = target.loc[target.index & features.columns].sort_values(
         ascending=target_ascending or target.dtype == 'O')
+    features = features[target.index]
 
     # Drop constant rows
-    features = drop_df_slices(
-        features[target.index], 1, max_n_unique_objects=1)
+    features = drop_df_slices(features, 1, max_n_unique_objects=1)
 
     target_o_to_int = {}
     target_int_to_o = {}
@@ -106,6 +108,7 @@ def make_match_panel(target,
         scores = match(
             target.values,
             features.values,
+            min_n_samples,
             function,
             n_jobs=n_jobs,
             n_top_features=n_top_features,
