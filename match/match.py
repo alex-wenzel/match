@@ -64,7 +64,7 @@ def match(target,
     # Get top and bottom indices
     indices = get_top_and_bottom_series_indices(results['Score'],
                                                 n_top_features)
-    if max_n_features < indices.size:
+    if max_n_features and max_n_features < indices.size:
         indices = indices[:max_n_features // 2].append(
             indices[-max_n_features // 2:])
 
