@@ -20,6 +20,7 @@ def make_summary_match_panel(
         multiple_features,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
+        min_n_samples=3,
         function=compute_information_coefficient,
         n_samplings=3,
         n_permutations=3,
@@ -48,6 +49,7 @@ def make_summary_match_panel(
         plot_only_columns_shared_by_target_and_all_features (bool):
         target_ascending (bool): True if target increase from left to right,
             and False right to left
+        min_n_samples (int):
         function (callable): function for computing match scores between the
             target and each feature
         n_samplings (int): number of bootstrap samplings to build distribution
@@ -142,6 +144,7 @@ def make_summary_match_panel(
         scores = match(
             target.values,
             features.values,
+            min_n_samples,
             function,
             n_top_features=features.shape[0],
             n_samplings=n_samplings,

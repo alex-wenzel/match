@@ -17,6 +17,7 @@ RANDOM_SEED = 20121020
 
 def match(target,
           features,
+          min_n_samples,
           function,
           n_jobs=1,
           n_top_features=0.99,
@@ -32,6 +33,7 @@ def match(target,
         target (array): (n_samples); must be 3 <= 0.632 * n_samples to compute
             MoE
         features (array): (n_features, n_samples)
+        min_n_samples (int): the minimum number of samples needed for computing
         function (callable):
         n_jobs (int): number of multiprocess jobs
         n_top_features (number): number of features to compute MoE, p-value, and
@@ -58,8 +60,8 @@ def match(target,
 
     results['Score'] = concatenate(
         multiprocess(match_target_and_features,
-                     [(target, fs, function)
-                      for fs in array_split(features, n_jobs)], n_jobs))
+                     [(target, features_, min_n_samples, function)
+                      for features_ in array_split(features, n_jobs)], n_jobs))
 
     # Get top and bottom indices
     indices = get_top_and_bottom_series_indices(results['Score'],
@@ -76,6 +78,7 @@ def match(target,
         )] = match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             target,
             features[indices],
+            min_n_samples,
             function,
             n_samplings=n_samplings,
             confidence=confidence,
@@ -85,9 +88,10 @@ def match(target,
     if 1 <= n_permutations:
 
         permutation_scores = concatenate(
-            multiprocess(permute_target_and_match_target_and_features,
-                         [(target, fs, function, n_permutations, random_seed)
-                          for fs in array_split(features, n_jobs)], n_jobs))
+            multiprocess(permute_target_and_match_target_and_features, [
+                (target, features_, min_n_samples, function, n_permutations,
+                 random_seed) for features_ in array_split(features, n_jobs)
+            ], n_jobs))
 
         p_values, fdrs = compute_empirical_p_values_and_fdrs(
             results['Score'], permutation_scores.flatten())
@@ -101,6 +105,7 @@ def match(target,
 def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         target,
         features,
+        min_n_samples,
         function,
         n_samplings=30,
         confidence=0.95,
@@ -111,6 +116,7 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         target (array): (n_samples); must be 3 <= 0.632 * n_samples to compute
             MoE
         features (array): (n_features, n_samples)
+        min_n_samples (int):
         function (callable):
         n_samplings (int): 3 <= n_samplings
         cofidence (float):
@@ -141,7 +147,7 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         # Score
         feature_x_sampling[:, i] = match_target_and_features(
-            sampled_target, sampled_features, function)
+            sampled_target, sampled_features, min_n_samples, function)
 
         set_state(random_state)
 
@@ -151,6 +157,7 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
 def permute_target_and_match_target_and_features(target,
                                                  features,
+                                                 min_n_samples,
                                                  function,
                                                  n_permutations=30,
                                                  random_seed=RANDOM_SEED):
@@ -159,6 +166,7 @@ def permute_target_and_match_target_and_features(target,
     Arguments:
         target (array): (n_samples)
         features (array): (n_features, n_samples)
+        min_n_samples (int):
         function (callable):
         n_permutations (int): 1 <= n_permutations
         random_seed (int | array):
@@ -190,7 +198,7 @@ def permute_target_and_match_target_and_features(target,
 
         # Match
         feature_x_permutation[:, i] = match_target_and_features(
-            permuted_target, features, function)
+            permuted_target, features, min_n_samples, function)
 
         set_state(random_state)
     print('\t{}/{} - done.'.format(i + 1, n_permutations))
@@ -198,17 +206,18 @@ def permute_target_and_match_target_and_features(target,
     return feature_x_permutation
 
 
-def match_target_and_features(target, features, function):
+def match_target_and_features(target, features, min_n_samples, function):
     """
     Drop nan from target and features[i] and compute: scores[i] = function(
         target, features[i]).
     Arguments:
         target (array): (n_samples)
         features (array): (n_features, n_samples)
+        min_n_samples (int):
         function (callable):
     Returns:
         array: (n_features)
     """
 
     return apply_along_axis(drop_nan_and_apply_function_on_2_1d_arrays, 1,
-                            features, target, function)
+                            features, target, min_n_samples, function)
