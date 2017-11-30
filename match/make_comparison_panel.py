@@ -32,7 +32,7 @@ def make_comparison_panel(array_2d_0,
         title (str): plot title
         array_2d_0_name (str): array_2d_0 name
         array_2d_1_name (str): array_2d_1 name
-        file_path_prefix (str): file_path_prefix.comparison_panel.txt and
+        file_path_prefix (str): file_path_prefix.comparison_panel.tsv and
             file_path_prefix.comparison_panel.png will be saved
     Returns:
         array | DataFrame:
@@ -55,7 +55,7 @@ def make_comparison_panel(array_2d_0,
 
     if file_path_prefix:
         comparison.to_csv(
-            '{}.comparison_panel.txt'.format(file_path_prefix), sep='\t')
+            '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
         plot_file_path = '{}.comparison_panel.png'.format(file_path_prefix)
     else:
         plot_file_path = None

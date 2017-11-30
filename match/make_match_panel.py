@@ -72,7 +72,7 @@ def make_match_panel(target,
         target_annotation_kwargs (dict):
         plot_column_names (bool): whether to plot column names
         max_ytick_size (int):
-        file_path_prefix (str): file_path_prefix.match.txt and
+        file_path_prefix (str): file_path_prefix.match.tsv and
             file_path_prefix.match.pdf will be saved
         dpi (int):
     Returns:
@@ -123,9 +123,9 @@ def make_match_panel(target,
 
         if file_path_prefix:
             # Save scores
-            file_path_txt = file_path_prefix + '.match.txt'
-            establish_path(file_path_txt)
-            scores.to_csv(file_path_txt, sep='\t')
+            file_path_tsv = file_path_prefix + '.match.tsv'
+            establish_path(file_path_tsv)
+            scores.to_csv(file_path_tsv, sep='\t')
 
     # Select indices to plot
     if indices is None:
