@@ -14,7 +14,7 @@ from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL_TAB20,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGEST, FONT_STANDARD)
 from .support.support.dict_ import merge_dicts_with_function
-from .support.support.iterable import get_unique_objects_in_order
+from .support.support.iterable import get_unique_iterable_objects_in_order
 
 
 def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
@@ -157,7 +157,8 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
             prev_i = i
 
         # Plot target label
-        unique_target_labels = get_unique_objects_in_order(target.values)
+        unique_target_labels = get_unique_iterable_objects_in_order(
+            target.values)
         for i, x in enumerate(label_positions):
 
             if target_int_to_o:
