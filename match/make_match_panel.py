@@ -54,9 +54,9 @@ def make_match_panel(target,
         n_jobs (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
-        n_top_features (number): number of features to compute MoE, p-value, and
-            FDR; number threshold if 1 <= n_top_features, percentile threshold
-            if n_top_features < 1, and don't compute if None
+        n_top_features (number): number of features to compute MoE, p-value,
+            and FDR; number threshold if 1 <= n_top_features and percentile
+            threshold if 0.5 <= n_top_features < 1
         max_n_features (int):
         n_samplings (int): number of bootstrap samplings to build distribution
             to compute MoE; 3 <= n_samplings
