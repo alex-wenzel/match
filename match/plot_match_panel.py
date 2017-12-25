@@ -10,7 +10,7 @@ from .plot.plot.decorate import decorate
 from .plot.plot.make_random_categorical_colormap import \
     make_random_categorical_colormap
 from .plot.plot.save_plot import save_plot
-from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL_TAB20,
+from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGEST, FONT_STANDARD)
 from .support.support.dict_ import merge_dicts_with_function
@@ -55,11 +55,11 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
     elif target_type == 'categorical':
         n = unique(target).size
-        if CMAP_CATEGORICAL_TAB20.N < n:
+        if CMAP_CATEGORICAL.N < n:
             # Make and use a Colormap with random colors
             cmap = make_random_categorical_colormap(n_colors=n)
         else:
-            cmap = CMAP_CATEGORICAL_TAB20
+            cmap = CMAP_CATEGORICAL
         target_min, target_max, target_cmap = 0, n, cmap
 
     elif target_type == 'binary':
@@ -79,11 +79,11 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
     elif features_type == 'categorical':
         n = unique(features).size
-        if CMAP_CATEGORICAL_TAB20.N < n:
+        if CMAP_CATEGORICAL.N < n:
             # Make and use a Colormap with random colors
             cmap = make_random_categorical_colormap(n_colors=n)
         else:
-            cmap = CMAP_CATEGORICAL_TAB20
+            cmap = CMAP_CATEGORICAL
         features_min, features_max, features_cmap = 0, n, cmap
 
     elif features_type == 'binary':
