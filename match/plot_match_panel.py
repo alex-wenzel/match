@@ -185,11 +185,12 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
     # Plot annotation header separator line
     target_ax.plot(
-        [target_ax.get_xlim()[1] * 1.02,
-         target_ax.get_xlim()[1] * 1.4], [1, 1],
+        [target_ax.get_xlim()[1] * 1.018,
+         target_ax.get_xlim()[1] * 1.628], [1, 1],
         '-',
-        linewidth=1,
-        color='#20D9BA',
+        linewidth=1.8,
+        alpha=0.88,
+        color='#2E211B',
         clip_on=False,
         aa=True)
 
