@@ -102,9 +102,9 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         gridspec = GridSpec(features.shape[0] + 1, 1)
         target_ax = subplot(gridspec[:1, 0])
         features_ax = subplot(gridspec[1:, 0])
-        save_and_show = True
+        save_and_show_plot = True
     else:
-        save_and_show = False
+        save_and_show_plot = False
 
     # Plot target heatmap
     heatmap(
@@ -217,6 +217,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
     # Plot annotations
     for i, (a_i, a) in enumerate(annotations.iterrows()):
+
         features_ax.text(
             target_ax.axis()[1] * 1.018,
             i + 0.5,
@@ -224,7 +225,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
             verticalalignment='center',
             **FONT_STANDARD)
 
-    if save_and_show:
+    if save_and_show_plot:
 
         if file_path:
             save_plot(file_path)
