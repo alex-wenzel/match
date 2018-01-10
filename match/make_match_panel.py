@@ -86,7 +86,7 @@ def make_match_panel(target,
     features = features[target.index]
 
     # Drop constant rows
-    features = drop_df_slices(features, 1, max_n_unique_objects=1)
+    features = drop_df_slices(features, 1, max_n_unique_object=1)
 
     target_o_to_int = {}
     target_int_to_o = {}

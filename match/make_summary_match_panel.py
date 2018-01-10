@@ -123,7 +123,7 @@ def make_summary_match_panel(
 
         # Drop constant rows
         features = drop_df_slices(
-            features.loc[indices], 1, max_n_unique_objects=1)
+            features.loc[indices], 1, max_n_unique_object=1)
 
         target_o_to_int = {}
         target_int_to_o = {}
