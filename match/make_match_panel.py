@@ -124,7 +124,7 @@ def make_match_panel(target,
         if file_path_prefix:
             # Save scores
             file_path_tsv = file_path_prefix + '.match.tsv'
-            establish_path(file_path_tsv)
+            establish_path(file_path_tsv, 'file')
             scores.to_csv(file_path_tsv, sep='\t')
 
     # Select indices to plot
