@@ -20,7 +20,7 @@ def make_match_panel(target,
                      scores=None,
                      min_n_samples=3,
                      function=compute_information_coefficient,
-                     n_jobs=1,
+                     n_job=1,
                      scores_ascending=False,
                      n_top_features=25,
                      max_n_features=100,
@@ -51,7 +51,7 @@ def make_match_panel(target,
             target and each feature
         scores (DataFrame): (n_features, 4 ['Score', '<confidence> MoE',
             'p-value', 'FDR'])
-        n_jobs (int): number of multiprocess jobs
+        n_job (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
         n_top_features (number): number of features to compute MoE, p-value,
@@ -110,7 +110,7 @@ def make_match_panel(target,
             features.values,
             min_n_samples,
             function,
-            n_jobs=n_jobs,
+            n_job=n_job,
             n_top_features=n_top_features,
             max_n_features=max_n_features,
             n_samplings=n_samplings,

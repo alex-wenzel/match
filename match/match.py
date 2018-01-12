@@ -19,7 +19,7 @@ def match(target,
           features,
           min_n_samples,
           function,
-          n_jobs=1,
+          n_job=1,
           n_top_features=0.99,
           max_n_features=100,
           n_samplings=30,
@@ -35,7 +35,7 @@ def match(target,
         features (array): (n_features, n_samples)
         min_n_samples (int): the minimum number of samples needed for computing
         function (callable):
-        n_jobs (int): number of multiprocess jobs
+        n_job (int): number of multiprocess jobs
         n_top_features (number): number of features to compute MoE, p-value,
             and FDR; number threshold if 1 <= n_top_features and percentile
             threshold if 0.5 <= n_top_features < 1
@@ -56,12 +56,12 @@ def match(target,
 
     # Match
     print('Computing match score with {} ({} process) ...'.format(
-        function, n_jobs))
+        function, n_job))
 
     results['Score'] = concatenate(
         multiprocess(match_target_and_features,
                      [(target, features_, min_n_samples, function)
-                      for features_ in array_split(features, n_jobs)], n_jobs))
+                      for features_ in array_split(features, n_job)], n_job))
 
     # Get top and bottom indices
     indices = get_top_and_bottom_series_indices(results['Score'],
@@ -90,8 +90,8 @@ def match(target,
         permutation_scores = concatenate(
             multiprocess(permute_target_and_match_target_and_features, [
                 (target, features_, min_n_samples, function, n_permutations,
-                 random_seed) for features_ in array_split(features, n_jobs)
-            ], n_jobs))
+                 random_seed) for features_ in array_split(features, n_job)
+            ], n_job))
 
         p_values, fdrs = compute_empirical_p_values_and_fdrs(
             results['Score'], permutation_scores.flatten())
