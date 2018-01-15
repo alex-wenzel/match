@@ -53,7 +53,7 @@ def make_match_panel(target,
         n_job (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
-        n_top_feature (number): number of features to compute MoE, p-value,
+        n_top_feature (float): number of features to compute MoE, p-value,
             and FDR; number threshold if 1 <= n_top_feature and percentile
             threshold if 0.5 <= n_top_feature < 1
         max_n_feature (int):
@@ -61,13 +61,13 @@ def make_match_panel(target,
             to compute MoE; 3 <= n_sampling
         n_permutation (int): number of permutations for permutation test to
             compute p-values and FDR
-        random_seed (int | array):
+        random_seed (float):
         indices (iterable):
         figure_size (iterable):
         title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
-        max_std (number):
+        max_std (float):
         target_annotation_kwargs (dict):
         plot_column_names (bool): whether to plot column names
         max_ytick_size (int):

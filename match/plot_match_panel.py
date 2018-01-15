@@ -25,7 +25,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         target (Series): (n_sample, )
         target_int_to_o (dict):
         features (DataFrame): (n_feature, n_sample, )
-        max_std (number):
+        max_std (float):
         annotations (DataFrame): (n_feature, 3, )
         figure_size (iterable):
         target_ax (matplotlib.Axes):

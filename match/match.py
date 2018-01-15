@@ -30,13 +30,13 @@ def match(target,
     Compute: scores[i] = function__(target, features[i]); compute margin of error
     (MoE), p-value, and FDR for n_top_feature features.
     Arguments:
-        target (array): (n_sample); must be 3 <= 0.632 * n_sample to compute
+        target (ndarray): (n_sample); must be 3 <= 0.632 * n_sample to compute
             MoE
-        features (array): (n_feature, n_sample)
+        features (ndarray): (n_feature, n_sample)
         min_n_sample (int): the minimum number of samples needed for computing
         function_ (callable):
         n_job (int): number of multiprocess jobs
-        n_top_feature (number): number of features to compute MoE, p-value,
+        n_top_feature (float): number of features to compute MoE, p-value,
             and FDR; number threshold if 1 <= n_top_feature and percentile
             threshold if 0.5 <= n_top_feature < 1
         max_n_feature (int):
@@ -45,7 +45,7 @@ def match(target,
         confidence (float):
         n_permutation (int): number of permutations for permutation test to
             compute p-values and FDR
-        random_seed (int | array):
+        random_seed (float):
     Returns:
         DataFrame: (n_feature, 4 ['Score', '<confidence> MoE', 'p-value',
             'FDR'])
@@ -111,15 +111,15 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
     """
     Match randomly sampled target and features to compute margin of errors.
     Arguments
-        target (array): (n_sample); must be 3 <= 0.632 * n_sample to compute
+        target (ndarray): (n_sample); must be 3 <= 0.632 * n_sample to compute
             MoE
-        features (array): (n_feature, n_sample)
+        features (ndarray): (n_feature, n_sample)
         min_n_sample (int):
         function_ (callable):
         n_sampling (int): 3 <= n_sampling
-        random_seed (int | array):
+        random_seed (float):
     Returns:
-        array: (n, )
+        ndarray: (n, )
     """
 
     if n_sampling < 3:
@@ -161,14 +161,14 @@ def permute_target_and_match_target_and_features(target,
     """
     Permute target and match target and features.
     Arguments:
-        target (array): (n_sample, )
-        features (array): (n_feature, n_sample, )
+        target (ndarray): (n_sample, )
+        features (ndarray): (n_feature, n_sample, )
         min_n_sample (int):
         function_ (callable):
         n_permutation (int): 1 <= n_permutation
-        random_seed (int | array):
+        random_seed (float):
     Returns:
-        array: (n_feature, n_permutation, )
+        ndarray: (n_feature, n_permutation, )
     """
 
     if n_permutation < 1:
@@ -208,12 +208,12 @@ def match_target_and_features(target, features, min_n_sample, function_):
     Drop nan from target and features[i] and compute: scores[i] = function_(
     target, features[i]).
     Arguments:
-        target (array): (n_sample, )
-        features (array): (n_feature, n_sample, )
+        target (ndarray): (n_sample, )
+        features (ndarray): (n_feature, n_sample, )
         min_n_sample (int):
         function_ (callable):
     Returns:
-        array: (n_feature, )
+        ndarray: (n_feature, )
     """
 
     return apply_along_axis(drop_nan_and_apply_function_on_2_1d_arrays, 1,

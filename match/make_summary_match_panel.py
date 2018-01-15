@@ -55,10 +55,10 @@ def make_summary_match_panel(
             to compute MoE; 3 <= n_sampling
         n_permutation (int): number of permutations for permutation test to
             compute p-values and FDR
-        random_seed (int | array):
+        random_seed (float):
         title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
-        max_std (number):
+        max_std (float):
         target_annotation_kwargs (dict):
         plot_column_names (bool): whether to plot column names
         max_ytick_size (int):
