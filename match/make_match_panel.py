@@ -18,14 +18,14 @@ def make_match_panel(target,
                      features,
                      target_ascending=False,
                      scores=None,
-                     min_n_samples=3,
-                     function=compute_information_coefficient,
+                     min_n_sample=3,
+                     function_=compute_information_coefficient,
                      n_job=1,
                      scores_ascending=False,
-                     n_top_features=25,
-                     max_n_features=100,
-                     n_samplings=3,
-                     n_permutations=3,
+                     n_top_feature=25,
+                     max_n_feature=100,
+                     n_sampling=3,
+                     n_permutation=3,
                      random_seed=RANDOM_SEED,
                      indices=None,
                      figure_size=None,
@@ -33,34 +33,33 @@ def make_match_panel(target,
                      target_type='continuous',
                      features_type='continuous',
                      max_std=3,
-                     target_annotation_kwargs={'fontsize': 12},
+                     target_annotation_kwargs=None,
                      plot_column_names=False,
                      max_ytick_size=26,
-                     file_path_prefix=None,
-                     dpi=100):
+                     file_path_prefix=None):
     """
     Make match panel.
     Arguments:
-        target (Series): (n_samples); must be 3 <= 0.632 * n_samples to compute
+        target (Series): (n_sample, ); must be 3 <= 0.632 * n_sample to compute
             MoE
-        features (DataFrame): (n_features, n_samples)
+        features (DataFrame): (n_feature, n_sample, )
         target_ascending (bool): True if target increase from left to right,
             and False right to left
-        min_n_samples (int):
-        function (callable): function for computing match scores between the
+        min_n_sample (int):
+        function_ (callable): function_ for computing match scores between the
             target and each feature
-        scores (DataFrame): (n_features, 4 ['Score', '<confidence> MoE',
-            'p-value', 'FDR'])
+        scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
+            'p-value', 'FDR', ), )
         n_job (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
-        n_top_features (number): number of features to compute MoE, p-value,
-            and FDR; number threshold if 1 <= n_top_features and percentile
-            threshold if 0.5 <= n_top_features < 1
-        max_n_features (int):
-        n_samplings (int): number of bootstrap samplings to build distribution
-            to compute MoE; 3 <= n_samplings
-        n_permutations (int): number of permutations for permutation test to
+        n_top_feature (number): number of features to compute MoE, p-value,
+            and FDR; number threshold if 1 <= n_top_feature and percentile
+            threshold if 0.5 <= n_top_feature < 1
+        max_n_feature (int):
+        n_sampling (int): number of bootstrap samplings to build distribution
+            to compute MoE; 3 <= n_sampling
+        n_permutation (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
         indices (iterable):
@@ -74,11 +73,15 @@ def make_match_panel(target,
         max_ytick_size (int):
         file_path_prefix (str): file_path_prefix.match.tsv and
             file_path_prefix.match.pdf will be saved
-        dpi (int):
     Returns:
-        DataFrame: (n_features, 4 ['Score', '<confidence> MoE', 'p-value',
-            'FDR'])
+        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'p-value',
+            'FDR', ), )
     """
+
+    if target_annotation_kwargs is None:
+        target_annotation_kwargs = {
+            'fontsize': 12,
+        }
 
     # Sort target and features.columns (based on target)
     target = target.loc[target.index & features.columns].sort_values(
@@ -108,13 +111,13 @@ def make_match_panel(target,
         scores = match(
             target.values,
             features.values,
-            min_n_samples,
-            function,
+            min_n_sample,
+            function_,
             n_job=n_job,
-            n_top_features=n_top_features,
-            max_n_features=max_n_features,
-            n_samplings=n_samplings,
-            n_permutations=n_permutations,
+            n_top_feature=n_top_feature,
+            max_n_feature=max_n_feature,
+            n_sampling=n_sampling,
+            n_permutation=n_permutation,
             random_seed=random_seed)
         scores.index = features.index
 
@@ -130,14 +133,14 @@ def make_match_panel(target,
     # Select indices to plot
     if indices is None:
         indices = get_top_and_bottom_series_indices(scores['Score'],
-                                                    n_top_features)
-        if max_n_features and max_n_features < indices.size:
-            indices = indices[:max_n_features // 2].append(
-                indices[-max_n_features // 2:])
+                                                    n_top_feature)
+        if max_n_feature and max_n_feature < indices.size:
+            indices = indices[:max_n_feature // 2].append(
+                indices[-max_n_feature // 2:])
     else:
         indices = sorted(
             indices,
-            key=lambda i: scores.loc[i, 'Score'],
+            key=lambda j: scores.loc[j, 'Score'],
             reverse=not scores_ascending)
     scores_to_plot = scores.loc[indices]
     features_to_plot = features.loc[scores_to_plot.index]
@@ -160,6 +163,6 @@ def make_match_panel(target,
     plot_match_panel(target, target_int_to_o, features_to_plot, max_std,
                      annotations, figure_size, None, None, target_type,
                      features_type, title, target_annotation_kwargs,
-                     plot_column_names, max_ytick_size, file_path_plot, dpi)
+                     plot_column_names, max_ytick_size, file_path_plot)
 
     return scores

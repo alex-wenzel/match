@@ -18,28 +18,26 @@ from .support.support.iterable import get_unique_iterable_objects_in_order
 def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
                      figure_size, target_ax, features_ax, target_type,
                      features_type, title, target_annotation_kwargs,
-                     plot_column_names, max_ytick_size, file_path, dpi):
+                     plot_column_names, max_ytick_size, file_path):
     """
     Plot matches.
     Arguments:
-        target (Series): (n_samples)
+        target (Series): (n_sample, )
         target_int_to_o (dict):
-        features (DataFrame): (n_features, n_samples)
+        features (DataFrame): (n_feature, n_sample, )
         max_std (number):
-        annotations (DataFrame): (n_features, 3)
+        annotations (DataFrame): (n_feature, 3, )
         figure_size (iterable):
-        target_ax (matplotlib ax):
-        features_ax (matplotlib ax):
+        target_ax (matplotlib.Axes):
+        features_ax (matplotlib.Axes):
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
-        title (str): plot title
+        title (str):
         target_annotation_kwargs (dict):
-        plot_column_names (bool): whether to plot column names
+        plot_column_names (bool):
         max_ytick_size (int):
         file_path (str):
-        dpi (int):
     Returns:
-        None
     """
 
     # Set target min, max, and colormap
@@ -54,8 +52,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
     elif target_type == 'categorical':
         n = unique(target).size
         if CMAP_CATEGORICAL.N < n:
-            # Make and use a Colormap with random colors
-            cmap = make_categorical_colormap(n_colors=n)
+            cmap = make_categorical_colormap()
         else:
             cmap = CMAP_CATEGORICAL
         target_min, target_max, target_cmap = 0, n, cmap
@@ -68,7 +65,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
     # Set features min, max, and colormap
     if features_type == 'continuous':
-        # Normalize featuers for plotting
+        # Normalize features for plotting
         features = DataFrame(
             normalize_2d_array(features.values, method='-0-', axis=1),
             index=features.index,
@@ -78,8 +75,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
     elif features_type == 'categorical':
         n = unique(features).size
         if CMAP_CATEGORICAL.N < n:
-            # Make and use a Colormap with random colors
-            cmap = make_categorical_colormap(n_colors=n)
+            cmap = make_categorical_colormap()
         else:
             cmap = CMAP_CATEGORICAL
         features_min, features_max, features_cmap = 0, n, cmap

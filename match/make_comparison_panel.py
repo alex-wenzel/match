@@ -11,7 +11,7 @@ from .plot.plot.style import FIGURE_SIZE
 
 def make_comparison_panel(array_2d_0,
                           array_2d_1,
-                          function=compute_information_coefficient,
+                          function_=compute_information_coefficient,
                           axis=0,
                           figure_size=FIGURE_SIZE,
                           title=None,
@@ -23,7 +23,7 @@ def make_comparison_panel(array_2d_0,
     Arguments:
         array_2d_0 (array | DataFrame):
         array_2d_1 (array | DataFrame):
-        function (callable):
+        function_ (callable):
         axis (int): 0 | 1
         figure_size (iterable):
         title (str): plot title
@@ -36,7 +36,7 @@ def make_comparison_panel(array_2d_0,
     """
 
     comparison = apply_function_on_2_2d_arrays_slices(
-        array(array_2d_0), array(array_2d_1), function, axis=axis)
+        array(array_2d_0), array(array_2d_1), function_, axis=axis)
 
     if isinstance(array_2d_0, DataFrame):
 
@@ -59,7 +59,9 @@ def make_comparison_panel(array_2d_0,
 
     plot_clustermap(
         comparison,
-        figure_size=figure_size,
+        clustermap_kwargs={
+            'figure_size': figure_size,
+        },
         decorate_ax_kwargs={
             'title': title,
             'xlabel': array_2d_1_name,

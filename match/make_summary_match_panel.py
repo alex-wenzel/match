@@ -20,23 +20,22 @@ def make_summary_match_panel(
         multiple_features,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
-        min_n_samples=3,
-        function=compute_information_coefficient,
-        n_samplings=3,
-        n_permutations=3,
+        min_n_sample=3,
+        function_=compute_information_coefficient,
+        n_sampling=3,
+        n_permutation=3,
         random_seed=RANDOM_SEED,
         title='Summary Match Panel',
         target_type='continuous',
         max_std=3,
-        target_annotation_kwargs={'fontsize': 12},
+        target_annotation_kwargs=None,
         plot_column_names=False,
         max_ytick_size=26,
-        file_path=None,
-        dpi=100):
+        file_path=None):
     """
     Make summary match panel.
     Arguments:
-        target (Series): (n_samples)
+        target (Series): (n_sample, )
         multiple_features (dict): {
             name : {
                 df,
@@ -49,12 +48,12 @@ def make_summary_match_panel(
         plot_only_columns_shared_by_target_and_all_features (bool):
         target_ascending (bool): True if target increase from left to right,
             and False right to left
-        min_n_samples (int):
-        function (callable): function for computing match scores between the
+        min_n_sample (int):
+        function_ (callable): function for computing match scores between the
             target and each feature
-        n_samplings (int): number of bootstrap samplings to build distribution
-            to compute MoE; 3 <= n_samplings
-        n_permutations (int): number of permutations for permutation test to
+        n_sampling (int): number of bootstrap samplings to build distribution
+            to compute MoE; 3 <= n_sampling
+        n_permutation (int): number of permutations for permutation test to
             compute p-values and FDR
         random_seed (int | array):
         title (str): plot title
@@ -64,10 +63,13 @@ def make_summary_match_panel(
         plot_column_names (bool): whether to plot column names
         max_ytick_size (int):
         file_path (str):
-        dpi (int):
     Returns:
-        None
     """
+
+    if target_annotation_kwargs is None:
+        target_annotation_kwargs = {
+            'fontsize': 12,
+        }
 
     # Compute the number of rows needed for plotting
     n = 0
@@ -144,11 +146,11 @@ def make_summary_match_panel(
         scores = match(
             target.values,
             features.values,
-            min_n_samples,
-            function,
-            n_top_features=features.shape[0],
-            n_samplings=n_samplings,
-            n_permutations=n_permutations,
+            min_n_sample,
+            function_,
+            n_top_feature=features.shape[0],
+            n_sampling=n_sampling,
+            n_permutation=n_permutation,
             random_seed=random_seed)
         scores.index = features.index
 
@@ -192,7 +194,7 @@ def make_summary_match_panel(
             target, target_int_to_o, features, max_std, annotations, None,
             target_ax, features_ax, target_type, data_type, None,
             target_annotation_kwargs, plot_column_names
-            and fi == len(multiple_features) - 1, max_ytick_size, None, dpi)
+            and fi == len(multiple_features) - 1, max_ytick_size, None)
 
     if file_path:
         save_plot(file_path)
