@@ -14,7 +14,6 @@ def make_comparison_panel(array_2d_0,
                           function=compute_information_coefficient,
                           axis=0,
                           figure_size=FIGURE_SIZE,
-                          annotate='auto',
                           title=None,
                           array_2d_0_name='',
                           array_2d_1_name='',
@@ -27,8 +26,6 @@ def make_comparison_panel(array_2d_0,
         function (callable):
         axis (int): 0 | 1
         figure_size (iterable):
-        annotate (str | bool): whether to show values on the clustermap 'auto' |
-            True | False
         title (str): plot title
         array_2d_0_name (str): array_2d_0 name
         array_2d_1_name (str): array_2d_1 name
@@ -63,10 +60,11 @@ def make_comparison_panel(array_2d_0,
     plot_clustermap(
         comparison,
         figure_size=figure_size,
-        annotate=annotate,
-        title=title,
-        xlabel=array_2d_1_name,
-        ylabel=array_2d_0_name,
+        decorate_ax_kwargs={
+            'title': title,
+            'xlabel': array_2d_1_name,
+            'ylabel': array_2d_0_name,
+        },
         file_path=plot_file_path)
 
     return comparison
