@@ -20,7 +20,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
                      features_type, title, target_annotation_kwargs,
                      plot_column_names, max_ytick_size, file_path):
     """
-    Plot matches.
+    Plot match panel.
     Arguments:
         target (Series): (n_sample, )
         target_int_to_o (dict):

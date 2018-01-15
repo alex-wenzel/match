@@ -21,8 +21,8 @@ def make_comparison_panel(array_2d_0,
     """
     Compare array_2d_0 and array_2d_1 slices and plot the result as clustermap.
     Arguments:
-        array_2d_0 (array | DataFrame):
-        array_2d_1 (array | DataFrame):
+        array_2d_0 (ndarray | DataFrame):
+        array_2d_1 (ndarray | DataFrame):
         function_ (callable):
         axis (int): 0 | 1
         figure_size (iterable):
@@ -32,7 +32,7 @@ def make_comparison_panel(array_2d_0,
         file_path_prefix (str): file_path_prefix.comparison_panel.tsv and
             file_path_prefix.comparison_panel.png will be saved
     Returns:
-        array | DataFrame:
+        ndarray | DataFrame:
     """
 
     comparison = apply_function_on_2_2d_arrays_slices(
