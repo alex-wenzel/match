@@ -6,7 +6,7 @@ from seaborn import heatmap
 
 from .nd_array.nd_array.normalize_1d_array import normalize_1d_array
 from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
-from .plot.plot.decorate import decorate
+from .plot.plot.decorate_ax import decorate_ax
 from .plot.plot.make_categorical_colormap import make_categorical_colormap
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
@@ -118,8 +118,8 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         cbar=False)
 
     # Decorate target heatmap
-    decorate(
-        ax=target_ax,
+    decorate_ax(
+        target_ax,
         despine_kwargs={'left': True,
                         'bottom': True},
         xlabel='',
@@ -205,8 +205,8 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         cbar=False)
 
     # Decorate features heatmap
-    decorate(
-        ax=features_ax,
+    decorate_ax(
+        features_ax,
         despine_kwargs={
             'left': True,
             'bottom': True,
