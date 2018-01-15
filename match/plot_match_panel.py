@@ -12,7 +12,6 @@ from .plot.plot.save_plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGEST, FONT_STANDARD)
-from .support.support.dict_ import merge_dicts_with_function
 from .support.support.iterable import get_unique_iterable_objects_in_order
 
 
@@ -172,8 +171,10 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
                 horizontalalignment='center',
                 verticalalignment='bottom',
                 rotation=90,
-                **merge_dicts_with_function(
-                    FONT_STANDARD, target_annotation_kwargs, lambda a, b: b))
+                **{
+                    **FONT_STANDARD,
+                    **target_annotation_kwargs,
+                })
 
     # Plot annotation header
     target_ax.text(
