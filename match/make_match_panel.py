@@ -43,24 +43,23 @@ def make_match_panel(target,
         target (Series): (n_sample, ); must be 3 <= 0.632 * n_sample to compute
             MoE
         features (DataFrame): (n_feature, n_sample, )
-        target_ascending (bool): True if target increase from left to right,
-            and False right to left
+        target_ascending (bool): True if target increase from left to right |
+            False right to left
         min_n_sample (int):
         function_ (callable): function_ for computing match scores between the
             target and each feature
-        scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
-            'p-value', 'FDR', ), )
+        scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value', 'FDR'), )
         n_job (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
-        n_top_feature (float): number of features to compute MoE, p-value,
+        n_top_feature (float): number of features to compute MoE, P-Value,
             and FDR; number threshold if 1 <= n_top_feature and percentile
             threshold if 0.5 <= n_top_feature < 1
         max_n_feature (int):
         n_sampling (int): number of bootstrap samplings to build distribution
             to compute MoE; 3 <= n_sampling
         n_permutation (int): number of permutations for permutation test to
-            compute p-values and FDR
+            compute P-Value and FDR
         random_seed (float):
         indices (iterable):
         figure_size (iterable):
@@ -74,8 +73,7 @@ def make_match_panel(target,
         file_path_prefix (str): file_path_prefix.match.tsv and
             file_path_prefix.match.pdf will be saved
     Returns:
-        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'p-value',
-            'FDR', ), )
+        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value', 'FDR'), )
     """
 
     if target_annotation_kwargs is None:
@@ -100,7 +98,9 @@ def make_match_panel(target,
             target_int_to_o[i] = o
         target = target.map(target_o_to_int)
 
-    if target_type in ('binary', 'categorical'):
+    if target_type in (
+            'binary',
+            'categorical', ):
         # Cluster by group
         columns = cluster_2d_array_slices_by_group(
             nan_to_num(features.values), nan_to_num(target.values))
@@ -150,8 +150,8 @@ def make_match_panel(target,
     # Make IC(MoE)s
     annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 MoE']].apply(
         lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-    # Make p-value
-    annotations['p-value'] = scores_to_plot['p-value'].apply('{:.2e}'.format)
+    # Make P-Value
+    annotations['P-Value'] = scores_to_plot['P-Value'].apply('{:.2e}'.format)
     # Make FDRs
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 

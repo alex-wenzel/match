@@ -37,24 +37,25 @@ def make_summary_match_panel(
     Arguments:
         target (Series): (n_sample, )
         multiple_features (dict): {
-            name : {
-                df,
-                indices,
-                index_aliases,
-                emphasis,
-                data_type,
+            name :
+                {
+                    df,
+                    indices,
+                    index_aliases,
+                    emphasis,
+                    data_type,
                 }
             }
         plot_only_columns_shared_by_target_and_all_features (bool):
-        target_ascending (bool): True if target increase from left to right,
-            and False right to left
+        target_ascending (bool): True if target increase from left to right |
+            False right to left
         min_n_sample (int):
         function_ (callable): function for computing match scores between the
             target and each feature
         n_sampling (int): number of bootstrap samplings to build distribution
             to compute MoE; 3 <= n_sampling
         n_permutation (int): number of permutations for permutation test to
-            compute p-values and FDR
+            compute P-Value and FDR
         random_seed (float):
         title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
@@ -113,7 +114,7 @@ def make_summary_match_panel(
         data_type = d['data_type']
 
         # Extract specified indices from features
-        missing_indices = [i for i in indices if i not in features.index]
+        missing_indices = (i for i in indices if i not in features.index)
         if any(missing_indices):
             raise ValueError(
                 'features don\'t have indices {}.'.format(missing_indices))
@@ -167,8 +168,8 @@ def make_summary_match_panel(
         # Make IC(MoE)s
         annotations['IC(\u0394)'] = scores[['Score', '0.95 MoE']].apply(
             lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-        # Make p-value
-        annotations['p-value'] = scores['p-value'].apply('{:.2e}'.format)
+        # Make P-Value
+        annotations['P-Value'] = scores['P-Value'].apply('{:.2e}'.format)
         # Make FDRs
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 

@@ -27,16 +27,16 @@ def match(target,
           n_permutation=30,
           random_seed=RANDOM_SEED):
     """
-    Compute: scores[i] = function__(target, features[i]); compute margin of error
-    (MoE), p-value, and FDR for n_top_feature features.
+    Compute: scores[i] = function__(target, features[i]) and margin of
+    error (MoE), P-Value, and FDR for n_top_feature features.
     Arguments:
-        target (ndarray): (n_sample); must be 3 <= 0.632 * n_sample to compute
+        target (ndarray): (n_sample, ); must be 3 <= 0.632 * n_sample to compute
             MoE
-        features (ndarray): (n_feature, n_sample)
+        features (ndarray): (n_feature, n_sample, )
         min_n_sample (int): the minimum number of samples needed for computing
         function_ (callable):
         n_job (int): number of multiprocess jobs
-        n_top_feature (float): number of features to compute MoE, p-value,
+        n_top_feature (float): number of features to compute MoE, P-Value,
             and FDR; number threshold if 1 <= n_top_feature and percentile
             threshold if 0.5 <= n_top_feature < 1
         max_n_feature (int):
@@ -44,15 +44,17 @@ def match(target,
             to compute MoE; 3 <= n_sampling
         confidence (float):
         n_permutation (int): number of permutations for permutation test to
-            compute p-values and FDR
+            compute P-Value and FDR
         random_seed (float):
     Returns:
-        DataFrame: (n_feature, 4 ['Score', '<confidence> MoE', 'p-value',
-            'FDR'])
+        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value', 'FDR'), )
     """
 
-    results = DataFrame(
-        columns=['Score', '{} MoE'.format(confidence), 'p-value', 'FDR'])
+    results = DataFrame(columns=(
+        'Score',
+        '{} MoE'.format(confidence),
+        'P-Value',
+        'FDR', ))
 
     # Match
     print('Computing match score with {} ({} process) ...'.format(
@@ -60,8 +62,8 @@ def match(target,
 
     results['Score'] = concatenate(
         multiprocess(match_target_and_features,
-                     [(target, features_, min_n_sample, function_)
-                      for features_ in array_split(features, n_job)], n_job))
+                     ((target, features_, min_n_sample, function_)
+                      for features_ in array_split(features, n_job)), n_job))
 
     # Get top and bottom indices
     indices = get_top_and_bottom_series_indices(results['Score'],
@@ -83,19 +85,19 @@ def match(target,
             n_sampling=n_sampling,
             random_seed=random_seed)
 
-    # Compute p-value and FDR
+    # Compute P-Value and FDR
     if 1 <= n_permutation:
 
         permutation_scores = concatenate(
-            multiprocess(permute_target_and_match_target_and_features, [
-                (target, features_, min_n_sample, function_, n_permutation,
-                 random_seed) for features_ in array_split(features, n_job)
-            ], n_job))
+            multiprocess(permute_target_and_match_target_and_features, (
+                (target, features_, min_n_sample, function_,
+                 n_permutation, random_seed)
+                for features_ in array_split(features, n_job)), n_job))
 
         p_values, fdrs = compute_empirical_p_values_and_fdrs(
             results['Score'], permutation_scores.flatten())
 
-        results['p-value'] = p_values
+        results['P-Value'] = p_values
         results['FDR'] = fdrs
 
     return results
@@ -111,9 +113,9 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
     """
     Match randomly sampled target and features to compute margin of errors.
     Arguments
-        target (ndarray): (n_sample); must be 3 <= 0.632 * n_sample to compute
+        target (ndarray): (n_sample, ); must be 3 <= 0.632 * n_sample to compute
             MoE
-        features (ndarray): (n_feature, n_sample)
+        features (ndarray): (n_feature, n_sample, )
         min_n_sample (int):
         function_ (callable):
         n_sampling (int): 3 <= n_sampling
@@ -156,7 +158,7 @@ def permute_target_and_match_target_and_features(target,
                                                  features,
                                                  min_n_sample,
                                                  function_,
-                                                 n_permutation=30,
+                                                 n_permutation=3,
                                                  random_seed=RANDOM_SEED):
     """
     Permute target and match target and features.
@@ -173,9 +175,9 @@ def permute_target_and_match_target_and_features(target,
 
     if n_permutation < 1:
         raise ValueError(
-            'Not computing p-value and FDR because n_permutation < 1.')
+            'Not computing P-Value and FDR because n_permutation < 1.')
 
-    print('Computing p-values and FDRs with {} permutations ...'.format(
+    print('Computing P-Values and FDRs with {} permutations ...'.format(
         n_permutation))
 
     feature_x_permutation = empty((features.shape[0], n_permutation))

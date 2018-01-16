@@ -14,7 +14,7 @@ def make_comparison_panel(array_2d_0,
                           function_=compute_information_coefficient,
                           axis=0,
                           figure_size=FIGURE_SIZE,
-                          title=None,
+                          title='',
                           array_2d_0_name='',
                           array_2d_1_name='',
                           file_path_prefix=None):

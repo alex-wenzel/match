@@ -176,7 +176,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
     target_ax.text(
         target_ax.get_xlim()[1] * 1.018,
         0.5,
-        ' ' * 5 + 'IC(\u0394)' + ' ' * 13 + 'p-value' + ' ' * 12 + 'FDR',
+        ' ' * 5 + 'IC(\u0394)' + ' ' * 12 + 'P-Value' + ' ' * 11 + 'FDR',
         verticalalignment='center',
         **FONT_STANDARD)
 
