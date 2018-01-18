@@ -62,8 +62,8 @@ def make_comparison_panel(array_2d_0,
         clustermap_kwargs={
             'figsize': figure_size,
         },
+        title=title,
         decorate_ax_kwargs={
-            'title': title,
             'xlabel': array_2d_1_name,
             'ylabel': array_2d_0_name,
         },
