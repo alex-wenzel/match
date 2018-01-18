@@ -60,7 +60,7 @@ def make_comparison_panel(array_2d_0,
     plot_clustermap(
         comparison,
         clustermap_kwargs={
-            'figure_size': figure_size,
+            'figsize': figure_size,
         },
         decorate_ax_kwargs={
             'title': title,
