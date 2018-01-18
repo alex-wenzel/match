@@ -215,5 +215,3 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
         if file_path:
             save_plot(file_path)
-
-        show()
