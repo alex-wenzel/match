@@ -1,3 +1,4 @@
+from matplotlib.cm import bwr
 from numpy import array
 from pandas import DataFrame
 
@@ -61,6 +62,7 @@ def make_comparison_panel(array_2d_0,
         comparison,
         clustermap_kwargs={
             'figsize': figure_size,
+            'cmap': bwr,
         },
         title=title,
         decorate_ax_kwargs={
