@@ -1,5 +1,5 @@
 from matplotlib.gridspec import GridSpec
-from matplotlib.pyplot import figure, show, subplot
+from matplotlib.pyplot import figure, subplot
 from numpy import unique
 from pandas import DataFrame, Series
 from seaborn import heatmap
@@ -67,7 +67,8 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
     if features_type == 'continuous':
         # Normalize features for plotting
         features = DataFrame(
-            normalize_2d_array(features.values, method='-0-', axis=1),
+            normalize_2d_array(features.values, method='-0-', axis=1).clip(
+                -max_std, max_std),
             index=features.index,
             columns=features.columns)
         features_min, features_max, features_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
@@ -115,8 +116,10 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
     # Decorate target heatmap
     decorate_ax(
         target_ax,
-        despine_kwargs={'left': True,
-                        'bottom': True},
+        despine_kwargs={
+            'left': True,
+            'bottom': True,
+        },
         xlabel='',
         ylabel='',
         max_ytick_size=max_ytick_size)
@@ -132,7 +135,9 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
             **FONT_LARGEST)
 
     # Plot target label
-    if target_type in ('binary', 'categorical'):
+    if target_type in (
+            'binary',
+            'categorical', ):
 
         # Get boundary index
         boundary_indices = [0]
@@ -202,7 +207,9 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
         max_ytick_size=max_ytick_size)
 
     # Plot annotations
-    for i, (a_i, a) in enumerate(annotations.iterrows()):
+    for i, (
+            a_i,
+            a, ) in enumerate(annotations.iterrows()):
 
         features_ax.text(
             target_ax.axis()[1] * 1.018,
