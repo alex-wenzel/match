@@ -1,4 +1,3 @@
-from matplotlib.cm import bwr
 from numpy import array
 from pandas import DataFrame
 
@@ -7,7 +6,7 @@ from .information.information.compute_information_coefficient import \
 from .nd_array.nd_array.apply_function_on_2_2d_arrays_slices import \
     apply_function_on_2_2d_arrays_slices
 from .plot.plot.plot_clustermap import plot_clustermap
-from .plot.plot.style import FIGURE_SIZE
+from .plot.plot.style import CMAP_CONTINUOUS_BWR, FIGURE_SIZE
 
 
 def make_comparison_panel(array_2d_0,
@@ -62,7 +61,7 @@ def make_comparison_panel(array_2d_0,
         comparison,
         clustermap_kwargs={
             'figsize': figure_size,
-            'cmap': bwr,
+            'cmap': CMAP_CONTINUOUS_BWR,
         },
         title=title,
         decorate_ax_kwargs={
