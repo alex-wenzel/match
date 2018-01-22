@@ -49,7 +49,7 @@ def make_match_panel(target,
         target_int_to_str (dict):
             {
                 int: str,
-                ...
+                ...,
             }
         min_n_sample (int):
         function_ (callable): function_ for computing match scores between the
