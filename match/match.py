@@ -177,7 +177,7 @@ def permute_target_and_match_target_and_features(
 
     seed(random_seed)
     for i in range(n_permutation):
-        if i % features.shape[0] // 3 == 0:
+        if i % (features.shape[0] // 3) == 0:
             print('\t{}/{} ...'.format(i + 1, n_permutation))
 
         # Permute
