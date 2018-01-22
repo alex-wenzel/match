@@ -130,12 +130,13 @@ def make_match_panel(target,
         indices = get_top_and_bottom_series_indices(scores['Score'],
                                                     n_top_feature).tolist()
 
-    indices = sorted(
-        indices,
-        key=lambda index: scores.loc[index, 'Score'],
-        reverse=not scores_ascending)
+    indices = Index(
+        sorted(
+            indices,
+            key=lambda index: scores.loc[index, 'Score'],
+            reverse=not scores_ascending))
 
-    if max_n_feature and max_n_feature < len(indices):
+    if max_n_feature and max_n_feature < indices.size:
         indices = indices[:max_n_feature // 2].append(
             indices[-max_n_feature // 2:])
 
@@ -143,7 +144,10 @@ def make_match_panel(target,
     features_to_plot = features.loc[scores_to_plot.index]
 
     annotations = DataFrame(index=scores_to_plot.index)
-    annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 MoE']].apply(
+    annotations['IC(\u0394)'] = scores_to_plot[[
+        'Score',
+        '0.95 MoE',
+    ]].apply(
         lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
     annotations['P-Value'] = scores_to_plot['P-Value'].apply('{:.2e}'.format)
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)

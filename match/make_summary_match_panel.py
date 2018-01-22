@@ -154,7 +154,10 @@ def make_summary_match_panel(
              for index, alias in zip(indices, index_aliases)}.get)
 
         annotations = DataFrame(index=scores.index)
-        annotations['IC(\u0394)'] = scores[['Score', '0.95 MoE']].apply(
+        annotations['IC(\u0394)'] = scores[[
+            'Score',
+            '0.95 MoE',
+        ]].apply(
             lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
         annotations['P-Value'] = scores['P-Value'].apply('{:.2e}'.format)
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
