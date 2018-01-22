@@ -34,7 +34,7 @@ def make_match_panel(target,
                      title='Match Panel',
                      target_int_to_str=None,
                      target_annotation_kwargs=None,
-                     max_ytick_size=26,
+                     max_ytick_size=39,
                      plot_column_names=False,
                      file_path_prefix=None):
     """

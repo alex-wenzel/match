@@ -30,7 +30,7 @@ def make_summary_match_panel(
         title='Summary Match Panel',
         target_int_to_str=None,
         target_annotation_kwargs=None,
-        max_ytick_size=26,
+        max_ytick_size=39,
         plot_column_names=False,
         file_path=None):
     """
