@@ -15,7 +15,7 @@ from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
 from .support.support.iterable import get_unique_iterable_objects_in_order
 
 
-def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
+def plot_match_panel(target, target_int_to_str, features, max_std, annotations,
                      figure_size, target_ax, features_ax, target_type,
                      features_type, title, target_annotation_kwargs,
                      plot_column_names, max_ytick_size, file_path):
@@ -23,7 +23,7 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
     Plot match panel.
     Arguments:
         target (Series): (n_sample, )
-        target_int_to_o (dict):
+        target_int_to_str (dict):
         features (DataFrame): (n_feature, n_sample, )
         max_std (float):
         annotations (DataFrame): (n_feature, 3, )
@@ -126,7 +126,6 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
 
     # Plot title
     if title:
-
         target_ax.text(
             target_ax.get_xlim()[1] / 2,
             -1,
@@ -160,8 +159,8 @@ def plot_match_panel(target, target_int_to_o, features, max_std, annotations,
             target.values)
         for i, x in enumerate(label_positions):
 
-            if target_int_to_o:
-                t = target_int_to_o[unique_target_labels[i]]
+            if target_int_to_str:
+                t = target_int_to_str[unique_target_labels[i]]
             else:
                 t = unique_target_labels[i]
 

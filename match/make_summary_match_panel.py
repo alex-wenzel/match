@@ -20,6 +20,7 @@ def make_summary_match_panel(
         multiple_features,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
+        target_int_to_str=None,
         min_n_sample=3,
         function_=compute_information_coefficient,
         n_sampling=3,
@@ -36,19 +37,25 @@ def make_summary_match_panel(
     Make summary match panel.
     Arguments:
         target (Series): (n_sample, )
-        multiple_features (dict): {
-            name :
-                {
-                    df,
-                    indices,
-                    index_aliases,
-                    emphasis,
-                    data_type,
-                }
+        multiple_features (dict):
+            {
+                name :
+                    {
+                        df,
+                        indices,
+                        index_aliases,
+                        emphasis,
+                        data_type,
+                    }
             }
         plot_only_columns_shared_by_target_and_all_features (bool):
         target_ascending (bool): True if target increase from left to right |
             False right to left
+        target_int_to_str (dict):
+            {
+                int: str,
+                ...
+            }
         min_n_sample (int):
         function_ (callable): function for computing match scores between the
             target and each feature
@@ -72,7 +79,6 @@ def make_summary_match_panel(
             'fontsize': 12,
         }
 
-    # Compute the number of rows needed for plotting
     n = 0
     max_width = 0
     for name, d in multiple_features.items():
@@ -81,13 +87,10 @@ def make_summary_match_panel(
         if max_width < w:
             max_width = w
 
-    # Set up figure
     fig = figure(figsize=(min(pow(max_width, 1.8), FIGURE_SIZE[1]), n))
 
-    # Set up ax grids
     gridspec = GridSpec(n, 1)
 
-    # Plot title
     fig.text(
         0.5,
         0.88,
@@ -97,14 +100,14 @@ def make_summary_match_panel(
         **FONT_LARGEST)
     r_i = 0
 
-    # Set columns to be plotted
     columns = target.index
     if plot_only_columns_shared_by_target_and_all_features:
         for name, d in multiple_features.items():
             columns &= d['df'].columns
 
-    # Plot multiple_features
-    for fi, (name, d) in enumerate(multiple_features.items()):
+    for fi, (
+            name,
+            d, ) in enumerate(multiple_features.items()):
         print('Making match panel for {} ...'.format(name))
 
         features = d['df']
@@ -113,37 +116,25 @@ def make_summary_match_panel(
         emphasis = d['emphasis']
         data_type = d['data_type']
 
-        # Extract specified indices from features
         missing_indices = (i for i in indices if i not in features.index)
         if any(missing_indices):
             raise ValueError(
                 'features don\'t have indices {}.'.format(missing_indices))
 
-        # Sort target and features.columns (based on target)
         target = target.loc[columns & features.columns].sort_values(
-            ascending=target_ascending or target.dtype == 'O')
+            ascending=target_ascending)
         features = features[target.index]
 
-        # Drop constant rows
         features = drop_df_slices(
             features.loc[indices], 1, max_n_unique_object=1)
 
-        target_o_to_int = {}
-        target_int_to_o = {}
-        if target.dtype == 'O':
-            # Make target numerical
-            for i, o in enumerate(target.unique()):
-                target_o_to_int[o] = i
-                target_int_to_o[i] = o
-            target = target.map(target_o_to_int)
+        if target_type in (
+                'binary',
+                'categorical', ):
+            features = features.iloc[:,
+                                     cluster_2d_array_slices_by_group(
+                                         features.values, target.values)]
 
-        if target_type in ('binary', 'categorical'):
-            # Cluster within categories
-            columns = cluster_2d_array_slices_by_group(features.values,
-                                                       target.values)
-            features = features.iloc[:, columns]
-
-        # Match
         scores = match(
             target.values,
             features.values,
@@ -155,25 +146,19 @@ def make_summary_match_panel(
             random_seed=random_seed)
         scores.index = features.index
 
-        # Sort scores
         scores = scores.sort_values('Score', ascending=emphasis == 'low')
         features = features.loc[scores.index]
 
-        # Use alias
-        i_to_a = {i: a for i, a in zip(indices, index_aliases)}
-        features.index = features.index.map(lambda i: i_to_a[i])
+        features.index = features.index.map(
+            {index: alias
+             for index, alias in zip(indices, index_aliases)}.get)
 
-        # Make annotations
         annotations = DataFrame(index=scores.index)
-        # Make IC(MoE)s
         annotations['IC(\u0394)'] = scores[['Score', '0.95 MoE']].apply(
             lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-        # Make P-Value
         annotations['P-Value'] = scores['P-Value'].apply('{:.2e}'.format)
-        # Make FDRs
         annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
-        # Plot features title
         title_ax = subplot(gridspec[r_i:r_i + 1, 0])
         r_i += 1
         title_ax.axis('off')
@@ -190,9 +175,8 @@ def make_summary_match_panel(
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
         r_i += features.shape[0]
 
-        # Plot match panel
         plot_match_panel(
-            target, target_int_to_o, features, max_std, annotations, None,
+            target, target_int_to_str, features, max_std, annotations, None,
             target_ax, features_ax, target_type, data_type, None,
             target_annotation_kwargs, plot_column_names
             and fi == len(multiple_features) - 1, max_ytick_size, None)

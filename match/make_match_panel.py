@@ -17,6 +17,7 @@ RANDOM_SEED = 20121020
 def make_match_panel(target,
                      features,
                      target_ascending=False,
+                     target_int_to_str=None,
                      scores=None,
                      min_n_sample=3,
                      function_=compute_information_coefficient,
@@ -45,10 +46,16 @@ def make_match_panel(target,
         features (DataFrame): (n_feature, n_sample, )
         target_ascending (bool): True if target increase from left to right |
             False right to left
+        target_int_to_str (dict):
+            {
+                int: str,
+                ...
+            }
         min_n_sample (int):
         function_ (callable): function_ for computing match scores between the
             target and each feature
-        scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value', 'FDR'), )
+        scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
+            'P-Value', 'FDR'), )
         n_job (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
@@ -73,41 +80,34 @@ def make_match_panel(target,
         file_path_prefix (str): file_path_prefix.match.tsv and
             file_path_prefix.match.pdf will be saved
     Returns:
-        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value', 'FDR'), )
+        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value',
+            'FDR'), )
     """
 
-    if target_annotation_kwargs is None:
-        target_annotation_kwargs = {
-            'fontsize': 12,
-        }
+    target_annotation_kwargs_ = {
+        'fontsize': 12,
+    }
+    if target_annotation_kwargs is not None:
+        target_annotation_kwargs_.update(target_annotation_kwargs)
+    target_annotation_kwargs = target_annotation_kwargs_
 
-    # Sort target and features.columns (based on target)
     target = target.loc[target.index & features.columns].sort_values(
-        ascending=target_ascending or target.dtype == 'O')
+        ascending=target_ascending)
     features = features[target.index]
 
-    # Drop constant rows
     features = drop_df_slices(features, 1, max_n_unique_object=1)
-
-    target_o_to_int = {}
-    target_int_to_o = {}
-    if target.dtype == 'O':
-        # Make target numerical
-        for i, o in enumerate(target.unique()):
-            target_o_to_int[o] = i
-            target_int_to_o[i] = o
-        target = target.map(target_o_to_int)
 
     if target_type in (
             'binary',
             'categorical', ):
-        # Cluster by group
-        columns = cluster_2d_array_slices_by_group(
-            nan_to_num(features.values), nan_to_num(target.values))
-        features = features.iloc[:, columns]
+
+        features = features.iloc[:,
+                                 cluster_2d_array_slices_by_group(
+                                     nan_to_num(features.values),
+                                     nan_to_num(target.values))]
 
     if scores is None:
-        # Match
+
         scores = match(
             target.values,
             features.values,
@@ -121,46 +121,38 @@ def make_match_panel(target,
             random_seed=random_seed)
         scores.index = features.index
 
-        # Sort scores
-        scores.sort_values('Score', ascending=scores_ascending, inplace=True)
-
         if file_path_prefix:
-            # Save scores
             file_path_tsv = file_path_prefix + '.match.tsv'
             establish_path(file_path_tsv, 'file')
             scores.to_csv(file_path_tsv, sep='\t')
 
-    # Select indices to plot
     if indices is None:
         indices = get_top_and_bottom_series_indices(scores['Score'],
-                                                    n_top_feature)
-        if max_n_feature and max_n_feature < indices.size:
-            indices = indices[:max_n_feature // 2].append(
-                indices[-max_n_feature // 2:])
-    else:
-        indices = sorted(
-            indices,
-            key=lambda j: scores.loc[j, 'Score'],
-            reverse=not scores_ascending)
+                                                    n_top_feature).tolist()
+
+    indices = sorted(
+        indices,
+        key=lambda index: scores.loc[index, 'Score'],
+        reverse=not scores_ascending)
+
+    if max_n_feature and max_n_feature < len(indices):
+        indices = indices[:max_n_feature // 2].append(
+            indices[-max_n_feature // 2:])
+
     scores_to_plot = scores.loc[indices]
     features_to_plot = features.loc[scores_to_plot.index]
 
-    # Make annotations
     annotations = DataFrame(index=scores_to_plot.index)
-    # Make IC(MoE)s
     annotations['IC(\u0394)'] = scores_to_plot[['Score', '0.95 MoE']].apply(
         lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-    # Make P-Value
     annotations['P-Value'] = scores_to_plot['P-Value'].apply('{:.2e}'.format)
-    # Make FDRs
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
-    # Plot match panel
     if file_path_prefix:
         file_path_plot = file_path_prefix + '.match.pdf'
     else:
         file_path_plot = None
-    plot_match_panel(target, target_int_to_o, features_to_plot, max_std,
+    plot_match_panel(target, target_int_to_str, features_to_plot, max_std,
                      annotations, figure_size, None, None, target_type,
                      features_type, title, target_annotation_kwargs,
                      plot_column_names, max_ytick_size, file_path_plot)

@@ -47,7 +47,8 @@ def match(target,
             compute P-Value and FDR
         random_seed (float):
     Returns:
-        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value', 'FDR'), )
+        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value',
+            'FDR'), )
     """
 
     results = DataFrame(columns=(
@@ -177,7 +178,7 @@ def permute_target_and_match_target_and_features(target,
         raise ValueError(
             'Not computing P-Value and FDR because n_permutation < 1.')
 
-    print('Computing P-Values and FDRs with {} permutations ...'.format(
+    print('Computing p-values and FDRs with {} permutations ...'.format(
         n_permutation))
 
     feature_x_permutation = empty((features.shape[0], n_permutation))
