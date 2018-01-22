@@ -20,18 +20,18 @@ def make_summary_match_panel(
         multiple_features,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
-        target_int_to_str=None,
-        min_n_sample=3,
+        min_n_sample=5,
         function_=compute_information_coefficient,
-        n_sampling=3,
-        n_permutation=3,
         random_seed=RANDOM_SEED,
-        title='Summary Match Panel',
+        n_sampling=8,
+        n_permutation=8,
         target_type='continuous',
         max_std=3,
+        title='Summary Match Panel',
+        target_int_to_str=None,
         target_annotation_kwargs=None,
-        plot_column_names=False,
         max_ytick_size=26,
+        plot_column_names=False,
         file_path=None):
     """
     Make summary match panel.
@@ -46,38 +46,41 @@ def make_summary_match_panel(
                         index_aliases,
                         emphasis,
                         data_type,
-                    }
+                    },
+                ...,
             }
         plot_only_columns_shared_by_target_and_all_features (bool):
         target_ascending (bool): True if target increase from left to right |
             False right to left
-        target_int_to_str (dict):
-            {
-                int: str,
-                ...
-            }
         min_n_sample (int):
         function_ (callable): function for computing match scores between the
             target and each feature
+        random_seed (float):
         n_sampling (int): number of bootstrap samplings to build distribution
             to compute MoE; 3 <= n_sampling
         n_permutation (int): number of permutations for permutation test to
             compute P-Value and FDR
-        random_seed (float):
-        title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (float):
+        title (str): plot title
+        target_int_to_str (dict):
+            {
+                int: str,
+                ...,
+            }
         target_annotation_kwargs (dict):
-        plot_column_names (bool): whether to plot column names
         max_ytick_size (int):
+        plot_column_names (bool): whether to plot column names
         file_path (str):
     Returns:
     """
 
-    if target_annotation_kwargs is None:
-        target_annotation_kwargs = {
-            'fontsize': 12,
-        }
+    target_annotation_kwargs_ = {
+        'fontsize': 12,
+    }
+    if target_annotation_kwargs is not None:
+        target_annotation_kwargs_.update(target_annotation_kwargs)
+    target_annotation_kwargs = target_annotation_kwargs_
 
     n = 0
     max_width = 0
@@ -178,11 +181,11 @@ def make_summary_match_panel(
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
         r_i += features.shape[0]
 
-        plot_match_panel(
-            target, target_int_to_str, features, max_std, annotations, None,
-            target_ax, features_ax, target_type, data_type, None,
-            target_annotation_kwargs, plot_column_names
-            and fi == len(multiple_features) - 1, max_ytick_size, None)
+        plot_match_panel(target, features, target_type, data_type, max_std,
+                         target_ax, features_ax, None, target_int_to_str,
+                         target_annotation_kwargs, max_ytick_size, annotations,
+                         plot_column_names
+                         and fi == len(multiple_features) - 1, None)
 
     if file_path:
         save_plot(file_path)

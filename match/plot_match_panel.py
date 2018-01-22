@@ -15,27 +15,26 @@ from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
 from .support.support.iterable import get_unique_iterable_objects_in_order
 
 
-def plot_match_panel(target, target_int_to_str, features, max_std, annotations,
-                     figure_size, target_ax, features_ax, target_type,
-                     features_type, title, target_annotation_kwargs,
-                     plot_column_names, max_ytick_size, file_path):
+def plot_match_panel(target, features, target_type, features_type, max_std,
+                     target_ax, features_ax, title, target_int_to_str,
+                     target_annotation_kwargs, max_ytick_size, annotations,
+                     plot_column_names, file_path):
     """
     Plot match panel.
     Arguments:
         target (Series): (n_sample, )
-        target_int_to_str (dict):
         features (DataFrame): (n_feature, n_sample, )
-        max_std (float):
-        annotations (DataFrame): (n_feature, 3, )
-        figure_size (iterable):
-        target_ax (matplotlib.Axes):
-        features_ax (matplotlib.Axes):
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
+        max_std (float):
+        target_ax (matplotlib.Axes):
+        features_ax (matplotlib.Axes):
         title (str):
+        target_int_to_str (dict):
         target_annotation_kwargs (dict):
-        plot_column_names (bool):
         max_ytick_size (int):
+        annotations (DataFrame): (n_feature, 3, )
+        plot_column_names (bool):
         file_path (str):
     Returns:
     """
@@ -87,18 +86,19 @@ def plot_match_panel(target, target_int_to_str, features, max_std, annotations,
     else:
         raise ValueError('Unknown features_type: {}.'.format(features_type))
 
-    # Set up figure
-    if not figure_size:
-        figure_size = (min(pow(features.shape[1], 1.8), FIGURE_SIZE[1]),
-                       features.shape[0])
-
-    # Set up grids and axes if target_ax or features_ax is not specified
     if target_ax is None or features_ax is None:
-        figure(figsize=figure_size)
+        # Set up figure and grids and axes
+
+        figure(figsize=(min(pow(features.shape[1], 1.8), FIGURE_SIZE[1]),
+                        features.shape[0]))
+
         gridspec = GridSpec(features.shape[0] + 1, 1)
+
         target_ax = subplot(gridspec[:1, 0])
         features_ax = subplot(gridspec[1:, 0])
+
         save_and_show_plot = True
+
     else:
         save_and_show_plot = False
 

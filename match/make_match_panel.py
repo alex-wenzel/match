@@ -17,26 +17,25 @@ RANDOM_SEED = 20121020
 def make_match_panel(target,
                      features,
                      target_ascending=False,
-                     target_int_to_str=None,
                      scores=None,
-                     min_n_sample=3,
+                     min_n_sample=5,
                      function_=compute_information_coefficient,
+                     random_seed=RANDOM_SEED,
                      n_job=1,
                      scores_ascending=False,
+                     indices=None,
                      n_top_feature=26,
                      max_n_feature=100,
-                     n_sampling=3,
-                     n_permutation=3,
-                     random_seed=RANDOM_SEED,
-                     indices=None,
-                     figure_size=None,
-                     title='Match Panel',
+                     n_sampling=8,
+                     n_permutation=8,
                      target_type='continuous',
                      features_type='continuous',
                      max_std=3,
+                     title='Match Panel',
+                     target_int_to_str=None,
                      target_annotation_kwargs=None,
-                     plot_column_names=False,
                      max_ytick_size=26,
+                     plot_column_names=False,
                      file_path_prefix=None):
     """
     Make match panel.
@@ -46,19 +45,16 @@ def make_match_panel(target,
         features (DataFrame): (n_feature, n_sample, )
         target_ascending (bool): True if target increase from left to right |
             False right to left
-        target_int_to_str (dict):
-            {
-                int: str,
-                ...,
-            }
+        scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
+            'P-Value', 'FDR'), )
         min_n_sample (int):
         function_ (callable): function_ for computing match scores between the
             target and each feature
-        scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
-            'P-Value', 'FDR'), )
+        random_seed (float):
         n_job (int): number of multiprocess jobs
         scores_ascending (bool): True (scores increase from top to bottom) |
             False
+        indices (iterable):
         n_top_feature (float): number of features to compute MoE, P-Value,
             and FDR; number threshold if 1 <= n_top_feature and percentile
             threshold if 0.5 <= n_top_feature < 1
@@ -67,16 +63,18 @@ def make_match_panel(target,
             to compute MoE; 3 <= n_sampling
         n_permutation (int): number of permutations for permutation test to
             compute P-Value and FDR
-        random_seed (float):
-        indices (iterable):
-        figure_size (iterable):
-        title (str): plot title
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (float):
+        title (str): plot title
+        target_int_to_str (dict):
+            {
+                int: str,
+                ...,
+            }
         target_annotation_kwargs (dict):
-        plot_column_names (bool): whether to plot column names
         max_ytick_size (int):
+        plot_column_names (bool): whether to plot column names
         file_path_prefix (str): file_path_prefix.match.tsv and
             file_path_prefix.match.pdf will be saved
     Returns:
@@ -156,9 +154,10 @@ def make_match_panel(target,
         file_path_plot = file_path_prefix + '.match.pdf'
     else:
         file_path_plot = None
-    plot_match_panel(target, target_int_to_str, features_to_plot, max_std,
-                     annotations, figure_size, None, None, target_type,
-                     features_type, title, target_annotation_kwargs,
-                     plot_column_names, max_ytick_size, file_path_plot)
+
+    plot_match_panel(target, features_to_plot, target_type, features_type,
+                     max_std, None, None, title, target_int_to_str,
+                     target_annotation_kwargs, max_ytick_size, annotations,
+                     plot_column_names, file_path_plot)
 
     return scores

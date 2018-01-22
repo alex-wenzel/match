@@ -20,11 +20,11 @@ def match(target,
           min_n_sample,
           function_,
           n_job=1,
-          n_top_feature=0.99,
-          max_n_feature=100,
-          n_sampling=30,
+          n_top_feature=0.98,
+          max_n_feature=80,
+          n_sampling=8,
           confidence=0.95,
-          n_permutation=30,
+          n_permutation=8,
           random_seed=RANDOM_SEED):
     """
     Compute: scores[i] = function__(target, features[i]) and margin of
@@ -57,6 +57,9 @@ def match(target,
         'P-Value',
         'FDR', ))
 
+    if 1 < n_job:
+        n_job = min(features.shape[0], n_job)
+
     # Match
     print('Computing match score with {} ({} process) ...'.format(
         function_, n_job))
@@ -79,12 +82,7 @@ def match(target,
         results.loc[indices, '{} MoE'.format(
             confidence
         )] = match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
-            target,
-            features[indices],
-            min_n_sample,
-            function_,
-            n_sampling=n_sampling,
-            random_seed=random_seed)
+            target, features[indices], 3, function_, n_sampling, random_seed)
 
     # Compute P-Value and FDR
     if 1 <= n_permutation:
@@ -105,12 +103,7 @@ def match(target,
 
 
 def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
-        target,
-        features,
-        min_n_sample,
-        function_,
-        n_sampling=30,
-        random_seed=RANDOM_SEED):
+        target, features, min_n_sample, function_, n_sampling, random_seed):
     """
     Match randomly sampled target and features to compute margin of errors.
     Arguments
@@ -155,12 +148,8 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
     return apply_along_axis(compute_margin_of_error, 1, feature_x_sampling)
 
 
-def permute_target_and_match_target_and_features(target,
-                                                 features,
-                                                 min_n_sample,
-                                                 function_,
-                                                 n_permutation=3,
-                                                 random_seed=RANDOM_SEED):
+def permute_target_and_match_target_and_features(
+        target, features, min_n_sample, function_, n_permutation, random_seed):
     """
     Permute target and match target and features.
     Arguments:
@@ -188,7 +177,7 @@ def permute_target_and_match_target_and_features(target,
 
     seed(random_seed)
     for i in range(n_permutation):
-        if i % ceil(5000 / features.shape[0]) == 0:
+        if i % features.shape[0] // 3 == 0:
             print('\t{}/{} ...'.format(i + 1, n_permutation))
 
         # Permute
