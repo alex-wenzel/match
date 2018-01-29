@@ -103,10 +103,9 @@ def make_summary_match_panel(
         **FONT_LARGEST)
     r_i = 0
 
-    columns = target.index
     if plot_only_columns_shared_by_target_and_all_features:
         for name, d in multiple_features.items():
-            columns &= d['df'].columns
+            target = target.loc[target.index & d['df'].columns]
 
     for fi, (
             name,
@@ -124,9 +123,12 @@ def make_summary_match_panel(
             raise ValueError(
                 'features don\'t have indices {}.'.format(missing_indices))
 
-        target = target.loc[columns & features.columns].sort_values(
+        target_ = target.loc[target.index & features.columns].sort_values(
             ascending=target_ascending)
-        features = features[target.index]
+        features = features[target_.index]
+
+        if target_.size != target.size:
+            plot_column_names = False
 
         features = drop_df_slices(
             features.loc[indices], 1, max_n_unique_object=1)
@@ -136,10 +138,10 @@ def make_summary_match_panel(
                 'categorical', ):
             features = features.iloc[:,
                                      cluster_2d_array_slices_by_group(
-                                         features.values, target.values)]
+                                         features.values, target_.values)]
 
         scores = match(
-            target.values,
+            target_.values,
             features.values,
             min_n_sample,
             function_,
@@ -171,7 +173,7 @@ def make_summary_match_panel(
         title_ax.text(
             0.5,
             0,
-            '{} (n={})'.format(name, target.size),
+            '{} (n={})'.format(name, target_.size),
             horizontalalignment='center',
             **FONT_LARGER)
 
@@ -181,7 +183,7 @@ def make_summary_match_panel(
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
         r_i += features.shape[0]
 
-        plot_match_panel(target, features, target_type, data_type, max_std,
+        plot_match_panel(target_, features, target_type, data_type, max_std,
                          target_ax, features_ax, None, target_int_to_str,
                          target_annotation_kwargs, max_ytick_size, annotations,
                          plot_column_names
