@@ -43,7 +43,8 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
     if target_type == 'continuous':
         # Normalize target for plotting
         target = Series(
-            normalize_1d_array(target.values, method='-0-'),
+            normalize_1d_array(target.values, method='-0-').clip(
+                -max_std, max_std),
             name=target.name,
             index=target.index)
         target_min, target_max, target_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
