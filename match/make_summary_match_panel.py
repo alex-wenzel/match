@@ -28,8 +28,6 @@ def make_summary_match_panel(
         target_type='continuous',
         max_std=3,
         title='Summary Match Panel',
-        target_int_to_str=None,
-        target_annotation_kwargs=None,
         max_ytick_size=39,
         plot_column_names=False,
         file_path=None):
@@ -50,8 +48,8 @@ def make_summary_match_panel(
                 ...,
             }
         plot_only_columns_shared_by_target_and_all_features (bool):
-        target_ascending (bool): True if target increase from left to right |
-            False right to left
+        target_ascending (bool | None): True if target increase from left to
+            right | False right to left | None for using the target's order
         min_n_sample (int):
         function_ (callable): function for computing match scores between the
             target and each feature
@@ -63,24 +61,11 @@ def make_summary_match_panel(
         target_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (float):
         title (str): plot title
-        target_int_to_str (dict):
-            {
-                int: str,
-                ...,
-            }
-        target_annotation_kwargs (dict):
         max_ytick_size (int):
         plot_column_names (bool): whether to plot column names
         file_path (str):
     Returns:
     """
-
-    target_annotation_kwargs_ = {
-        'fontsize': 12,
-    }
-    if target_annotation_kwargs is not None:
-        target_annotation_kwargs_.update(target_annotation_kwargs)
-    target_annotation_kwargs = target_annotation_kwargs_
 
     n = 0
     max_width = 0
@@ -123,8 +108,11 @@ def make_summary_match_panel(
             raise ValueError(
                 'features don\'t have indices {}.'.format(missing_indices))
 
-        target_ = target.loc[target.index & features.columns].sort_values(
-            ascending=target_ascending)
+        target_ = target.loc[target.index & features.columns]
+
+        if isinstance(target_ascending, bool):
+            target_.sort_values(ascending=target_ascending, inplace=True)
+
         features = features[target_.index]
 
         if target_.size != target.size:
@@ -184,9 +172,8 @@ def make_summary_match_panel(
         r_i += features.shape[0]
 
         plot_match_panel(target_, features, target_type, data_type, max_std,
-                         target_ax, features_ax, None, target_int_to_str,
-                         target_annotation_kwargs, max_ytick_size, annotations,
-                         plot_column_names
+                         target_ax, features_ax, None, max_ytick_size,
+                         annotations, plot_column_names
                          and fi == len(multiple_features) - 1, None)
 
     if file_path:

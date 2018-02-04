@@ -32,8 +32,6 @@ def make_match_panel(target,
                      features_type='continuous',
                      max_std=3,
                      title='Match Panel',
-                     target_int_to_str=None,
-                     target_annotation_kwargs=None,
                      max_ytick_size=39,
                      plot_column_names=False,
                      file_path_prefix=None):
@@ -43,10 +41,10 @@ def make_match_panel(target,
         target (Series): (n_sample, ); must be 3 <= 0.632 * n_sample to compute
             MoE
         features (DataFrame): (n_feature, n_sample, )
-        target_ascending (bool): True if target increase from left to right |
-            False right to left
+        target_ascending (bool | None): True if target increase from left to
+            right | False right to left | None for using the target's order
         scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
-            'P-Value', 'FDR'), )
+            'P-Value', 'FDR', ), )
         min_n_sample (int):
         function_ (callable): function_ for computing match scores between the
             target and each feature
@@ -67,30 +65,20 @@ def make_match_panel(target,
         features_type (str): 'continuous' | 'categorical' | 'binary'
         max_std (float):
         title (str): plot title
-        target_int_to_str (dict):
-            {
-                int: str,
-                ...,
-            }
-        target_annotation_kwargs (dict):
         max_ytick_size (int):
         plot_column_names (bool): whether to plot column names
         file_path_prefix (str): file_path_prefix.match.tsv and
             file_path_prefix.match.pdf will be saved
     Returns:
         DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value',
-            'FDR'), )
+            'FDR', ), )
     """
 
-    target_annotation_kwargs_ = {
-        'fontsize': 12,
-    }
-    if target_annotation_kwargs is not None:
-        target_annotation_kwargs_.update(target_annotation_kwargs)
-    target_annotation_kwargs = target_annotation_kwargs_
+    target = target.loc[target.index & features.columns]
 
-    target = target.loc[target.index & features.columns].sort_values(
-        ascending=target_ascending)
+    if isinstance(target_ascending, bool):
+        target.sort_values(ascending=target_ascending, inplace=True)
+
     features = features[target.index]
 
     features = drop_df_slices(features, 1, max_n_unique_object=1)
@@ -159,8 +147,7 @@ def make_match_panel(target,
         file_path_plot = None
 
     plot_match_panel(target, features_to_plot, target_type, features_type,
-                     max_std, None, None, title, target_int_to_str,
-                     target_annotation_kwargs, max_ytick_size, annotations,
+                     max_std, None, None, title, max_ytick_size, annotations,
                      plot_column_names, file_path_plot)
 
     return scores

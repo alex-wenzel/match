@@ -12,13 +12,11 @@ from .plot.plot.save_plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGEST, FONT_STANDARD)
-from .support.support.iterable import get_unique_iterable_objects_in_order
 
 
 def plot_match_panel(target, features, target_type, features_type, max_std,
-                     target_ax, features_ax, title, target_int_to_str,
-                     target_annotation_kwargs, max_ytick_size, annotations,
-                     plot_column_names, file_path):
+                     target_ax, features_ax, title, max_ytick_size,
+                     annotations, plot_column_names, file_path):
     """
     Plot match panel.
     Arguments:
@@ -30,8 +28,6 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         target_ax (matplotlib.Axes):
         features_ax (matplotlib.Axes):
         title (str):
-        target_int_to_str (dict):
-        target_annotation_kwargs (dict):
         max_ytick_size (int):
         annotations (DataFrame): (n_feature, 3, )
         plot_column_names (bool):
@@ -110,8 +106,10 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         vmin=target_min,
         vmax=target_max,
         cmap=target_cmap,
-        xticklabels=False,
-        yticklabels=[target.name],
+        xticklabels=(
+            target,
+            (), )[target_type == 'continuous' and 10 < target.size],
+        yticklabels=(target.name, ),
         cbar=False)
 
     # Decorate target heatmap
@@ -121,8 +119,10 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
             'left': True,
             'bottom': True,
         },
-        xlabel='',
-        ylabel='',
+        xaxis_position='top',
+        xticklabels_kwargs={
+            'rotation': 0,
+        },
         max_ytick_size=max_ytick_size)
 
     # Plot title
@@ -154,28 +154,6 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         for i in boundary_indices[1:]:
             label_positions.append(i - (i - prev_i) / 2)
             prev_i = i
-
-        # Plot target label
-        unique_target_labels = get_unique_iterable_objects_in_order(
-            target.values)
-        for i, x in enumerate(label_positions):
-
-            if target_int_to_str:
-                t = target_int_to_str[unique_target_labels[i]]
-            else:
-                t = unique_target_labels[i]
-
-            target_ax.text(
-                x,
-                -0.18,
-                t,
-                horizontalalignment='center',
-                verticalalignment='bottom',
-                rotation=90,
-                **{
-                    **FONT_STANDARD,
-                    **target_annotation_kwargs,
-                })
 
     # Plot annotation header
     target_ax.text(
