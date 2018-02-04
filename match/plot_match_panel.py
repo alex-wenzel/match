@@ -108,7 +108,7 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         cmap=target_cmap,
         xticklabels=(
             target,
-            (), )[target_type == 'continuous' and 10 < target.size],
+            (), )[target_type == 'continuous'],
         yticklabels=(target.name, ),
         cbar=False)
 
