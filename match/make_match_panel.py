@@ -99,10 +99,13 @@ def make_match_panel(target,
             'binary',
             'categorical', ):
 
-        features = features.iloc[:,
-                                 cluster_2d_array_slices_by_group(
-                                     nan_to_num(features.values),
-                                     nan_to_num(target.values))]
+        target_values = target.values.tolist()
+        if all(((1 < target_values.count(i)) for i in target_values)):
+
+            features = features.iloc[:,
+                                     cluster_2d_array_slices_by_group(
+                                         nan_to_num(features.values),
+                                         nan_to_num(target.values))]
 
     if scores is None:
 

@@ -48,7 +48,7 @@ def match(target,
         random_seed (float):
     Returns:
         DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value',
-            'FDR'), )
+            'FDR', ), )
     """
 
     results = DataFrame(columns=(
@@ -68,6 +68,11 @@ def match(target,
         multiprocess(match_target_and_features,
                      ((target, features_, min_n_sample, function_)
                       for features_ in array_split(features, n_job)), n_job))
+
+    if results['Score'].isna().all():
+        raise ValueError(
+            'Could not compute any score; perhaps because there were less than {} (min_n_sample) non-na values for all target-feature pairs to compute the score.'.
+            format(min_n_sample))
 
     # Get top and bottom indices
     indices = get_top_and_bottom_series_indices(results['Score'],
