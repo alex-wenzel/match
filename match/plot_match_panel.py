@@ -108,7 +108,7 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         cmap=target_cmap,
         xticklabels=(
             target,
-            (), )[target_type == 'continuous'],
+            (), )[target_type == 'continuous' or 80 < target.size],
         yticklabels=(target.name, ),
         cbar=False)
 
@@ -120,9 +120,6 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
             'bottom': True,
         },
         xaxis_position='top',
-        xticklabels_kwargs={
-            'rotation': 0,
-        },
         max_ytick_size=max_ytick_size)
 
     # Plot title
