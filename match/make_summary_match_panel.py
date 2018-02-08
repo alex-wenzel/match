@@ -21,12 +21,12 @@ def make_summary_match_panel(
         min_n_sample=5,
         function_=compute_information_coefficient,
         random_seed=20121020,
-        n_sampling=8,
-        n_permutation=8,
+        n_sampling=10,
+        n_permutation=10,
         target_type='continuous',
         max_std=3,
         title='Summary Match Panel',
-        max_ytick_size=39,
+        max_ytick_size=50,
         plot_column_names=False,
         file_path=None):
     """

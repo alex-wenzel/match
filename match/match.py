@@ -18,11 +18,11 @@ def match(target,
           min_n_sample,
           function_,
           n_job=1,
-          n_top_feature=0.98,
-          max_n_feature=80,
-          n_sampling=8,
+          n_top_feature=0.99,
+          max_n_feature=100,
+          n_sampling=10,
           confidence=0.95,
-          n_permutation=8,
+          n_permutation=10,
           random_seed=20121020):
     """
     Compute: scores[i] = function__(target, features[i]) and margin of
