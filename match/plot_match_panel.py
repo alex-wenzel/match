@@ -59,7 +59,7 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
         target_ax = subplot(gridspec[:1, 0])
         features_ax = subplot(gridspec[1:-1, 0])
         colorbar_ax = subplot(gridspec[-1:, 0])
-        colorbar_ax.axis('off')
+        colorbar_ax.set_axis_off()
 
         features_values = features.values[~isna(features)]
         if features_type == 'continuous':

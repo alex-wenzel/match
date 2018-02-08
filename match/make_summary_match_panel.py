@@ -153,7 +153,7 @@ def make_summary_match_panel(
 
         title_ax = subplot(gridspec[r_i:r_i + 1, 0])
         r_i += 1
-        title_ax.axis('off')
+        title_ax.set_axis_off()
         title_ax.text(
             0.5,
             0,
