@@ -11,8 +11,6 @@ from .support.support.df import drop_df_slices
 from .support.support.path import establish_path
 from .support.support.series import get_top_and_bottom_series_indices
 
-RANDOM_SEED = 20121020
-
 
 def make_match_panel(target,
                      features,
@@ -20,7 +18,7 @@ def make_match_panel(target,
                      scores=None,
                      min_n_sample=5,
                      function_=compute_information_coefficient,
-                     random_seed=RANDOM_SEED,
+                     random_seed=20121020,
                      n_job=1,
                      scores_ascending=False,
                      indices=None,

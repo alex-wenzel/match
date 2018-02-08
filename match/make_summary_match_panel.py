@@ -12,8 +12,6 @@ from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
 from .plot_match_panel import plot_match_panel
 from .support.support.df import drop_df_slices
 
-RANDOM_SEED = 20121020
-
 
 def make_summary_match_panel(
         target,
@@ -22,7 +20,7 @@ def make_summary_match_panel(
         target_ascending=False,
         min_n_sample=5,
         function_=compute_information_coefficient,
-        random_seed=RANDOM_SEED,
+        random_seed=20121020,
         n_sampling=8,
         n_permutation=8,
         target_type='continuous',

@@ -12,8 +12,6 @@ from .nd_array.nd_array.drop_nan_and_apply_function_on_2_1d_arrays import \
 from .support.support.multiprocess import multiprocess
 from .support.support.series import get_top_and_bottom_series_indices
 
-RANDOM_SEED = 20121020
-
 
 def match(target,
           features,
@@ -25,7 +23,7 @@ def match(target,
           n_sampling=8,
           confidence=0.95,
           n_permutation=8,
-          random_seed=RANDOM_SEED):
+          random_seed=20121020):
     """
     Compute: scores[i] = function__(target, features[i]) and margin of
     error (MoE), P-Value, and FDR for n_top_feature features.
