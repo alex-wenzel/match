@@ -1,19 +1,18 @@
+from matplotlib.colorbar import ColorbarBase, make_axes
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
-from numpy import unique
-from pandas import DataFrame, Series
+from pandas import DataFrame, isna
 from seaborn import heatmap
 
 from .plot.plot.decorate_ax import decorate_ax
-from .plot.plot.make_categorical_colormap import make_categorical_colormap
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
                               CMAP_CONTINUOUS_ASSOCIATION, FIGURE_SIZE,
                               FONT_LARGEST, FONT_STANDARD)
 
 
-def plot_match_panel(target, features, target_type, features_type, max_std,
-                     target_ax, features_ax, title, max_ytick_size,
+def plot_match_panel(target, features, target_type, features_type, target_ax,
+                     features_ax, title, target_xticklabels, max_ytick_size,
                      annotations, plot_column_names, file_path):
     """
     Plot match panel.
@@ -22,10 +21,10 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         features (DataFrame): (n_feature, n_sample, )
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
-        max_std (float):
         target_ax (matplotlib.Axes):
         features_ax (matplotlib.Axes):
         title (str):
+        target_xticklabels (iterable):
         max_ytick_size (int):
         annotations (DataFrame): (n_feature, 3, )
         plot_column_names (bool):
@@ -33,84 +32,53 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
     Returns:
     """
 
-    # Set target min, max, and colormap
     if target_type == 'continuous':
-        # Normalize target for plotting
-        target = Series(
-            normalize_1d_array(target.values, method='-0-').clip(
-                -max_std, max_std),
-            name=target.name,
-            index=target.index)
-        target_min, target_max, target_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
-
+        target_cmap = CMAP_CONTINUOUS_ASSOCIATION
     elif target_type == 'categorical':
-        n = unique(target).size
-        if CMAP_CATEGORICAL.N < n:
-            cmap = make_categorical_colormap()
-        else:
-            cmap = CMAP_CATEGORICAL
-        target_min, target_max, target_cmap = 0, n, cmap
-
+        target_cmap = CMAP_CATEGORICAL
     elif target_type == 'binary':
-        target_min, target_max, target_cmap = 0, 1, CMAP_BINARY_WB
-
+        target_cmap = CMAP_BINARY_WB
     else:
         raise ValueError('Unknown target_type: {}.'.format(target_type))
 
-    # Set features min, max, and colormap
     if features_type == 'continuous':
-        # Normalize features for plotting
-        features = DataFrame(
-            normalize_2d_array(features.values, method='-0-', axis=1).clip(
-                -max_std, max_std),
-            index=features.index,
-            columns=features.columns)
-        features_min, features_max, features_cmap = -max_std, max_std, CMAP_CONTINUOUS_ASSOCIATION
-
+        features_cmap = CMAP_CONTINUOUS_ASSOCIATION
     elif features_type == 'categorical':
-        n = unique(features).size
-        if CMAP_CATEGORICAL.N < n:
-            cmap = make_categorical_colormap()
-        else:
-            cmap = CMAP_CATEGORICAL
-        features_min, features_max, features_cmap = 0, n, cmap
-
+        features_cmap = CMAP_CATEGORICAL
     elif features_type == 'binary':
-        features_min, features_max, features_cmap = 0, 1, CMAP_BINARY_WB
-
+        features_cmap = CMAP_BINARY_WB
     else:
         raise ValueError('Unknown features_type: {}.'.format(features_type))
 
     if target_ax is None or features_ax is None:
-        # Set up figure and grids and axes
 
         figure(figsize=(min(pow(features.shape[1], 1.8), FIGURE_SIZE[1]),
                         features.shape[0]))
 
         gridspec = GridSpec(features.shape[0] + 1, 1)
-
         target_ax = subplot(gridspec[:1, 0])
-        features_ax = subplot(gridspec[1:, 0])
+        features_ax = subplot(gridspec[1:-1, 0])
+        colorbar_ax = subplot(gridspec[-1:, 0])
+        colorbar_ax.axis('off')
 
-        save_and_show_plot = True
+        save_plot_ = True
 
     else:
-        save_and_show_plot = False
+        save_plot_ = False
 
-    # Plot target heatmap
+    if target_xticklabels is None:
+        target_xticklabels = (
+            target,
+            (), )[50 < target.size]
+
     heatmap(
         DataFrame(target).T,
         ax=target_ax,
-        vmin=target_min,
-        vmax=target_max,
         cmap=target_cmap,
-        xticklabels=(
-            target,
-            (), )[target_type == 'continuous' or 80 < target.size],
+        xticklabels=target_xticklabels,
         yticklabels=(target.name, ),
         cbar=False)
 
-    # Decorate target heatmap
     decorate_ax(
         target_ax,
         despine_kwargs={
@@ -120,7 +88,6 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         xaxis_position='top',
         max_ytick_size=max_ytick_size)
 
-    # Plot title
     if title:
         target_ax.text(
             target_ax.get_xlim()[1] / 2,
@@ -129,28 +96,6 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
             horizontalalignment='center',
             **FONT_LARGEST)
 
-    # Plot target label
-    if target_type in (
-            'binary',
-            'categorical', ):
-
-        # Get boundary index
-        boundary_indices = [0]
-        prev_v = target[0]
-        for i, v in enumerate(target[1:]):
-            if prev_v != v:
-                boundary_indices.append(i + 1)
-            prev_v = v
-        boundary_indices.append(features.shape[1])
-
-        # Get label position
-        label_positions = []
-        prev_i = 0
-        for i in boundary_indices[1:]:
-            label_positions.append(i - (i - prev_i) / 2)
-            prev_i = i
-
-    # Plot annotation header
     target_ax.text(
         target_ax.get_xlim()[1] * 1.018,
         0.5,
@@ -158,17 +103,13 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         verticalalignment='center',
         **FONT_STANDARD)
 
-    # Plot features heatmap
     heatmap(
         features,
         ax=features_ax,
-        vmin=features_min,
-        vmax=features_max,
         cmap=features_cmap,
         xticklabels=plot_column_names,
         cbar=False)
 
-    # Decorate features heatmap
     decorate_ax(
         features_ax,
         despine_kwargs={
@@ -179,7 +120,6 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
         ylabel='',
         max_ytick_size=max_ytick_size)
 
-    # Plot annotations
     for i, (
             a_i,
             a, ) in enumerate(annotations.iterrows()):
@@ -191,7 +131,22 @@ def plot_match_panel(target, features, target_type, features_type, max_std,
             verticalalignment='center',
             **FONT_STANDARD)
 
-    if save_and_show_plot:
+    if save_plot_:
+
+        features_values = features.values[~isna(features)]
+        print(features_values)
+        if features_type == 'continuous':
+            cax, kw = make_axes(
+                colorbar_ax,
+                location='bottom',
+                fraction=0.2,
+                cmap=features_cmap,
+                ticks=(
+                    features_values.min(),
+                    features_values.mean(),
+                    features_values.max(), ))
+            ColorbarBase(cax, **kw)
+            decorate_ax(cax)
 
         if file_path:
             save_plot(file_path)

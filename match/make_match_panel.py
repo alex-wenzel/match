@@ -28,7 +28,6 @@ def make_match_panel(target,
                      n_permutation=10,
                      target_type='continuous',
                      features_type='continuous',
-                     max_std=3,
                      title='Match Panel',
                      max_ytick_size=50,
                      plot_column_names=False,
@@ -61,7 +60,6 @@ def make_match_panel(target,
             compute P-Value and FDR
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
-        max_std (float):
         title (str): plot title
         max_ytick_size (int):
         plot_column_names (bool): whether to plot column names
@@ -94,7 +92,6 @@ def make_match_panel(target,
                                          nan_to_num(target.values))]
 
     if scores is None:
-
         scores = match(
             target.values,
             features.values,
@@ -145,7 +142,7 @@ def make_match_panel(target,
         file_path_plot = None
 
     plot_match_panel(target, features_to_plot, target_type, features_type,
-                     max_std, None, None, title, max_ytick_size, annotations,
+                     None, None, title, None, max_ytick_size, annotations,
                      plot_column_names, file_path_plot)
 
     return scores

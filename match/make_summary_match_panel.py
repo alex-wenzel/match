@@ -24,7 +24,6 @@ def make_summary_match_panel(
         n_sampling=10,
         n_permutation=10,
         target_type='continuous',
-        max_std=3,
         title='Summary Match Panel',
         max_ytick_size=50,
         plot_column_names=False,
@@ -57,7 +56,6 @@ def make_summary_match_panel(
         n_permutation (int): number of permutations for permutation test to
             compute P-Value and FDR
         target_type (str): 'continuous' | 'categorical' | 'binary'
-        max_std (float):
         title (str): plot title
         max_ytick_size (int):
         plot_column_names (bool): whether to plot column names
@@ -169,9 +167,9 @@ def make_summary_match_panel(
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
         r_i += features.shape[0]
 
-        plot_match_panel(target_, features, target_type, data_type, max_std,
-                         target_ax, features_ax, None, max_ytick_size,
-                         annotations, plot_column_names
+        plot_match_panel(target_, features, target_type, data_type, target_ax,
+                         features_ax, None, (), max_ytick_size, annotations,
+                         plot_column_names
                          and fi == len(multiple_features) - 1, None)
 
     if file_path:
