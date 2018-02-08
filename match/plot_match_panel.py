@@ -61,15 +61,24 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
         colorbar_ax = subplot(gridspec[-1:, 0])
         colorbar_ax.axis('off')
 
+        features_values = features.values[~isna(features)]
+        if features_type == 'continuous':
+            cax, kw = make_axes(
+                colorbar_ax,
+                location='bottom',
+                fraction=0.2,
+                cmap=features_cmap,
+                ticks=(
+                    features_values.min(),
+                    features_values.mean(),
+                    features_values.max(), ))
+            ColorbarBase(cax, **kw)
+            decorate_ax(cax)
+
         save_plot_ = True
 
     else:
         save_plot_ = False
-
-    if target_xticklabels is None:
-        target_xticklabels = (
-            target,
-            (), )[50 < target.size]
 
     heatmap(
         DataFrame(target).T,
@@ -132,21 +141,6 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
             **FONT_STANDARD)
 
     if save_plot_:
-
-        features_values = features.values[~isna(features)]
-        print(features_values)
-        if features_type == 'continuous':
-            cax, kw = make_axes(
-                colorbar_ax,
-                location='bottom',
-                fraction=0.2,
-                cmap=features_cmap,
-                ticks=(
-                    features_values.min(),
-                    features_values.mean(),
-                    features_values.max(), ))
-            ColorbarBase(cax, **kw)
-            decorate_ax(cax)
 
         if file_path:
             save_plot(file_path)

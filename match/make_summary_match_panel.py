@@ -25,6 +25,7 @@ def make_summary_match_panel(
         n_permutation=10,
         target_type='continuous',
         title='Summary Match Panel',
+        target_xticklabels=(),
         max_ytick_size=50,
         plot_column_names=False,
         file_path=None):
@@ -57,6 +58,7 @@ def make_summary_match_panel(
             compute P-Value and FDR
         target_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): plot title
+        target_xticklabels (iterable):
         max_ytick_size (int):
         plot_column_names (bool): whether to plot column names
         file_path (str):
@@ -168,8 +170,10 @@ def make_summary_match_panel(
         r_i += features.shape[0]
 
         plot_match_panel(target_, features, target_type, data_type, target_ax,
-                         features_ax, None, (), max_ytick_size, annotations,
-                         plot_column_names
+                         features_ax, None, (
+                             (),
+                             target_xticklabels, )[fi == 0], max_ytick_size,
+                         annotations, plot_column_names
                          and fi == len(multiple_features) - 1, None)
 
     if file_path:

@@ -29,6 +29,7 @@ def make_match_panel(target,
                      target_type='continuous',
                      features_type='continuous',
                      title='Match Panel',
+                     target_xticklabels=(),
                      max_ytick_size=50,
                      plot_column_names=False,
                      file_path_prefix=None):
@@ -61,6 +62,7 @@ def make_match_panel(target,
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str): plot title
+        target_xticklabels (iterable):
         max_ytick_size (int):
         plot_column_names (bool): whether to plot column names
         file_path_prefix (str): file_path_prefix.match.tsv and
@@ -142,7 +144,7 @@ def make_match_panel(target,
         file_path_plot = None
 
     plot_match_panel(target, features_to_plot, target_type, features_type,
-                     None, None, title, None, max_ytick_size, annotations,
-                     plot_column_names, file_path_plot)
+                     None, None, title, target_xticklabels, max_ytick_size,
+                     annotations, plot_column_names, file_path_plot)
 
     return scores
