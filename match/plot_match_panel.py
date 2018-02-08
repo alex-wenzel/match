@@ -4,8 +4,6 @@ from numpy import unique
 from pandas import DataFrame, Series
 from seaborn import heatmap
 
-from .nd_array.nd_array.normalize_1d_array import normalize_1d_array
-from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
 from .plot.plot.decorate_ax import decorate_ax
 from .plot.plot.make_categorical_colormap import make_categorical_colormap
 from .plot.plot.save_plot import save_plot
