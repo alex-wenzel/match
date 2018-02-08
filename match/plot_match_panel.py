@@ -80,6 +80,9 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
     else:
         save_plot_ = False
 
+    if len(target_xticklabels) != target.size:
+        raise ValueError(
+            'The sizes of target_xticklabels and target mismatch.')
     heatmap(
         DataFrame(target).T,
         ax=target_ax,
