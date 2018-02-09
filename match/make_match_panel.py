@@ -17,7 +17,7 @@ def make_match_panel(target,
                      target_ascending=False,
                      scores=None,
                      min_n_sample=5,
-                     function_=compute_information_coefficient,
+                     match_function=compute_information_coefficient,
                      random_seed=20121020,
                      n_job=1,
                      scores_ascending=False,
@@ -36,40 +36,31 @@ def make_match_panel(target,
     """
     Make match panel.
     Arguments:
-        target (Series): (n_sample, ); must be 3 <= 0.632 * n_sample to compute
-            MoE
+        target (Series): (n_sample, ); 3 <= 0.632 * n_sample to compute MoE
         features (DataFrame): (n_feature, n_sample, )
-        target_ascending (bool | None): True if target increase from left to
-            right | False right to left | None for using the target's order
+        target_ascending (bool | None):
         scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
             'P-Value', 'FDR', ), )
         min_n_sample (int):
-        function_ (callable): function_ for computing match scores between the
-            target and each feature
+        match_function (callable):
         random_seed (float):
-        n_job (int): number of multiprocess jobs
-        scores_ascending (bool): True (scores increase from top to bottom) |
-            False
+        n_job (int):
+        scores_ascending (bool):
         indices (iterable):
-        n_top_feature (float): number of features to compute MoE, P-Value,
-            and FDR; number threshold if 1 <= n_top_feature and percentile
-            threshold if 0.5 <= n_top_feature < 1
+        n_top_feature (float): number threshold if 1 <= n_top_feature and
+            percentile threshold if 0.5 <= n_top_feature < 1
         max_n_feature (int):
-        n_sampling (int): number of bootstrap samplings to build distribution
-            to compute MoE; 3 <= n_sampling
-        n_permutation (int): number of permutations for permutation test to
-            compute P-Value and FDR
+        n_sampling (int): 3 <= n_sampling to compute
+        n_permutation (int): 1 <= n_permutation to compute
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
-        title (str): plot title
+        title (str):
         target_xticklabels (iterable):
         max_ytick_size (int):
-        plot_column_names (bool): whether to plot column names
-        file_path_prefix (str): file_path_prefix.match.tsv and
-            file_path_prefix.match.pdf will be saved
+        plot_column_names (bool):
+        file_path_prefix (str):
     Returns:
-        DataFrame: (n_feature, 4 ('Score', '<confidence> MoE', 'P-Value',
-            'FDR', ), )
+        DataFrame: (n_feature, 4 ('Score', '0.95 MoE', 'P-Value', 'FDR', ), )
     """
 
     target = target.loc[target.index & features.columns]
@@ -98,7 +89,7 @@ def make_match_panel(target,
             target.values,
             features.values,
             min_n_sample,
-            function_,
+            match_function,
             n_job=n_job,
             n_top_feature=n_top_feature,
             max_n_feature=max_n_feature,

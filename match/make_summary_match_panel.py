@@ -19,7 +19,7 @@ def make_summary_match_panel(
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
         min_n_sample=5,
-        function_=compute_information_coefficient,
+        match_function=compute_information_coefficient,
         random_seed=20121020,
         n_sampling=10,
         n_permutation=10,
@@ -31,7 +31,7 @@ def make_summary_match_panel(
     """
     Make summary match panel.
     Arguments:
-        target (Series): (n_sample, )
+        target (Series): (n_sample, ); 3 <= 0.632 * n_sample to compute MoE
         multiple_features (dict):
             {
                 name :
@@ -45,20 +45,16 @@ def make_summary_match_panel(
                 ...,
             }
         plot_only_columns_shared_by_target_and_all_features (bool):
-        target_ascending (bool | None): True if target increase from left to
-            right | False right to left | None for using the target's order
+        target_ascending (bool | None):
         min_n_sample (int):
-        function_ (callable): function for computing match scores between the
-            target and each feature
+        match_function (callable):
         random_seed (float):
-        n_sampling (int): number of bootstrap samplings to build distribution
-            to compute MoE; 3 <= n_sampling
-        n_permutation (int): number of permutations for permutation test to
-            compute P-Value and FDR
+        n_sampling (int): 3 <= n_sampling to compute
+        n_permutation (int): 1 <= n_permutation to compute
         target_type (str): 'continuous' | 'categorical' | 'binary'
-        title (str): plot title
+        title (str):
         max_ytick_size (int):
-        plot_column_names (bool): whether to plot column names
+        plot_column_names (bool):
         file_path (str):
     Returns:
     """
@@ -128,7 +124,7 @@ def make_summary_match_panel(
             target_.values,
             features.values,
             min_n_sample,
-            function_,
+            match_function,
             n_top_feature=features.shape[0],
             n_sampling=n_sampling,
             n_permutation=n_permutation,

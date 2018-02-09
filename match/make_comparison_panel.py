@@ -11,7 +11,7 @@ from .plot.plot.style import CMAP_CONTINUOUS_BWR, FIGURE_SIZE
 
 def make_comparison_panel(array_2d_0,
                           array_2d_1,
-                          function_=compute_information_coefficient,
+                          match_function=compute_information_coefficient,
                           axis=0,
                           figure_size=FIGURE_SIZE,
                           title='',
@@ -23,20 +23,19 @@ def make_comparison_panel(array_2d_0,
     Arguments:
         array_2d_0 (ndarray | DataFrame):
         array_2d_1 (ndarray | DataFrame):
-        function_ (callable):
+        match_function (callable):
         axis (int): 0 | 1
         figure_size (iterable):
         title (str): plot title
-        array_2d_0_name (str): array_2d_0 name
-        array_2d_1_name (str): array_2d_1 name
-        file_path_prefix (str): file_path_prefix.comparison_panel.tsv and
-            file_path_prefix.comparison_panel.png will be saved
+        array_2d_0_name (str):
+        array_2d_1_name (str):
+        file_path_prefix (str):
     Returns:
         ndarray | DataFrame:
     """
 
     comparison = apply_function_on_2_2d_arrays_slices(
-        array(array_2d_0), array(array_2d_1), function_, axis=axis)
+        array(array_2d_0), array(array_2d_1), match_function, axis=axis)
 
     if isinstance(array_2d_0, DataFrame):
 
