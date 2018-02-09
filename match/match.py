@@ -58,47 +58,46 @@ def match(target,
     if 1 < n_job:
         n_job = min(features.shape[0], n_job)
 
-    # Match
     print('Computing match score with {} ({} process) ...'.format(
         function_, n_job))
-
     results['Score'] = concatenate(
-        multiprocess(match_target_and_features,
-                     ((target, features_, min_n_sample, function_)
-                      for features_ in array_split(features, n_job)), n_job))
+        multiprocess(match_target_and_features, ((
+            target,
+            features_,
+            min_n_sample,
+            function_, ) for features_ in array_split(features, n_job)),
+                     n_job))
 
     if results['Score'].isna().all():
         raise ValueError(
             'Could not compute any score; perhaps because there were less than {} (min_n_sample) non-na values for all target-feature pairs to compute the score.'.
             format(min_n_sample))
 
-    # Get top and bottom indices
     indices = get_top_and_bottom_series_indices(results['Score'],
                                                 n_top_feature)
     if max_n_feature and max_n_feature < indices.size:
         indices = indices[:max_n_feature // 2].append(
             indices[-max_n_feature // 2:])
 
-    # Compute MoE
     if 3 <= n_sampling and 3 <= ceil(0.632 * target.size):
-
         results.loc[indices, '{} MoE'.format(
             confidence
         )] = match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             target, features[indices], 3, function_, n_sampling, random_seed)
 
-    # Compute P-Value and FDR
     if 1 <= n_permutation:
-
         permutation_scores = concatenate(
-            multiprocess(permute_target_and_match_target_and_features, (
-                (target, features_, min_n_sample, function_,
-                 n_permutation, random_seed)
-                for features_ in array_split(features, n_job)), n_job))
+            multiprocess(permute_target_and_match_target_and_features, ((
+                target,
+                features_,
+                min_n_sample,
+                function_,
+                n_permutation,
+                random_seed, ) for features_ in array_split(features, n_job)),
+                         n_job))
 
         p_values, fdrs = compute_empirical_p_values_and_fdrs(
             results['Score'], permutation_scores.flatten())
-
         results['P-Value'] = p_values
         results['FDR'] = fdrs
 
@@ -128,13 +127,11 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         raise ValueError('Cannot compute MoEs because 0.632 * n_sample < 3.')
 
     print('Computing MoEs with {} samplings ...'.format(n_sampling))
-
     feature_x_sampling = empty((features.shape[0], n_sampling))
 
     seed(random_seed)
     for i in range(n_sampling):
 
-        # Sample randomly
         random_indices = choice(target.size, ceil(0.632 * target.size))
         sampled_target = target[random_indices]
         sampled_features = features[:, random_indices]
