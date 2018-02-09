@@ -1,9 +1,13 @@
 from matplotlib.colorbar import ColorbarBase, make_axes
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
-from pandas import DataFrame, isna
+from pandas import DataFrame, Series, isna
 from seaborn import heatmap
 
+from .nd_array.nd_array.clip_nd_array_by_standard_deviation import \
+    clip_nd_array_by_standard_deviation
+from .nd_array.nd_array.normalize_1d_array import normalize_1d_array
+from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
 from .plot.plot.decorate_ax import decorate_ax
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
@@ -34,19 +38,37 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
 
     if target_type == 'continuous':
         target_cmap = CMAP_CONTINUOUS_ASSOCIATION
+        target = Series(
+            normalize_1d_array(
+                clip_nd_array_by_standard_deviation(target, 3), '0-1'),
+            name=target.name,
+            index=target.index)
+
     elif target_type == 'categorical':
         target_cmap = CMAP_CATEGORICAL
+
     elif target_type == 'binary':
         target_cmap = CMAP_BINARY_WB
+
     else:
         raise ValueError('Unknown target_type: {}.'.format(target_type))
 
     if features_type == 'continuous':
         features_cmap = CMAP_CONTINUOUS_ASSOCIATION
+        features = DataFrame(
+            normalize_2d_array(
+                features.apply(
+                    clip_nd_array_by_standard_deviation, axis=1, args=(3, )),
+                '0-1', 1),
+            index=features.index,
+            columns=features.columns)
+
     elif features_type == 'categorical':
         features_cmap = CMAP_CATEGORICAL
+
     elif features_type == 'binary':
         features_cmap = CMAP_BINARY_WB
+
     else:
         raise ValueError('Unknown features_type: {}.'.format(features_type))
 
