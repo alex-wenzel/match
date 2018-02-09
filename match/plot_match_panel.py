@@ -1,7 +1,7 @@
 from matplotlib.colorbar import ColorbarBase, make_axes
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
-from pandas import DataFrame, Series, isna
+from pandas import DataFrame, Series
 from seaborn import heatmap
 
 from .nd_array.nd_array.clip_nd_array_by_standard_deviation import \
@@ -38,6 +38,7 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
 
     if target_type == 'continuous':
         target_cmap = CMAP_CONTINUOUS_ASSOCIATION
+
         target = Series(
             normalize_1d_array(
                 clip_nd_array_by_standard_deviation(target, 3), '0-1'),
@@ -55,6 +56,7 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
 
     if features_type == 'continuous':
         features_cmap = CMAP_CONTINUOUS_ASSOCIATION
+
         features = DataFrame(
             normalize_2d_array(
                 features.apply(
@@ -83,24 +85,14 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
         colorbar_ax = subplot(gridspec[-1:, 0])
         colorbar_ax.set_axis_off()
 
-        features_values = features.values[~isna(features)]
         if features_type == 'continuous':
-            cax, kw = make_axes(
+            colorbar_ax_, kwargs = make_axes(
                 colorbar_ax,
                 location='bottom',
                 fraction=0.2,
-                cmap=features_cmap,
-                ticks=(
-                    features_values.min(),
-                    features_values.mean(),
-                    features_values.max(), ))
-            ColorbarBase(cax, **kw)
-            decorate_ax(cax)
-
-        save_plot_ = True
-
-    else:
-        save_plot_ = False
+                cmap=features_cmap)
+            ColorbarBase(colorbar_ax_, **kwargs)
+            decorate_ax(colorbar_ax_)
 
     if any(target_xticklabels) and len(target_xticklabels) != target.size:
         raise ValueError(
@@ -165,7 +157,5 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
             verticalalignment='center',
             **FONT_STANDARD)
 
-    if save_plot_:
-
-        if file_path:
-            save_plot(file_path)
+    if target_ax is None or features_ax is None and file_path:
+        save_plot(file_path)
