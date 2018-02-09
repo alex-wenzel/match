@@ -11,7 +11,7 @@ from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
 from .plot.plot.decorate_ax import decorate_ax
 from .plot.plot.save_plot import save_plot
 from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
-                              CMAP_CONTINUOUS_BWR, FIGURE_SIZE, FONT_LARGEST,
+                              CMAP_CONTINUOUS_BWR2, FIGURE_SIZE, FONT_LARGEST,
                               FONT_STANDARD)
 
 
@@ -37,7 +37,7 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
     """
 
     if target_type == 'continuous':
-        target_cmap = CMAP_CONTINUOUS_BWR
+        target_cmap = CMAP_CONTINUOUS_BWR2
 
         target = Series(
             normalize_1d_array(
@@ -55,7 +55,7 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
         raise ValueError('Unknown target_type: {}.'.format(target_type))
 
     if features_type == 'continuous':
-        features_cmap = CMAP_CONTINUOUS_BWR
+        features_cmap = CMAP_CONTINUOUS_BWR2
 
         features = DataFrame(
             normalize_2d_array(
