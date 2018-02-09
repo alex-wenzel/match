@@ -131,6 +131,8 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
     seed(random_seed)
     for i in range(n_sampling):
+        if i % (n_sampling // 3) == 0:
+            print('\t{}/{} ...'.format(i + 1, n_sampling))
 
         random_indices = choice(target.size, ceil(0.632 * target.size))
         sampled_target = target[random_indices]
@@ -138,13 +140,12 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         random_state = get_state()
 
-        # Score
         feature_x_sampling[:, i] = match_target_and_features(
             sampled_target, sampled_features, min_n_sample, function_)
 
         set_state(random_state)
+    print('\t{}/{} - done.'.format(i + 1, n_sampling))
 
-    # Compute MoE using bootstrapped score distributions
     return apply_along_axis(compute_margin_of_error, 1, feature_x_sampling)
 
 
@@ -172,7 +173,6 @@ def permute_target_and_match_target_and_features(
 
     feature_x_permutation = empty((features.shape[0], n_permutation))
 
-    # Copy for inplace shuffling
     permuted_target = array(target)
 
     seed(random_seed)
@@ -180,12 +180,10 @@ def permute_target_and_match_target_and_features(
         if i % (n_permutation // 3) == 0:
             print('\t{}/{} ...'.format(i + 1, n_permutation))
 
-        # Permute
         shuffle(permuted_target)
 
         random_state = get_state()
 
-        # Match
         feature_x_permutation[:, i] = match_target_and_features(
             permuted_target, features, min_n_sample, function_)
 
