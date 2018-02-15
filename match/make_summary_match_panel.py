@@ -95,8 +95,8 @@ def make_summary_match_panel(
         emphasis = d['emphasis']
         data_type = d['data_type']
 
-        missing_indices = (i for i in indices if i not in features.index)
-        if any(missing_indices):
+        missing_indices = [i for i in indices if i not in features.index]
+        if len(missing_indices):
             raise ValueError(
                 'features don\'t have indices {}.'.format(missing_indices))
 
