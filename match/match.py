@@ -25,7 +25,7 @@ def match(target,
           random_seed=20121020):
     """
     Compute: scores[i] = match_function_(target, features[i]) and margin of
-    error (MoE), P-Value, and FDR for n_top_feature features.
+        error (MoE), P-Value, and FDR for n_top_feature features.
     Arguments:
         target (ndarray): (n_sample, ); must be 3 <= 0.632 * n_sample to compute
             MoE
@@ -195,8 +195,8 @@ def permute_target_and_match_target_and_features(target, features,
 
 def match_target_and_features(target, features, min_n_sample, match_function):
     """
-    Drop nan from target and features[i] and compute: scores[i] = match_function(
-    target, features[i]).
+    Drop nan from target and features[i] and compute: scores[i] =
+        match_function(target, features[i]).
     Arguments:
         target (ndarray): (n_sample, )
         features (ndarray): (n_feature, n_sample, )
