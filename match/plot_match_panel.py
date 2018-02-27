@@ -157,5 +157,5 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
             verticalalignment='center',
             **FONT_STANDARD)
 
-    if target_ax is None or features_ax is None and file_path:
+    if file_path:
         save_plot(file_path)
