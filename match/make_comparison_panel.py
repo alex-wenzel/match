@@ -26,7 +26,7 @@ def make_comparison_panel(array_2d_0,
         match_function (callable):
         axis (int): 0 | 1
         figure_size (iterable):
-        title (str): plot title
+        title (str):
         array_2d_0_name (str):
         array_2d_1_name (str):
         file_path_prefix (str):

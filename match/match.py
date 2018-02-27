@@ -27,20 +27,17 @@ def match(target,
     Compute: scores[i] = match_function_(target, features[i]) and margin of
         error (MoE), P-Value, and FDR for n_top_feature features.
     Arguments:
-        target (ndarray): (n_sample, ); must be 3 <= 0.632 * n_sample to compute
-            MoE
+        target (ndarray): (n_sample, ); 3 <= 0.632 * n_sample to compute MoE
         features (ndarray): (n_feature, n_sample, )
         min_n_sample (int): the minimum number of samples needed for computing
         match_function (callable):
-        n_job (int): number of multiprocess jobs
-        n_top_feature (float): number of features to compute MoE, P-Value,
-            and FDR; number threshold if 1 <= n_top_feature and percentile
-            threshold if 0.5 <= n_top_feature < 1
+        n_job (int):
+        n_top_feature (float | int): number of features to compute MoE,
+            P-Value, and FDR; number threshold if 1 <= n_top_feature and
+            percentile threshold if 0.5 <= n_top_feature < 1
         max_n_feature (int):
-        n_sampling (int): number of bootstrap samplings to build distribution
-            to compute MoE; 3 <= n_sampling
-        n_permutation (int): number of permutations for permutation test to
-            compute P-Value and FDR
+        n_sampling (int): 3 <= n_sampling to compute MoE
+        n_permutation (int): 1 <= n_permutation to compute P-Value and FDR
         random_seed (float):
     Returns:
         DataFrame: (n_feature, 4 ('Score', '0.95 MoE', 'P-Value', 'FDR', ), )

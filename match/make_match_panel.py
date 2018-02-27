@@ -47,11 +47,12 @@ def make_match_panel(target,
         n_job (int):
         scores_ascending (bool):
         indices (iterable):
-        n_top_feature (float): number threshold if 1 <= n_top_feature and
-            percentile threshold if 0.5 <= n_top_feature < 1
+        n_top_feature (float | int): number of features to compute MoE,
+            P-Value, and FDR and plot; number threshold if 1 <= n_top_feature
+            and percentile threshold if 0.5 <= n_top_feature < 1
         max_n_feature (int):
-        n_sampling (int): 3 <= n_sampling to compute
-        n_permutation (int): 1 <= n_permutation to compute
+        n_sampling (int): 3 <= n_sampling to compute MoE
+        n_permutation (int): 1 <= n_permutation to compute P-Value and FDR
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
         title (str):
@@ -130,7 +131,7 @@ def make_match_panel(target,
     annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     if file_path_prefix:
-        file_path_plot = file_path_prefix + '.match.pdf'
+        file_path_plot = file_path_prefix + '.match.png'
     else:
         file_path_plot = None
 

@@ -49,8 +49,8 @@ def make_summary_match_panel(
         min_n_sample (int):
         match_function (callable):
         random_seed (float):
-        n_sampling (int): 3 <= n_sampling to compute
-        n_permutation (int): 1 <= n_permutation to compute
+        n_sampling (int): 3 <= n_sampling to compute MoE
+        n_permutation (int): 1 <= n_permutation to compute P-Value and FDR
         target_type (str): 'continuous' | 'categorical' | 'binary'
         title (str):
         max_ytick_size (int):
