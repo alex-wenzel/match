@@ -28,7 +28,7 @@ def make_match_panel(target,
                      n_permutation=10,
                      target_type='continuous',
                      features_type='continuous',
-                     max_std=3,
+                     plot_max_std=3,
                      title='Match Panel',
                      target_xticklabels=(),
                      max_ytick_size=50,
@@ -56,7 +56,7 @@ def make_match_panel(target,
         n_permutation (int): 1 <= n_permutation to compute P-Value and FDR
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
-        max_std (float):
+        plot_max_std (float):
         title (str):
         target_xticklabels (iterable):
         max_ytick_size (int):
@@ -138,7 +138,7 @@ def make_match_panel(target,
         file_path_plot = None
 
     plot_match_panel(target, features_to_plot, target_type, features_type,
-                     max_std, None, None, title, target_xticklabels,
+                     plot_max_std, None, None, title, target_xticklabels,
                      max_ytick_size, annotations, plot_column_names,
                      file_path_plot)
 

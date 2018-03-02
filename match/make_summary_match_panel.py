@@ -24,7 +24,7 @@ def make_summary_match_panel(
         n_sampling=10,
         n_permutation=10,
         target_type='continuous',
-        max_std=3,
+        plot_max_std=3,
         title='Summary Match Panel',
         max_ytick_size=50,
         plot_column_names=False,
@@ -53,7 +53,7 @@ def make_summary_match_panel(
         n_sampling (int): 3 <= n_sampling to compute MoE
         n_permutation (int): 1 <= n_permutation to compute P-Value and FDR
         target_type (str): 'continuous' | 'categorical' | 'binary'
-        max_std (float):
+        plot_max_std (float):
         title (str):
         max_ytick_size (int):
         plot_column_names (bool):
@@ -165,9 +165,9 @@ def make_summary_match_panel(
         features_ax = subplot(gridspec[r_i:r_i + features.shape[0], 0])
         r_i += features.shape[0]
 
-        plot_match_panel(target_, features, target_type, data_type, max_std,
-                         target_ax, features_ax, None, (), max_ytick_size,
-                         annotations, plot_column_names
+        plot_match_panel(target_, features, target_type, data_type,
+                         plot_max_std, target_ax, features_ax, None, (),
+                         max_ytick_size, annotations, plot_column_names
                          and fi == len(multiple_features) - 1, None)
 
     if file_path:

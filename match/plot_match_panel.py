@@ -15,10 +15,10 @@ from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
                               FONT_STANDARD)
 
 
-def plot_match_panel(target, features, target_type, features_type, target_ax,
-                     max_std, features_ax, title, target_xticklabels,
-                     max_ytick_size, annotations, plot_column_names,
-                     file_path):
+def plot_match_panel(target, features, target_type, features_type,
+                     plot_max_std, target_ax, features_ax, title,
+                     target_xticklabels, max_ytick_size, annotations,
+                     plot_column_names, file_path):
     """
     Plot match panel.
     Arguments:
@@ -26,7 +26,7 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
         features (DataFrame): (n_feature, n_sample, )
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
-        max_std (float):
+        plot_max_std (float):
         target_ax (matplotlib.Axes):
         features_ax (matplotlib.Axes):
         title (str):
@@ -38,12 +38,10 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
     Returns:
     """
 
-    max_std = 3
-
     if target_type == 'continuous':
         target = Series(
             normalize_1d_array(target.values, method='-0-').clip(
-                -max_std, max_std),
+                -plot_max_std, plot_max_std),
             name=target.name,
             index=target.index)
 
@@ -67,7 +65,7 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
     if features_type == 'continuous':
         features = DataFrame(
             normalize_2d_array(features.values, method='-0-', axis=1).clip(
-                -max_std, max_std),
+                -plot_max_std, plot_max_std),
             index=features.index,
             columns=features.columns)
 
