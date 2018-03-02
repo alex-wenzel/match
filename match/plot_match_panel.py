@@ -16,8 +16,9 @@ from .plot.plot.style import (CMAP_BINARY_WB, CMAP_CATEGORICAL,
 
 
 def plot_match_panel(target, features, target_type, features_type, target_ax,
-                     features_ax, title, target_xticklabels, max_ytick_size,
-                     annotations, plot_column_names, file_path):
+                     max_std, features_ax, title, target_xticklabels,
+                     max_ytick_size, annotations, plot_column_names,
+                     file_path):
     """
     Plot match panel.
     Arguments:
@@ -25,6 +26,7 @@ def plot_match_panel(target, features, target_type, features_type, target_ax,
         features (DataFrame): (n_feature, n_sample, )
         target_type (str): 'continuous' | 'categorical' | 'binary'
         features_type (str): 'continuous' | 'categorical' | 'binary'
+        max_std (float):
         target_ax (matplotlib.Axes):
         features_ax (matplotlib.Axes):
         title (str):
