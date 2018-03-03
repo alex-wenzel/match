@@ -58,7 +58,7 @@ def make_match_panel(target,
         features_type (str): 'continuous' | 'categorical' | 'binary'
         plot_max_std (float):
         title (str):
-        target_xticklabels (iterable):
+        target_xticklabels (iterable): same length as target
         max_ytick_size (int):
         plot_column_names (bool):
         file_path_prefix (str):
