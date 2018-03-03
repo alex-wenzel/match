@@ -132,6 +132,7 @@ def plot_match_panel(target, features, target_type, features_type,
             'bottom': True,
         },
         xaxis_position='top',
+        xlabel='',
         max_ytick_size=max_ytick_size)
 
     if title:
