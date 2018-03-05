@@ -40,8 +40,9 @@ def plot_match_panel(target, features, target_type, features_type,
 
     if target_type == 'continuous':
         target = Series(
-            normalize_1d_array(target.values, method='-0-').clip(
-                -plot_max_std, plot_max_std),
+            normalize_1d_array(target.values,
+                               method='-0-', ignore_na=True).clip(
+                                   -plot_max_std, plot_max_std),
             name=target.name,
             index=target.index)
 
@@ -64,8 +65,9 @@ def plot_match_panel(target, features, target_type, features_type,
 
     if features_type == 'continuous':
         features = DataFrame(
-            normalize_2d_array(features.values, method='-0-', axis=1).clip(
-                -plot_max_std, plot_max_std),
+            normalize_2d_array(
+                features.values, method='-0-', axis=1, ignore_na=True).clip(
+                    -plot_max_std, plot_max_std),
             index=features.index,
             columns=features.columns)
 
