@@ -52,9 +52,11 @@ def make_comparison_panel(array_2d_0,
 
     if file_path_prefix:
         establish_path(file_path_prefix, 'file')
+
         comparison.to_csv(
             '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
         plot_file_path = '{}.comparison_panel.png'.format(file_path_prefix)
+
     else:
         plot_file_path = None
 
