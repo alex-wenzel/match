@@ -7,6 +7,7 @@ from .nd_array.nd_array.apply_function_on_2_2d_arrays_slices import \
     apply_function_on_2_2d_arrays_slices
 from .plot.plot.plot_clustermap import plot_clustermap
 from .plot.plot.style import CMAP_CONTINUOUS_BWR, FIGURE_SIZE
+from .support.support.path import establish_path
 
 
 def make_comparison_panel(array_2d_0,
@@ -50,6 +51,7 @@ def make_comparison_panel(array_2d_0,
                 comparison, index=array_2d_0.index, columns=array_2d_1.index)
 
     if file_path_prefix:
+        establish_path(file_path_prefix, 'file')
         comparison.to_csv(
             '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
         plot_file_path = '{}.comparison_panel.png'.format(file_path_prefix)
