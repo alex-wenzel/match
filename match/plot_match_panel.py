@@ -148,7 +148,7 @@ def plot_match_panel(target, features, target_type, features_type,
     target_ax.text(
         target_ax.get_xlim()[1] * 1.018,
         0.5,
-        ' ' * 5 + 'IC(\u0394)' + ' ' * 12 + 'P-Value' + ' ' * 11 + 'FDR',
+        '   |   '.join(annotations.columns).expandtabs(),
         verticalalignment='center',
         **FONT_STANDARD)
 
@@ -172,13 +172,13 @@ def plot_match_panel(target, features, target_type, features_type,
         max_ytick_size=max_ytick_size)
 
     for i, (
-            a_i,
-            a, ) in enumerate(annotations.iterrows()):
+            index,
+            annotations_, ) in enumerate(annotations.iterrows()):
 
         features_ax.text(
             target_ax.axis()[1] * 1.018,
             i + 0.5,
-            '\t'.join(a.tolist()).expandtabs(),
+            '   '.join(annotations_),
             verticalalignment='center',
             **FONT_STANDARD)
 

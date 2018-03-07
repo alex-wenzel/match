@@ -124,13 +124,22 @@ def make_match_panel(target,
     features_to_plot = features.loc[scores_to_plot.index]
 
     annotations = DataFrame(index=scores_to_plot.index)
-    annotations['IC(\u0394)'] = scores_to_plot[[
-        'Score',
-        '0.95 MoE',
-    ]].apply(
-        lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-    annotations['P-Value'] = scores_to_plot['P-Value'].apply('{:.2e}'.format)
-    annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
+
+    if scores_to_plot['0.95 MoE'].isna().all():
+        annotations['IC'] = [
+            '{:.2f}'.format(score) for score in scores_to_plot['Score']
+        ]
+    else:
+        annotations['IC(\u0394)'] = scores_to_plot[[
+            'Score',
+            '0.95 MoE',
+        ]].apply(
+            lambda score_margin_of_error: '{:.2f}({:.2f})'.format(*score_margin_of_error), axis=1)
+
+    if not scores_to_plot['P-Value'].isna().all():
+        annotations['P-Value'] = scores_to_plot['P-Value'].apply(
+            '{:.2e}'.format)
+        annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     if file_path_prefix:
         file_path_plot = file_path_prefix + '.match.png'

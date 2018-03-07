@@ -141,13 +141,21 @@ def make_summary_match_panel(
              for index, alias in zip(indices, index_aliases)}.get)
 
         annotations = DataFrame(index=scores.index)
-        annotations['IC(\u0394)'] = scores[[
-            'Score',
-            '0.95 MoE',
-        ]].apply(
-            lambda s: '{0:.3f}({1:.3f})'.format(*s), axis=1)
-        annotations['P-Value'] = scores['P-Value'].apply('{:.2e}'.format)
-        annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
+
+        if scores['0.95 MoE'].isna().all():
+            annotations['IC'] = [
+                '{:.2f}'.format(score) for score in scores['Score']
+            ]
+        else:
+            annotations['IC(\u0394)'] = scores[[
+                'Score',
+                '0.95 MoE',
+            ]].apply(
+                lambda score_margin_of_error: '{:.2f}({:.2f})'.format(*score_margin_of_error), axis=1)
+
+        if not scores['P-Value'].isna().all():
+            annotations['P-Value'] = scores['P-Value'].apply('{:.2e}'.format)
+            annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
 
         title_ax = subplot(gridspec[r_i:r_i + 1, 0])
         r_i += 1
