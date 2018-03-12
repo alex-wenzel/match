@@ -18,11 +18,12 @@ def make_summary_match_panel(
         multiple_features,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
+        cluster_within_category=True,
         min_n_sample=5,
         match_function=compute_information_coefficient,
         random_seed=20121020,
-        n_sampling=10,
-        n_permutation=10,
+        n_sampling=0,
+        n_permutation=0,
         target_type='continuous',
         plot_max_std=3,
         title='Summary Match Panel',
@@ -47,6 +48,7 @@ def make_summary_match_panel(
             }
         plot_only_columns_shared_by_target_and_all_features (bool):
         target_ascending (bool | None):
+        cluster_within_category (bool):
         min_n_sample (int):
         match_function (callable):
         random_seed (float):
@@ -88,7 +90,8 @@ def make_summary_match_panel(
 
     for fi, (
             name,
-            d, ) in enumerate(multiple_features.items()):
+            d,
+    ) in enumerate(multiple_features.items()):
         print('Making match panel for {} ...'.format(name))
 
         features = d['df']
@@ -115,9 +118,10 @@ def make_summary_match_panel(
         features = drop_df_slices(
             features.loc[indices], 1, max_n_unique_object=1)
 
-        if target_type in (
+        if cluster_within_category and target_type in (
                 'binary',
-                'categorical', ):
+                'categorical',
+        ):
             features = features.iloc[:,
                                      cluster_2d_array_slices_by_group(
                                          features.values, target_.values)]

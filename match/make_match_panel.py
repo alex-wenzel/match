@@ -15,6 +15,7 @@ from .support.support.series import get_top_and_bottom_series_indices
 def make_match_panel(target,
                      features,
                      target_ascending=False,
+                     cluster_within_category=True,
                      scores=None,
                      min_n_sample=5,
                      match_function=compute_information_coefficient,
@@ -24,8 +25,8 @@ def make_match_panel(target,
                      indices=None,
                      n_top_feature=10,
                      max_n_feature=100,
-                     n_sampling=10,
-                     n_permutation=10,
+                     n_sampling=0,
+                     n_permutation=0,
                      target_type='continuous',
                      features_type='continuous',
                      plot_max_std=3,
@@ -40,6 +41,7 @@ def make_match_panel(target,
         target (Series): (n_sample, ); 3 <= 0.632 * n_sample to compute MoE
         features (DataFrame): (n_feature, n_sample, )
         target_ascending (bool | None):
+        cluster_within_category (bool):
         scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
             'P-Value', 'FDR', ), )
         min_n_sample (int):
@@ -75,11 +77,13 @@ def make_match_panel(target,
 
     features = drop_df_slices(features, 1, max_n_unique_object=1)
 
-    if target_type in (
+    if cluster_within_category and target_type in (
             'binary',
-            'categorical', ):
+            'categorical',
+    ):
 
         target_values = target.values.tolist()
+
         if all(((1 < target_values.count(i)) for i in target_values)):
 
             features = features.iloc[:,
