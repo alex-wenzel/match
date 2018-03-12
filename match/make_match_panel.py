@@ -1,4 +1,6 @@
-from numpy import nan_to_num
+from warnings import warn
+
+from numpy import diff, nan_to_num
 from pandas import DataFrame, Index
 
 from .information.information.compute_information_coefficient import \
@@ -76,6 +78,13 @@ def make_match_panel(target,
     features = features[target.index]
 
     features = drop_df_slices(features, 1, max_n_unique_object=1)
+
+    target_diff = diff(target)
+    if not ((target_diff <= 0).all() or (0 <= target_diff).all()):
+        cluster_within_category = False
+        warn(
+            'Set cluster_within_category=False because target is not monotonically increasing or decreasing.'
+        )
 
     if cluster_within_category and target_type in (
             'binary',

@@ -1,5 +1,8 @@
+from warnings import warn
+
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import figure, subplot
+from numpy import diff
 from pandas import DataFrame
 
 from .information.information.compute_information_coefficient import \
@@ -117,6 +120,13 @@ def make_summary_match_panel(
 
         features = drop_df_slices(
             features.loc[indices], 1, max_n_unique_object=1)
+
+        target_diff = diff(target)
+        if not ((target_diff <= 0).all() or (0 <= target_diff).all()):
+            cluster_within_category = False
+            warn(
+                'Set cluster_within_category=False because target is not monotonically increasing or decreasing.'
+            )
 
         if cluster_within_category and target_type in (
                 'binary',
