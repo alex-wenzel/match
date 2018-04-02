@@ -6,7 +6,8 @@ from pandas import DataFrame
 
 from .nd_array.nd_array.compute_empirical_p_values_and_fdrs import \
     compute_empirical_p_values_and_fdrs
-from .nd_array.nd_array.compute_margin_of_error import compute_margin_of_error
+from .nd_array.nd_array.compute_nd_array_margin_of_error import \
+    compute_nd_array_margin_of_error
 from .nd_array.nd_array.drop_bad_value_and_apply_function_on_2_1d_arrays import \
     drop_bad_value_and_apply_function_on_2_1d_arrays
 from .support.support.multiprocess import multiprocess
@@ -99,7 +100,8 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         set_state(random_state)
 
-    return apply_along_axis(compute_margin_of_error, 1, feature_x_sampling)
+    return apply_along_axis(compute_nd_array_margin_of_error, 1,
+                            feature_x_sampling)
 
 
 def permute_target_and_match_target_and_features(target, features,
@@ -136,5 +138,11 @@ def permute_target_and_match_target_and_features(target, features,
 
 def match_target_and_features(target, features, min_n_sample, match_function):
 
-    return apply_along_axis(drop_bad_value_and_apply_function_on_2_1d_arrays,
-                            1, features, target, min_n_sample, match_function)
+    return apply_along_axis(
+        drop_bad_value_and_apply_function_on_2_1d_arrays,
+        1,
+        features,
+        target,
+        min_n_sample,
+        match_function,
+        raise_=False)
