@@ -72,9 +72,8 @@ def plot_match_panel(target, features, target_type, features_type,
                 'Unknown features_type: {}.'.format(features_type))
 
     if target_ax is None or features_ax is None:
-        figure(
-            figsize=(min(pow(features.shape[1], 1.8), FIGURE_SIZE[1]),
-                     features.shape[0]))
+        min(pow(features.shape[1], 1.8)
+
 
         gridspec = GridSpec(features.shape[0] + 1, 1)
         target_ax = subplot(gridspec[:1, 0])
