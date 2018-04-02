@@ -74,55 +74,9 @@ def plot_match_panel(target, features, target_type, features_type,
     if target_ax is None or features_ax is None:
         min(pow(features.shape[1], 1.8)
 
+    #
 
-        gridspec = GridSpec(features.shape[0] + 1, 1)
-        target_ax = subplot(gridspec[:1, 0])
-        features_ax = subplot(gridspec[1:-1, 0])
-        colorbar_ax = subplot(gridspec[-1:, 0])
-        colorbar_ax.set_axis_off()
-
-        if features_type == 'continuous':
-            colorbar_ax_, kwargs = make_axes(
-                colorbar_ax,
-                location='bottom',
-                fraction=0.2,
-                cmap=features_cmap,
-                norm=Normalize(vmin=features_min, vmax=features_max),
-                ticks=(features_min, nanmean(features), features_max))
-            ColorbarBase(colorbar_ax_, **kwargs)
-
-            decorate_ax(colorbar_ax_)
-
-    if len(target_xticklabels) and len(target_xticklabels) != target.size:
-        raise ValueError(
-            'The sizes of target_xticklabels and target mismatch.')
-    heatmap(
-        DataFrame(target).T,
-        ax=target_ax,
-        cmap=target_cmap,
-        vmin=target_min,
-        vmax=target_max,
-        xticklabels=target_xticklabels,
-        yticklabels=(target.name, ),
-        cbar=False)
-
-    decorate_ax(
-        target_ax,
-        despine_kwargs={
-            'left': True,
-            'bottom': True
-        },
-        xaxis_position='top',
-        xlabel='',
-        max_ytick_size=max_ytick_size)
-
-    if title:
-        target_ax.text(
-            target_ax.get_xlim()[1] / 2,
-            -1,
-            title,
-            horizontalalignment='center',
-            **FONT_LARGEST)
+    title
 
     target_ax.text(
         target_ax.get_xlim()[1] * 1.018,
@@ -131,33 +85,7 @@ def plot_match_panel(target, features, target_type, features_type,
         verticalalignment='center',
         **FONT_STANDARD)
 
-    heatmap(
-        features,
-        ax=features_ax,
-        cmap=features_cmap,
-        vmin=features_min,
-        vmax=features_max,
-        xticklabels=plot_column_names,
-        cbar=False)
-
-    decorate_ax(
-        features_ax,
-        despine_kwargs={
-            'left': True,
-            'bottom': True
-        },
-        xlabel='',
-        ylabel='',
-        max_ytick_size=max_ytick_size)
+    #
 
     for i, (index, annotations_) in enumerate(annotations.iterrows()):
-
-        features_ax.text(
-            target_ax.axis()[1] * 1.018,
-            i + 0.5,
-            '   '.join(annotations_),
-            verticalalignment='center',
-            **FONT_STANDARD)
-
-    if file_path:
-        save_plot(file_path)
+            '   '.join(annotations_)
