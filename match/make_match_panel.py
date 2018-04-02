@@ -37,38 +37,6 @@ def make_match_panel(target,
                      max_ytick_size=50,
                      plot_column_names=False,
                      file_path_prefix=None):
-    """
-    Make match panel.
-    Arguments:
-        target (Series): (n_sample, ); 3 <= 0.632 * n_sample to compute MoE
-        features (DataFrame): (n_feature, n_sample, )
-        target_ascending (bool | None):
-        cluster_within_category (bool):
-        scores (DataFrame): (n_feature, 4 ('Score', '<confidence> MoE',
-            'P-Value', 'FDR', ), )
-        min_n_sample (int):
-        match_function (callable):
-        random_seed (float):
-        n_job (int):
-        scores_ascending (bool):
-        indices (iterable):
-        n_top_feature (float | int): number of features to compute MoE,
-            P-Value, and FDR and plot; number threshold if 1 <= n_top_feature
-            and percentile threshold if 0.5 <= n_top_feature < 1
-        max_n_feature (int):
-        n_sampling (int): 3 <= n_sampling to compute MoE
-        n_permutation (int): 1 <= n_permutation to compute P-Value and FDR
-        target_type (str): 'continuous' | 'categorical' | 'binary'
-        features_type (str): 'continuous' | 'categorical' | 'binary'
-        plot_max_std (float):
-        title (str):
-        target_xticklabels (iterable): (n_sample, )
-        max_ytick_size (int):
-        plot_column_names (bool):
-        file_path_prefix (str):
-    Returns:
-        DataFrame: (n_feature, 4 ('Score', '0.95 MoE', 'P-Value', 'FDR', ), )
-    """
 
     target = target.loc[target.index & features.columns]
 
@@ -86,10 +54,7 @@ def make_match_panel(target,
             'Set cluster_within_category=False because target is not monotonically increasing or decreasing.'
         )
 
-    if cluster_within_category and target_type in (
-            'binary',
-            'categorical',
-    ):
+    if cluster_within_category and target_type in ('binary', 'categorical'):
 
         target_values = target.values.tolist()
 
@@ -145,7 +110,7 @@ def make_match_panel(target,
     else:
         annotations['IC(\u0394)'] = scores_to_plot[[
             'Score',
-            '0.95 MoE',
+            '0.95 MoE'
         ]].apply(
             lambda score_margin_of_error: '{:.2f}({:.2f})'.format(*score_margin_of_error), axis=1)
 

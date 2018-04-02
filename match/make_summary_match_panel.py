@@ -10,8 +10,8 @@ from .information.information.compute_information_coefficient import \
 from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
-from .plot.plot.save_plot import save_plot
-from .plot.plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
+from .plot.old_plot.save_plot import save_plot
+from .plot.old_plot.style import FIGURE_SIZE, FONT_LARGER, FONT_LARGEST
 from .plot_match_panel import plot_match_panel
 from .support.support.df import drop_df_slices
 
@@ -33,38 +33,6 @@ def make_summary_match_panel(
         max_ytick_size=50,
         plot_column_names=False,
         file_path=None):
-    """
-    Make summary match panel.
-    Arguments:
-        target (Series): (n_sample, ); 3 <= 0.632 * n_sample to compute MoE
-        multiple_features (dict):
-            {
-                name :
-                    {
-                        df,
-                        indices,
-                        index_aliases,
-                        emphasis,
-                        data_type,
-                    },
-                ...,
-            }
-        plot_only_columns_shared_by_target_and_all_features (bool):
-        target_ascending (bool | None):
-        cluster_within_category (bool):
-        min_n_sample (int):
-        match_function (callable):
-        random_seed (float):
-        n_sampling (int): 3 <= n_sampling to compute MoE
-        n_permutation (int): 1 <= n_permutation to compute P-Value and FDR
-        target_type (str): 'continuous' | 'categorical' | 'binary'
-        plot_max_std (float):
-        title (str):
-        max_ytick_size (int):
-        plot_column_names (bool):
-        file_path (str):
-    Returns:
-    """
 
     n = 0
     max_width = 0
@@ -91,10 +59,7 @@ def make_summary_match_panel(
         for name, d in multiple_features.items():
             target = target.loc[target.index & d['df'].columns]
 
-    for fi, (
-            name,
-            d,
-    ) in enumerate(multiple_features.items()):
+    for fi, (name, d) in enumerate(multiple_features.items()):
         print('Making match panel for {} ...'.format(name))
 
         features = d['df']
@@ -128,10 +93,8 @@ def make_summary_match_panel(
                 'Set cluster_within_category=False because target is not monotonically increasing or decreasing.'
             )
 
-        if cluster_within_category and target_type in (
-                'binary',
-                'categorical',
-        ):
+        if cluster_within_category and target_type in ('binary',
+                                                       'categorical'):
             features = features.iloc[:,
                                      cluster_2d_array_slices_by_group(
                                          features.values, target_.values)]
@@ -163,7 +126,7 @@ def make_summary_match_panel(
         else:
             annotations['IC(\u0394)'] = scores[[
                 'Score',
-                '0.95 MoE',
+                '0.95 MoE'
             ]].apply(
                 lambda score_margin_of_error: '{:.2f}({:.2f})'.format(*score_margin_of_error), axis=1)
 
