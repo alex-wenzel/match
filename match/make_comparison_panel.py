@@ -5,8 +5,7 @@ from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .nd_array.nd_array.apply_function_on_2_2d_arrays_slices import \
     apply_function_on_2_2d_arrays_slices
-from .plot.old_plot.plot_clustermap import plot_clustermap
-from .plot.old_plot.style import CMAP_CONTINUOUS_BWR, FIGURE_SIZE
+from .plot.plot.plot_heatmap import plot_heatmap
 from .support.support.path import establish_path
 
 
@@ -14,7 +13,6 @@ def make_comparison_panel(array_2d_0,
                           array_2d_1,
                           match_function=compute_information_coefficient,
                           axis=0,
-                          figure_size=FIGURE_SIZE,
                           title='Comparison Panel',
                           array_2d_0_name='',
                           array_2d_1_name='',
@@ -40,22 +38,17 @@ def make_comparison_panel(array_2d_0,
 
         comparison.to_csv(
             '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
-        plot_file_path = '{}.comparison_panel.png'.format(file_path_prefix)
+        html_file_path = '{}.comparison_panel.png'.format(file_path_prefix)
 
     else:
-        plot_file_path = None
+        html_file_path = None
 
-    plot_clustermap(
+    plot_heatmap(
         comparison,
-        clustermap_kwargs={
-            'figsize': figure_size,
-            'cmap': CMAP_CONTINUOUS_BWR
-        },
+        cluster=True,
         title=title,
-        decorate_ax_kwargs={
-            'xlabel': array_2d_1_name,
-            'ylabel': array_2d_0_name
-        },
-        file_path=plot_file_path)
+        xaxis_title=array_2d_1_name,
+        yaxis_title=array_2d_0_name,
+        html_file_path=html_file_path)
 
     return comparison

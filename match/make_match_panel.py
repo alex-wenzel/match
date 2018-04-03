@@ -8,7 +8,9 @@ from .information.information.compute_information_coefficient import \
 from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
-from .plot_match_panel import plot_match_panel
+from .plot.plot.plot_and_save import plot_and_save
+from .process_target_and_features_for_plotting import \
+    process_target_and_features_for_plotting
 from .support.support.df import drop_df_slices
 from .support.support.path import establish_path
 from .support.support.series import get_top_and_bottom_series_indices
@@ -99,7 +101,6 @@ def make_match_panel(target,
             indices[-max_n_feature // 2:])
 
     scores_to_plot = scores.loc[indices]
-    features_to_plot = features.loc[scores_to_plot.index]
 
     annotations = DataFrame(index=scores_to_plot.index)
 
@@ -120,13 +121,88 @@ def make_match_panel(target,
         annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
 
     if file_path_prefix:
-        file_path_plot = file_path_prefix + '.match.png'
+        html_file_path = file_path_prefix + '.match.html'
     else:
-        file_path_plot = None
+        html_file_path = None
 
-    plot_match_panel(target, features_to_plot, target_type, features_type,
-                     plot_max_std, None, None, title, target_xticklabels,
-                     max_ytick_size, annotations, plot_column_names,
-                     file_path_plot)
+    print('Plotting ...')
+    target, target_min, target_max, target_colorscale, features, features_min, features_max, features_colorscale = process_target_and_features_for_plotting(
+        target, target_type, features.loc[scores_to_plot.index], features_type,
+        plot_max_std)
+
+    row_fraction = 1 / (features.shape[0] + 2)
+    layout = dict(
+        width=800,
+        height=max(800, features.shape[0] * 80),
+        margin=dict(l=160, r=160),
+        title=title,
+        xaxis1=dict(anchor='y1'),
+        yaxis1=dict(domain=(0, 1 - 2 * row_fraction)),
+        yaxis2=dict(domain=(1 - row_fraction, 1)))
+
+    data = []
+
+    data.append(
+        dict(
+            type='heatmap',
+            yaxis='y2',
+            z=target.values[::-1],
+            x=target.columns,
+            y=target.index[::-1],
+            colorscale=target_colorscale,
+            showscale=False,
+            zmin=target_min,
+            zmax=target_max))
+
+    data.append(
+        dict(
+            type='heatmap',
+            yaxis='y1',
+            z=features.values[::-1],
+            x=features.columns,
+            y=features.index[::-1],
+            colorscale=features_colorscale,
+            showscale=False,
+            zmin=features_min,
+            zmax=features_max))
+
+    layout_annotations = []
+
+    for i, (column_name, annotation_column) in enumerate(annotations.items()):
+        x = 1.05 + i / 10
+        y = 1 - (row_fraction / 2)
+
+        layout_annotations.append(
+            dict(
+                xref='paper',
+                yref='paper',
+                x=x,
+                y=y,
+                xanchor='center',
+                yanchor='middle',
+                text='{}'.format(column_name),
+                showarrow=False))
+
+        y -= row_fraction
+
+        for annotation in annotation_column:
+            y -= row_fraction
+
+            layout_annotations.append(
+                dict(
+                    xref='paper',
+                    yref='paper',
+                    x=x,
+                    y=y,
+                    xanchor='center',
+                    yanchor='middle',
+                    text='{:.3f}'.format(y),
+                    showarrow=False))
+
+    layout.update(annotations=layout_annotations)
+
+    figure = dict(data=data, layout=layout)
+
+    plot_and_save(figure, html_file_path)
 
     return scores
