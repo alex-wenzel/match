@@ -27,7 +27,6 @@ def make_match_panel(target,
                      random_seed=20121020,
                      n_job=1,
                      scores_ascending=False,
-                     indices=None,
                      n_top_feature=10,
                      max_n_feature=100,
                      n_sampling=0,
@@ -36,9 +35,6 @@ def make_match_panel(target,
                      features_type='continuous',
                      plot_max_std=3,
                      title='Match Panel',
-                     target_xticklabels=(),
-                     max_ytick_size=50,
-                     plot_column_names=False,
                      file_path_prefix=None):
 
     target = target.loc[target.index & features.columns]
@@ -82,15 +78,7 @@ def make_match_panel(target,
             establish_path(tsv_file_path, 'file')
             scores.to_csv(tsv_file_path, sep='\t')
 
-    if indices is None:
-        indices = get_top_and_bottom_series_indices(scores['Score'],
-                                                    n_top_feature).tolist()
-
-    indices = Index(
-        sorted(
-            indices,
-            key=lambda index: scores.loc[index, 'Score'],
-            reverse=not scores_ascending))
+    indices = get_top_and_bottom_series_indices(scores['Score'], n_top_feature)
 
     if max_n_feature and max_n_feature < indices.size:
         indices = indices[:max_n_feature // 2].append(
