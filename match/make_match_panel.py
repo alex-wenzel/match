@@ -32,7 +32,8 @@ LAYOUT_ANNOTATION_TEMPLATE = dict(
     showarrow=False)
 
 TARGET_LAYOUT_ANNOTATION_TEMPLATE = LAYOUT_ANNOTATION_TEMPLATE.copy()
-TARGET_LAYOUT_ANNOTATION_TEMPLATE.update(xanchor='right', bgcolor=None)
+TARGET_LAYOUT_ANNOTATION_TEMPLATE.update(
+    xanchor='right', width=None, bgcolor=None)
 
 
 def make_match_panel(target,
@@ -157,7 +158,7 @@ def make_match_panel(target,
         dict(
             x=-0.002,
             y=1 - (row_fraction / 2),
-            text=target.index[0],
+            text='{} (n={})'.format(target.index[0], target.size),
             **TARGET_LAYOUT_ANNOTATION_TEMPLATE)
     ]
 

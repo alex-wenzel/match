@@ -13,7 +13,7 @@ from .support.support.df import drop_df_slices
 
 def make_summary_match_panel(
         target,
-        features_dict,
+        multiple_features,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
         min_n_sample=2,
@@ -27,7 +27,7 @@ def make_summary_match_panel(
         html_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
-        for name, features_dict in features_dict.items():
+        for name, features_dict in multiple_features.items():
             target = target.loc[target.index & features_dict['df'].columns]
 
     if isinstance(target_ascending, bool):
@@ -40,7 +40,7 @@ def make_summary_match_panel(
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
     n_row = 1
-    for i, (name, features_dict) in enumerate(features_dict.items()):
+    for i, (name, features_dict) in enumerate(multiple_features.items()):
         n_row += 1
         n_row += len(features_dict['indices'])
     row_fraction = 1 / n_row
@@ -52,11 +52,11 @@ def make_summary_match_panel(
         dict(
             x=-0.002,
             y=1 - (row_fraction / 2),
-            text=target.index[0],
+            text='{} (n={})'.format(target.index[0], target.size),
             **TARGET_LAYOUT_ANNOTATION_TEMPLATE)
     ]
 
-    yaxis_name = 'yaxis{}'.format(len(features_dict) + 1)
+    yaxis_name = 'yaxis{}'.format(len(multiple_features) + 1)
     domain_end = 1
     domain_start = domain_end - row_fraction
     layout[yaxis_name] = dict(
@@ -75,7 +75,7 @@ def make_summary_match_panel(
             zmin=target_min,
             zmax=target_max))
 
-    for i, (name, features_dict) in enumerate(features_dict.items()):
+    for i, (name, features_dict) in enumerate(multiple_features.items()):
         print('Making match panel for {} ...'.format(name))
 
         features = features_dict['df']
@@ -101,7 +101,7 @@ def make_summary_match_panel(
             features.values,
             min_n_sample,
             match_function,
-            n_top_feature=features.shape[0],
+            extreme_feature_threshold=None,
             n_sampling=n_sampling,
             n_permutation=n_permutation,
             random_seed=random_seed)
@@ -118,7 +118,7 @@ def make_summary_match_panel(
         features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
             features_to_plot, data_type, plot_max_std)
 
-        yaxis_name = 'yaxis{}'.format(len(features_dict) - i)
+        yaxis_name = 'yaxis{}'.format(len(multiple_features) - i)
 
         domain_end = domain_start - row_fraction
         domain_start = domain_end - len(
@@ -138,7 +138,7 @@ def make_summary_match_panel(
                 zmax=features_max))
 
         for j, (annotation, strs) in enumerate(annotations.items()):
-            x = 1.08 + i / 7
+            x = 1.08 + j / 7
 
             if j == 0:
                 y = 1 - (row_fraction / 2)
