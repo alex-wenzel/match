@@ -59,7 +59,8 @@ def make_match_panel(target,
     if isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
 
-    features = drop_df_slices(features[target.index], 1, max_n_unique_object=1)
+    features = drop_df_slices(
+        features[target.index], 1, max_n_not_na_unique_object=1)
 
     if scores is None:
         scores = match(
