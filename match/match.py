@@ -121,8 +121,6 @@ def permute_target_and_match_target_and_features(target, features,
 
     seed(random_seed)
     for i in range(n_permutation):
-        if i % (n_permutation // 3) == 0:
-            print('\t{}/{} ...'.format(i + 1, n_permutation))
 
         shuffle(permuted_target)
 

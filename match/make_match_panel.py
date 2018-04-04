@@ -75,10 +75,12 @@ def make_match_panel(target,
             random_seed=random_seed)
         scores.index = features.index
 
+        scores.sort_values('Score', inplace=True)
+
         if file_path_prefix:
-            file_path_tsv = file_path_prefix + '.match.tsv'
-            establish_path(file_path_tsv, 'file')
-            scores.to_csv(file_path_tsv, sep='\t')
+            tsv_file_path = file_path_prefix + '.match.tsv'
+            establish_path(tsv_file_path, 'file')
+            scores.to_csv(tsv_file_path, sep='\t')
 
     if indices is None:
         indices = get_top_and_bottom_series_indices(scores['Score'],
@@ -129,9 +131,9 @@ def make_match_panel(target,
     n_row = 2 + features.shape[0]
     row_fraction = 1 / n_row
     layout = dict(
-        width=800,
+        width=880,
         height=max(800, n_row * 80),
-        margin=dict(l=160, r=160),
+        margin=dict(l=100, r=(100, 240)[3 < n_permutation]),
         title=title,
         xaxis1=dict(anchor='y1'),
         yaxis1=dict(domain=(0, 1 - 2 * row_fraction)),
@@ -166,7 +168,7 @@ def make_match_panel(target,
     layout_annotations = []
 
     for i, (column_name, annotation_column) in enumerate(annotations.items()):
-        x = 1.05 + i / 10
+        x = 1.07 + i / 7
         y = 1 - (row_fraction / 2)
 
         layout_annotations.append(
@@ -177,7 +179,7 @@ def make_match_panel(target,
                 y=y,
                 xanchor='center',
                 yanchor='middle',
-                text='{}'.format(column_name),
+                text=column_name,
                 showarrow=False))
 
         y -= row_fraction
@@ -193,7 +195,7 @@ def make_match_panel(target,
                     y=y,
                     xanchor='center',
                     yanchor='middle',
-                    text='{:.3f}'.format(y),
+                    text=annotation,
                     showarrow=False))
 
     layout.update(annotations=layout_annotations)

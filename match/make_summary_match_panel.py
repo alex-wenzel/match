@@ -32,8 +32,8 @@ def make_summary_match_panel(
         html_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
-        for name, d in multiple_features.items():
-            target = target.loc[target.index & d['df'].columns]
+        for name, features_dict in multiple_features.items():
+            target = target.loc[target.index & features_dict['df'].columns]
 
     if isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
@@ -49,8 +49,8 @@ def make_summary_match_panel(
     target_df = target.to_frame().T
 
     layout = dict(
-        width=800,
-        margin=dict(l=160, r=160),
+        width=880,
+        margin=dict(l=100, r=(80, 240)[3 <= n_permutation]),
         title=title,
         xaxis1=dict(anchor='y1'))
 
@@ -58,9 +58,9 @@ def make_summary_match_panel(
     layout_annotations = []
 
     n_row = 1
-    for i, (name, d) in enumerate(multiple_features.items()):
+    for i, (name, features_dict) in enumerate(multiple_features.items()):
         n_row += 1
-        n_row += len(d['indices'])
+        n_row += len(features_dict['indices'])
 
     layout.update(height=max(800, n_row * 80))
     row_fraction = 1 / n_row
@@ -69,7 +69,6 @@ def make_summary_match_panel(
     domain_end = 1
     domain_start = domain_end - row_fraction
     layout[yaxis_name] = dict(domain=(domain_start, domain_end))
-    domain_end = domain_start - row_fraction
 
     data.append(
         dict(
@@ -84,14 +83,14 @@ def make_summary_match_panel(
             zmin=target_min,
             zmax=target_max))
 
-    for i, (name, d) in enumerate(multiple_features.items()):
+    for i, (name, features_dict) in enumerate(multiple_features.items()):
         print('Making match panel for {} ...'.format(name))
 
-        features = d['df']
-        indices = d['indices']
-        index_aliases = d['index_aliases']
-        emphasis = d['emphasis']
-        data_type = d['data_type']
+        features = features_dict['df']
+        indices = features_dict['indices']
+        index_aliases = features_dict['index_aliases']
+        emphasis = features_dict['emphasis']
+        data_type = features_dict['data_type']
 
         missing_indices = tuple(
             index for index in indices if index not in features.index)
@@ -150,9 +149,11 @@ def make_summary_match_panel(
             features, data_type, plot_max_std)
 
         yaxis_name = 'yaxis{}'.format(len(multiple_features) - i)
-        domain_start = domain_end - len(d['indices']) * row_fraction
-        layout[yaxis_name] = dict(domain=(domain_start, domain_end))
+
         domain_end = domain_start - row_fraction
+        domain_start = domain_end - len(
+            features_dict['indices']) * row_fraction
+        layout[yaxis_name] = dict(domain=(domain_start, domain_end))
 
         data.append(
             dict(
@@ -166,26 +167,12 @@ def make_summary_match_panel(
                 zmin=features_min,
                 zmax=features_max))
 
-        for i, (column_name, annotation_column) in enumerate(
+        for j, (column_name, annotation_column) in enumerate(
                 annotations.items()):
-            x = 1.05 + i / 10
-            y = 1 - (row_fraction / 2)
 
-            layout_annotations.append(
-                dict(
-                    xref='paper',
-                    yref='paper',
-                    x=x,
-                    y=y,
-                    xanchor='center',
-                    yanchor='middle',
-                    text='{}'.format(column_name),
-                    showarrow=False))
-
-            y = domain_end - row_fraction / 2
-
-            for annotation in annotation_column:
-                y -= row_fraction
+            if j == 0:
+                x = 1.08 + j / 7
+                y = 1 - (row_fraction / 2)
 
                 layout_annotations.append(
                     dict(
@@ -195,13 +182,26 @@ def make_summary_match_panel(
                         y=y,
                         xanchor='center',
                         yanchor='middle',
-                        text='{:.3f}'.format(y),
+                        text=column_name,
                         showarrow=False))
+
+            y = domain_end - (row_fraction / 2)
+
+            for annotation in annotation_column:
+                layout_annotations.append(
+                    dict(
+                        xref='paper',
+                        yref='paper',
+                        x=x,
+                        y=y,
+                        xanchor='center',
+                        yanchor='middle',
+                        text=j,
+                        showarrow=False))
+                y -= row_fraction
 
     layout.update(annotations=layout_annotations)
 
     figure = dict(data=data, layout=layout)
 
     plot_and_save(figure, html_file_path)
-
-    return figure
