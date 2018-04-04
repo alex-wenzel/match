@@ -31,7 +31,7 @@ def match(target,
         n_job = min(features.shape[0], n_job)
 
     print('Computing match score with {} ({} process) ...'.format(
-        match_function, n_job))
+        match_function.__name__, n_job))
     results['Score'] = concatenate(
         multiprocess(match_target_and_features,
                      ((target, features_, min_n_sample, match_function)

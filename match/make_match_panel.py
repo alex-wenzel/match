@@ -1,6 +1,6 @@
 from warnings import warn
 
-from numpy import diff, nan_to_num
+from numpy import nan_to_num
 from pandas import DataFrame, Index
 
 from .information.information.compute_information_coefficient import \
@@ -8,9 +8,10 @@ from .information.information.compute_information_coefficient import \
 from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
+from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
 from .plot.plot.plot_and_save import plot_and_save
-from .process_target_and_features_for_plotting import \
-    process_target_and_features_for_plotting
+from .process_target_or_features_for_plotting import \
+    process_target_or_features_for_plotting
 from .support.support.df import drop_df_slices
 from .support.support.path import establish_path
 from .support.support.series import get_top_and_bottom_series_indices
@@ -45,23 +46,16 @@ def make_match_panel(target,
     if isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
 
-    features = features[target.index]
-
-    features = drop_df_slices(features, 1, max_n_unique_object=1)
-
-    target_diff = diff(target)
-    if not ((target_diff <= 0).all() or (0 <= target_diff).all()):
+    elif cluster_within_category and not nd_array_is_sorted(target.values):
         cluster_within_category = False
         warn(
-            'Set cluster_within_category=False because target is not monotonically increasing or decreasing.'
+            'Set cluster_within_category=False because target is not increasing or decreasing.'
         )
 
+    features = drop_df_slices(features[target.index], 1, max_n_unique_object=1)
+
     if cluster_within_category and target_type in ('binary', 'categorical'):
-
-        target_values = target.values.tolist()
-
-        if all(((1 < target_values.count(i)) for i in target_values)):
-
+        if all(1 < (target == value).sum() for value in target):
             features = features.iloc[:,
                                      cluster_2d_array_slices_by_group(
                                          nan_to_num(features.values),
@@ -125,15 +119,18 @@ def make_match_panel(target,
     else:
         html_file_path = None
 
-    print('Plotting ...')
-    target, target_min, target_max, target_colorscale, features, features_min, features_max, features_colorscale = process_target_and_features_for_plotting(
-        target, target_type, features.loc[scores_to_plot.index], features_type,
-        plot_max_std)
+    target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
+        target, target_type, plot_max_std)
+    target_df = target.to_frame().T
 
-    row_fraction = 1 / (features.shape[0] + 2)
+    features, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
+        features.loc[scores_to_plot.index], features_type, plot_max_std)
+
+    n_row = 2 + features.shape[0]
+    row_fraction = 1 / n_row
     layout = dict(
         width=800,
-        height=max(800, features.shape[0] * 80),
+        height=max(800, n_row * 80),
         margin=dict(l=160, r=160),
         title=title,
         xaxis1=dict(anchor='y1'),
@@ -146,9 +143,9 @@ def make_match_panel(target,
         dict(
             type='heatmap',
             yaxis='y2',
-            z=target.values[::-1],
-            x=target.columns,
-            y=target.index[::-1],
+            z=target_df.values[::-1],
+            x=target_df.columns,
+            y=target_df.index[::-1],
             colorscale=target_colorscale,
             showscale=False,
             zmin=target_min,
