@@ -1,10 +1,12 @@
 from warnings import warn
 
 from numpy import nan_to_num
-from pandas import DataFrame
 
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
+from .make_annotations import make_annotations
+from .make_match_panel import (LAYOUT_ANNOTATION_TEMPLATE,
+                               MATCH_PANEL_LAYOUT_TEMPLATE)
 from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
@@ -17,11 +19,11 @@ from .support.support.df import drop_df_slices
 
 def make_summary_match_panel(
         target,
-        multiple_features,
+        features_dict,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
         cluster_within_category=True,
-        min_n_sample=5,
+        min_n_sample=2,
         match_function=compute_information_coefficient,
         random_seed=20121020,
         n_sampling=0,
@@ -32,7 +34,7 @@ def make_summary_match_panel(
         html_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
-        for name, features_dict in multiple_features.items():
+        for name, features_dict in features_dict.items():
             target = target.loc[target.index & features_dict['df'].columns]
 
     if isinstance(target_ascending, bool):
@@ -40,35 +42,30 @@ def make_summary_match_panel(
 
     elif cluster_within_category and not nd_array_is_sorted(target.values):
         cluster_within_category = False
-        warn(
-            'Set cluster_within_category=False because target is not increasing or decreasing.'
-        )
+        warn('Set cluster_within_category=False because target is not sorted.')
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
         target, target_type, plot_max_std)
     target_df = target.to_frame().T
 
-    layout = dict(
-        width=880,
-        margin=dict(l=100, r=(80, 240)[3 <= n_permutation]),
-        title=title,
-        xaxis1=dict(anchor='y1'))
+    layout = MATCH_PANEL_LAYOUT_TEMPLATE
+
+    n_row = 1
+    for i, (name, features_dict) in enumerate(features_dict.items()):
+        n_row += 1
+        n_row += len(features_dict['indices'])
+    row_fraction = 1 / n_row
+
+    layout.update(title=title, height=max(layout['height'], n_row * 24))
 
     data = []
     layout_annotations = []
 
-    n_row = 1
-    for i, (name, features_dict) in enumerate(multiple_features.items()):
-        n_row += 1
-        n_row += len(features_dict['indices'])
-
-    layout.update(height=max(800, n_row * 80))
-    row_fraction = 1 / n_row
-
-    yaxis_name = 'yaxis{}'.format(len(multiple_features) + 1)
+    yaxis_name = 'yaxis{}'.format(len(features_dict) + 1)
     domain_end = 1
     domain_start = domain_end - row_fraction
-    layout[yaxis_name] = dict(domain=(domain_start, domain_end))
+    layout[yaxis_name] = dict(
+        domain=(domain_start, domain_end), ticks='', showticklabels=False)
 
     data.append(
         dict(
@@ -83,7 +80,7 @@ def make_summary_match_panel(
             zmin=target_min,
             zmax=target_max))
 
-    for i, (name, features_dict) in enumerate(multiple_features.items()):
+    for i, (name, features_dict) in enumerate(features_dict.items()):
         print('Making match panel for {} ...'.format(name))
 
         features = features_dict['df']
@@ -120,40 +117,24 @@ def make_summary_match_panel(
             n_permutation=n_permutation,
             random_seed=random_seed)
         scores.index = features.index
+        scores.sort_values('Score', ascending=emphasis == 'low', inplace=True)
 
-        scores = scores.sort_values('Score', ascending=emphasis == 'low')
         features = features.loc[scores.index]
-
         features.index = features.index.map(
             {index: alias
              for index, alias in zip(indices, index_aliases)}.get)
 
-        annotations = DataFrame(index=scores.index)
-
-        if scores['0.95 MoE'].isna().all():
-            annotations['IC'] = [
-                '{:.2f}'.format(score) for score in scores['Score']
-            ]
-        else:
-            annotations['IC(\u0394)'] = scores[[
-                'Score',
-                '0.95 MoE'
-            ]].apply(
-                lambda score_margin_of_error: '{:.2f}({:.2f})'.format(*score_margin_of_error), axis=1)
-
-        if not scores['P-Value'].isna().all():
-            annotations['P-Value'] = scores['P-Value'].apply('{:.2e}'.format)
-            annotations['FDR'] = scores['FDR'].apply('{:.2e}'.format)
+        annotations = make_annotations(scores)
 
         features, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
             features, data_type, plot_max_std)
 
-        yaxis_name = 'yaxis{}'.format(len(multiple_features) - i)
+        yaxis_name = 'yaxis{}'.format(len(features_dict) - i)
 
         domain_end = domain_start - row_fraction
         domain_start = domain_end - len(
             features_dict['indices']) * row_fraction
-        layout[yaxis_name] = dict(domain=(domain_start, domain_end))
+        layout[yaxis_name] = dict(domain=(domain_start, domain_end), dtick=1)
 
         data.append(
             dict(
@@ -167,37 +148,23 @@ def make_summary_match_panel(
                 zmin=features_min,
                 zmax=features_max))
 
-        for j, (column_name, annotation_column) in enumerate(
-                annotations.items()):
+        for j, (annotation, strs) in enumerate(annotations.items()):
+            x = 1.07 + i / 7
 
             if j == 0:
-                x = 1.08 + j / 7
                 y = 1 - (row_fraction / 2)
-
                 layout_annotations.append(
                     dict(
-                        xref='paper',
-                        yref='paper',
                         x=x,
                         y=y,
-                        xanchor='center',
-                        yanchor='middle',
-                        text=column_name,
-                        showarrow=False))
+                        text=annotation,
+                        **LAYOUT_ANNOTATION_TEMPLATE))
 
             y = domain_end - (row_fraction / 2)
 
-            for annotation in annotation_column:
+            for str_ in strs:
                 layout_annotations.append(
-                    dict(
-                        xref='paper',
-                        yref='paper',
-                        x=x,
-                        y=y,
-                        xanchor='center',
-                        yanchor='middle',
-                        text=j,
-                        showarrow=False))
+                    dict(x=x, y=y, text=str_, **LAYOUT_ANNOTATION_TEMPLATE))
                 y -= row_fraction
 
     layout.update(annotations=layout_annotations)

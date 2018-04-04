@@ -11,7 +11,7 @@ from .nd_array.nd_array.compute_nd_array_margin_of_error import \
 from .nd_array.nd_array.drop_bad_value_and_apply_function_on_2_1d_arrays import \
     drop_bad_value_and_apply_function_on_2_1d_arrays
 from .support.support.multiprocess import multiprocess
-from .support.support.series import get_top_and_bottom_series_indices
+from .support.support.series import get_extreme_series_indices
 
 
 def match(target,
@@ -19,10 +19,9 @@ def match(target,
           min_n_sample,
           match_function,
           n_job=1,
-          n_top_feature=0.99,
-          max_n_feature=100,
-          n_sampling=10,
-          n_permutation=10,
+          extreme_feature_threshold=80,
+          n_sampling=0,
+          n_permutation=0,
           random_seed=20121020):
 
     results = DataFrame(columns=('Score', '0.95 MoE', 'P-Value', 'FDR'))
@@ -30,8 +29,8 @@ def match(target,
     if 1 < n_job:
         n_job = min(features.shape[0], n_job)
 
-    print('Computing match score with {} ({} process) ...'.format(
-        match_function.__name__, n_job))
+    print('Computing score using {} with {} process{} ...'.format(
+        match_function.__name__, n_job, ('', 'es')[1 < n_job]))
     results['Score'] = concatenate(
         multiprocess(match_target_and_features,
                      ((target, features_, min_n_sample, match_function)
@@ -42,11 +41,8 @@ def match(target,
             'Could not compute any score; perhaps because there were less than {} (min_n_sample) non-na values for all target-feature pairs to compute the score.'.
             format(min_n_sample))
 
-    indices = get_top_and_bottom_series_indices(results['Score'],
-                                                n_top_feature)
-    if max_n_feature and max_n_feature < indices.size:
-        indices = indices[:max_n_feature // 2].append(
-            indices[-max_n_feature // 2:])
+    indices = get_extreme_series_indices(results['Score'],
+                                         extreme_feature_threshold)
 
     if 3 <= n_sampling and 3 <= ceil(0.632 * target.size):
         results.loc[
@@ -81,13 +77,11 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
     if ceil(0.632 * target.size) < 3:
         raise ValueError('Cannot compute MoEs because 0.632 * n_sample < 3.')
 
-    print('Computing MoEs with {} samplings ...'.format(n_sampling))
+    print('Computing MoE with {} samplings ...'.format(n_sampling))
     feature_x_sampling = empty((features.shape[0], n_sampling))
 
     seed(random_seed)
     for i in range(n_sampling):
-        if i % (n_sampling // 3) == 0:
-            print('\t{}/{} ...'.format(i + 1, n_sampling))
 
         random_indices = choice(target.size, ceil(0.632 * target.size))
         sampled_target = target[random_indices]
@@ -112,7 +106,7 @@ def permute_target_and_match_target_and_features(target, features,
         raise ValueError(
             'Not computing P-Value and FDR because n_permutation < 1.')
 
-    print('Computing p-values and FDRs with {} permutations ...'.format(
+    print('Computing p-value and FDR with {} permutations ...'.format(
         n_permutation))
 
     feature_x_permutation = empty((features.shape[0], n_permutation))

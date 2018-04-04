@@ -1,10 +1,10 @@
 from warnings import warn
 
 from numpy import nan_to_num
-from pandas import DataFrame
 
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
+from .make_annotations import make_annotations
 from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
@@ -14,7 +14,20 @@ from .process_target_or_features_for_plotting import \
     process_target_or_features_for_plotting
 from .support.support.df import drop_df_slices
 from .support.support.path import establish_path
-from .support.support.series import get_top_and_bottom_series_indices
+from .support.support.series import get_extreme_series_indices
+
+MATCH_PANEL_LAYOUT_TEMPLATE = dict(
+    width=880,
+    height=500,
+    margin=dict(l=100, r=(240)),
+    xaxis1=dict(anchor='y1'))
+
+LAYOUT_ANNOTATION_TEMPLATE = dict(
+    xref='paper',
+    yref='paper',
+    xanchor='center',
+    yanchor='middle',
+    showarrow=False)
 
 
 def make_match_panel(target,
@@ -22,13 +35,12 @@ def make_match_panel(target,
                      target_ascending=False,
                      cluster_within_category=True,
                      scores=None,
-                     min_n_sample=5,
+                     min_n_sample=2,
                      match_function=compute_information_coefficient,
                      random_seed=20121020,
                      n_job=1,
                      scores_ascending=False,
-                     n_top_feature=10,
-                     max_n_feature=100,
+                     extreme_feature_threshold=80,
                      n_sampling=0,
                      n_permutation=0,
                      target_type='continuous',
@@ -44,9 +56,7 @@ def make_match_panel(target,
 
     elif cluster_within_category and not nd_array_is_sorted(target.values):
         cluster_within_category = False
-        warn(
-            'Set cluster_within_category=False because target is not increasing or decreasing.'
-        )
+        warn('Set cluster_within_category=False because target is not sorted.')
 
     features = drop_df_slices(features[target.index], 1, max_n_unique_object=1)
 
@@ -64,48 +74,27 @@ def make_match_panel(target,
             min_n_sample,
             match_function,
             n_job=n_job,
-            n_top_feature=n_top_feature,
-            max_n_feature=max_n_feature,
+            extreme_feature_threshold=extreme_feature_threshold,
             n_sampling=n_sampling,
             n_permutation=n_permutation,
             random_seed=random_seed)
         scores.index = features.index
-
-        scores.sort_values('Score', inplace=True)
+        scores.sort_values('Score', ascending=scores_ascending, inplace=True)
 
         if file_path_prefix:
             tsv_file_path = file_path_prefix + '.match.tsv'
             establish_path(tsv_file_path, 'file')
             scores.to_csv(tsv_file_path, sep='\t')
 
-    indices = get_top_and_bottom_series_indices(scores['Score'], n_top_feature)
-
-    if max_n_feature and max_n_feature < indices.size:
-        indices = indices[:max_n_feature // 2].append(
-            indices[-max_n_feature // 2:])
+    indices = get_extreme_series_indices(
+        scores['Score'], extreme_feature_threshold, scores_ascending)
 
     scores_to_plot = scores.loc[indices]
 
-    annotations = DataFrame(index=scores_to_plot.index)
-
-    if scores_to_plot['0.95 MoE'].isna().all():
-        annotations['IC'] = [
-            '{:.2f}'.format(score) for score in scores_to_plot['Score']
-        ]
-    else:
-        annotations['IC(\u0394)'] = scores_to_plot[[
-            'Score',
-            '0.95 MoE'
-        ]].apply(
-            lambda score_margin_of_error: '{:.2f}({:.2f})'.format(*score_margin_of_error), axis=1)
-
-    if not scores_to_plot['P-Value'].isna().all():
-        annotations['P-Value'] = scores_to_plot['P-Value'].apply(
-            '{:.2e}'.format)
-        annotations['FDR'] = scores_to_plot['FDR'].apply('{:.2e}'.format)
+    annotations = make_annotations(scores_to_plot)
 
     if file_path_prefix:
-        html_file_path = file_path_prefix + '.match.html'
+        html_file_path = file_path_prefix + '.match_panel.html'
     else:
         html_file_path = None
 
@@ -116,16 +105,17 @@ def make_match_panel(target,
     features, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
         features.loc[scores_to_plot.index], features_type, plot_max_std)
 
+    layout = MATCH_PANEL_LAYOUT_TEMPLATE
+
     n_row = 2 + features.shape[0]
     row_fraction = 1 / n_row
-    layout = dict(
-        width=880,
-        height=max(800, n_row * 80),
-        margin=dict(l=100, r=(100, 240)[3 < n_permutation]),
+
+    layout.update(
+        height=max(layout['height'], n_row * 24),
         title=title,
-        xaxis1=dict(anchor='y1'),
-        yaxis1=dict(domain=(0, 1 - 2 * row_fraction)),
-        yaxis2=dict(domain=(1 - row_fraction, 1)))
+        yaxis1=dict(domain=(0, 1 - 2 * row_fraction), dtick=1),
+        yaxis2=dict(
+            domain=(1 - row_fraction, 1), ticks='', showticklabels=False))
 
     data = []
 
@@ -154,37 +144,19 @@ def make_match_panel(target,
             zmax=features_max))
 
     layout_annotations = []
-
-    for i, (column_name, annotation_column) in enumerate(annotations.items()):
+    for i, (annotation, strs) in enumerate(annotations.items()):
         x = 1.07 + i / 7
+
         y = 1 - (row_fraction / 2)
-
         layout_annotations.append(
-            dict(
-                xref='paper',
-                yref='paper',
-                x=x,
-                y=y,
-                xanchor='center',
-                yanchor='middle',
-                text=column_name,
-                showarrow=False))
+            dict(x=x, y=y, text=annotation, **LAYOUT_ANNOTATION_TEMPLATE))
 
-        y -= row_fraction
+        y = 1 - 2 * row_fraction - (row_fraction / 2)
 
-        for annotation in annotation_column:
-            y -= row_fraction
-
+        for str_ in strs:
             layout_annotations.append(
-                dict(
-                    xref='paper',
-                    yref='paper',
-                    x=x,
-                    y=y,
-                    xanchor='center',
-                    yanchor='middle',
-                    text=annotation,
-                    showarrow=False))
+                dict(x=x, y=y, text=str_, **LAYOUT_ANNOTATION_TEMPLATE))
+            y -= row_fraction
 
     layout.update(annotations=layout_annotations)
 
