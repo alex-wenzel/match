@@ -110,6 +110,7 @@ def make_match_panel(target,
     n_row = 2 + features.shape[0]
     row_fraction = 1 / n_row
 
+    print(n_row, max(layout['height'], n_row * 24))
     layout.update(
         height=max(layout['height'], n_row * 24),
         title=title,
