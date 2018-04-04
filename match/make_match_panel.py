@@ -1,7 +1,7 @@
 from warnings import warn
 
 from numpy import nan_to_num
-from pandas import DataFrame, Index
+from pandas import DataFrame
 
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
