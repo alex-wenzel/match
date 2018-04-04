@@ -27,7 +27,12 @@ LAYOUT_ANNOTATION_TEMPLATE = dict(
     yref='paper',
     xanchor='center',
     yanchor='middle',
+    width=64,
+    bgcolor='#ebf6f7',
     showarrow=False)
+
+TARGET_LAYOUT_ANNOTATION_TEMPLATE = LAYOUT_ANNOTATION_TEMPLATE.copy()
+TARGET_LAYOUT_ANNOTATION_TEMPLATE.update(xanchor='right', bgcolor=None)
 
 
 def make_match_panel(target,
@@ -54,18 +59,7 @@ def make_match_panel(target,
     if isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
 
-    elif cluster_within_category and not nd_array_is_sorted(target.values):
-        cluster_within_category = False
-        warn('Set cluster_within_category=False because target is not sorted.')
-
     features = drop_df_slices(features[target.index], 1, max_n_unique_object=1)
-
-    if cluster_within_category and target_type in ('binary', 'categorical'):
-        if all(1 < (target == value).sum() for value in target):
-            features = features.iloc[:,
-                                     cluster_2d_array_slices_by_group(
-                                         nan_to_num(features.values),
-                                         nan_to_num(target.values))]
 
     if scores is None:
         scores = match(
@@ -89,6 +83,7 @@ def make_match_panel(target,
     indices = get_extreme_series_indices(
         scores['Score'], extreme_feature_threshold, scores_ascending)
 
+    features_to_plot = features.loc[indices]
     scores_to_plot = scores.loc[indices]
 
     annotations = make_annotations(scores_to_plot)
@@ -102,15 +97,28 @@ def make_match_panel(target,
         target, target_type, plot_max_std)
     target_df = target.to_frame().T
 
-    features, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
-        features.loc[scores_to_plot.index], features_type, plot_max_std)
+    if target_type in ('binary', 'categorical') and cluster_within_category:
+        if target.value_counts().min() < 2:
+            warn('Not clustering because a category has only 1 value.')
+        elif not nd_array_is_sorted(target.values):
+            warn('Not clustering because target is not sorted.')
+        else:
+            features_to_plot = features_to_plot.iloc[:,
+                                                     cluster_2d_array_slices_by_group(
+                                                         nan_to_num(
+                                                             features_to_plot.
+                                                             values),
+                                                         nan_to_num(
+                                                             target.values))]
+
+    features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
+        features_to_plot, features_type, plot_max_std)
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
-    n_row = 2 + features.shape[0]
+    n_row = 2 + features_to_plot.shape[0]
     row_fraction = 1 / n_row
 
-    print(n_row, max(layout['height'], n_row * 24))
     layout.update(
         height=max(layout['height'], n_row * 24),
         title=title,
@@ -136,17 +144,24 @@ def make_match_panel(target,
         dict(
             type='heatmap',
             yaxis='y1',
-            z=features.values[::-1],
-            x=features.columns,
-            y=features.index[::-1],
+            z=features_to_plot.values[::-1],
+            x=features_to_plot.columns,
+            y=features_to_plot.index[::-1],
             colorscale=features_colorscale,
             showscale=False,
             zmin=features_min,
             zmax=features_max))
 
-    layout_annotations = []
+    layout_annotations = [
+        dict(
+            x=-0.002,
+            y=1 - (row_fraction / 2),
+            text=target.index[0],
+            **TARGET_LAYOUT_ANNOTATION_TEMPLATE)
+    ]
+
     for i, (annotation, strs) in enumerate(annotations.items()):
-        x = 1.07 + i / 7
+        x = 1.08 + i / 7
 
         y = 1 - (row_fraction / 2)
         layout_annotations.append(

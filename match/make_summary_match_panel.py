@@ -1,16 +1,10 @@
-from warnings import warn
-
-from numpy import nan_to_num
-
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .make_annotations import make_annotations
 from .make_match_panel import (LAYOUT_ANNOTATION_TEMPLATE,
-                               MATCH_PANEL_LAYOUT_TEMPLATE)
+                               MATCH_PANEL_LAYOUT_TEMPLATE,
+                               TARGET_LAYOUT_ANNOTATION_TEMPLATE)
 from .match import match
-from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
-    cluster_2d_array_slices_by_group
-from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
 from .plot.plot.plot_and_save import plot_and_save
 from .process_target_or_features_for_plotting import \
     process_target_or_features_for_plotting
@@ -22,7 +16,6 @@ def make_summary_match_panel(
         features_dict,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
-        cluster_within_category=True,
         min_n_sample=2,
         match_function=compute_information_coefficient,
         random_seed=20121020,
@@ -40,10 +33,6 @@ def make_summary_match_panel(
     if isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
 
-    elif cluster_within_category and not nd_array_is_sorted(target.values):
-        cluster_within_category = False
-        warn('Set cluster_within_category=False because target is not sorted.')
-
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
         target, target_type, plot_max_std)
     target_df = target.to_frame().T
@@ -59,7 +48,13 @@ def make_summary_match_panel(
     layout.update(title=title, height=max(layout['height'], n_row * 24))
 
     data = []
-    layout_annotations = []
+    layout_annotations = [
+        dict(
+            x=-0.002,
+            y=1 - (row_fraction / 2),
+            text=target.index[0],
+            **TARGET_LAYOUT_ANNOTATION_TEMPLATE)
+    ]
 
     yaxis_name = 'yaxis{}'.format(len(features_dict) + 1)
     domain_end = 1
@@ -99,14 +94,6 @@ def make_summary_match_panel(
         features = drop_df_slices(
             features.reindex(columns=target.index), 1, max_n_unique_object=1)
 
-        if cluster_within_category and target_type in ('binary',
-                                                       'categorical'):
-            if all(1 < (target == value).sum() for value in target):
-                features = features.iloc[:,
-                                         cluster_2d_array_slices_by_group(
-                                             nan_to_num(features.values),
-                                             nan_to_num(target.values))]
-
         scores = match(
             target.values,
             features.values,
@@ -119,15 +106,15 @@ def make_summary_match_panel(
         scores.index = features.index
         scores.sort_values('Score', ascending=emphasis == 'low', inplace=True)
 
-        features = features.loc[scores.index]
-        features.index = features.index.map(
+        features_to_plot = features.loc[scores.index]
+        features_to_plot.index = features_to_plot.index.map(
             {index: alias
              for index, alias in zip(indices, index_aliases)}.get)
 
         annotations = make_annotations(scores)
 
-        features, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
-            features, data_type, plot_max_std)
+        features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
+            features_to_plot, data_type, plot_max_std)
 
         yaxis_name = 'yaxis{}'.format(len(features_dict) - i)
 
@@ -140,16 +127,16 @@ def make_summary_match_panel(
             dict(
                 type='heatmap',
                 yaxis=yaxis_name.replace('axis', ''),
-                z=features.values[::-1],
-                x=features.columns,
-                y=features.index[::-1],
+                z=features_to_plot.values[::-1],
+                x=features_to_plot.columns,
+                y=features_to_plot.index[::-1],
                 colorscale=features_colorscale,
                 showscale=False,
                 zmin=features_min,
                 zmax=features_max))
 
         for j, (annotation, strs) in enumerate(annotations.items()):
-            x = 1.07 + i / 7
+            x = 1.08 + i / 7
 
             if j == 0:
                 y = 1 - (row_fraction / 2)
