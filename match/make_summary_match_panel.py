@@ -158,6 +158,6 @@ def make_summary_match_panel(
 
     layout.update(annotations=layout_annotations)
 
-    figure = dict(data=data, layout=layout)
+    figure = dict(layout=layout, data=data)
 
     plot_and_save(figure, html_file_path)
