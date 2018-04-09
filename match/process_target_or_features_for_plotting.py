@@ -5,7 +5,7 @@ from .nd_array.nd_array.normalize_1d_array import normalize_1d_array
 from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
 from .plot.plot.make_colorscale import make_colorscale
 from .plot.plot.style import (BINARY_COLORS_WHITE_BLACK, CATEGORICAL_COLORS,
-                              COLORSCALE_FOR_MATCH)
+                              CONTINUOUS_COLORSCALE_FOR_MATCH)
 
 
 def process_target_or_features_for_plotting(target_or_features, type_,
@@ -45,7 +45,7 @@ def process_target_or_features_for_plotting(target_or_features, type_,
 
         min_ = nanmin(target_or_features)
         max_ = nanmax(target_or_features)
-        colorscale = COLORSCALE_FOR_MATCH
+        colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 
     else:
         min_ = 0
