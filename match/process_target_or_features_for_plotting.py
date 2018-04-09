@@ -4,7 +4,7 @@ from pandas import DataFrame, Series
 from .nd_array.nd_array.normalize_1d_array import normalize_1d_array
 from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
 from .plot.plot.make_colorscale import make_colorscale
-from .plot.plot.style import (BLACK_WHITE_BINARY_COLORS, CATEGORICAL_COLORS,
+from .plot.plot.style import (BINARY_COLORS_WHITE_BLACK, CATEGORICAL_COLORS,
                               COLORSCALE_FOR_MATCH)
 
 
@@ -59,7 +59,7 @@ def process_target_or_features_for_plotting(target_or_features, type_,
 
         elif type_ == 'binary':
             max_ = 1
-            colorscale = make_colorscale(BLACK_WHITE_BINARY_COLORS)
+            colorscale = make_colorscale(BINARY_COLORS_WHITE_BLACK)
 
         else:
             raise ValueError('Unknown type_: {}.'.format(type_))

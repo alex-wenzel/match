@@ -5,7 +5,7 @@ from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .nd_array.nd_array.apply_function_on_2_2d_arrays_slices import \
     apply_function_on_2_2d_arrays_slices
-from .plot.plot.plot_heatmap import plot_heatmap
+from .plot.plot.plot_heat_map import plot_heat_map
 from .support.support.path import establish_path
 
 
@@ -43,7 +43,7 @@ def make_comparison_panel(array_2d_0,
     else:
         html_file_path = None
 
-    plot_heatmap(
+    plot_heat_map(
         comparison,
         cluster=True,
         title=title,
