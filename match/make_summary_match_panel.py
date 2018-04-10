@@ -1,3 +1,5 @@
+from pandas import concat
+
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .make_annotations import make_annotations
@@ -75,6 +77,8 @@ def make_summary_match_panel(
             zmin=target_min,
             zmax=target_max))
 
+    multiple_scores = []
+
     for i, (name, features_dict) in enumerate(multiple_features.items()):
         print('Making match panel for {} ...'.format(name))
 
@@ -107,6 +111,7 @@ def make_summary_match_panel(
             random_seed=random_seed)
         scores.index = features.index
         scores.sort_values('Score', ascending=emphasis == 'low', inplace=True)
+        multiple_scores.append(scores)
 
         features_to_plot = features.loc[scores.index]
         features_to_plot.index = features_to_plot.index.map(
@@ -158,6 +163,6 @@ def make_summary_match_panel(
 
     layout.update(annotations=layout_annotations)
 
-    figure = dict(layout=layout, data=data)
+    plot_and_save(dict(layout=layout, data=data), html_file_path)
 
-    plot_and_save(figure, html_file_path)
+    return concat(multiple_scores)

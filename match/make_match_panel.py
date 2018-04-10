@@ -17,8 +17,8 @@ from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
-    width=880,
-    height=500,
+    width=800,
+    height=800,
     margin=dict(l=100, r=(240)),
     xaxis1=dict(anchor='y1'))
 
@@ -178,8 +178,6 @@ def make_match_panel(target,
 
     layout.update(annotations=layout_annotations)
 
-    figure = dict(layout=layout, data=data)
-
-    plot_and_save(figure, html_file_path)
+    plot_and_save(dict(layout=layout, data=data), html_file_path)
 
     return scores
