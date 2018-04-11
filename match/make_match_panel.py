@@ -123,6 +123,9 @@ def make_match_panel(target,
 
     feature_row_fraction = (features_yaxis_domain[1] - features_yaxis_domain[0]
                             ) / features_to_plot.shape[0]
+    print(target_yaxis_domain)
+    print(features_yaxis_domain)
+    print(feature_row_fraction)
 
     layout.update(
         height=(features_to_plot.shape[0] + 2) * ROW_HEIGHT,
