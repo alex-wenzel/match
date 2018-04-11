@@ -17,7 +17,7 @@ from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
-    width=800, height=320, margin=dict(l=100, r=240), xaxis1=dict(anchor='y1'))
+    width=800, height=300, margin=dict(l=100, r=240), xaxis1=dict(anchor='y1'))
 
 ROW_HEIGHT = 50
 
