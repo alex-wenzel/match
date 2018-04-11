@@ -17,17 +17,15 @@ from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
-    width=800,
-    height=800,
-    margin=dict(l=100, r=(240)),
-    xaxis1=dict(anchor='y1'))
+    width=800, height=800, margin=dict(l=100, r=240), xaxis1=dict(anchor='y1'))
 
 LAYOUT_ANNOTATION_TEMPLATE = dict(
     xref='paper',
     yref='paper',
     xanchor='center',
     yanchor='middle',
-    width=64,
+    font=dict(size=10, color='#000000'),
+    width=60,
     bgcolor='#ebf6f7',
     showarrow=False)
 
@@ -74,7 +72,9 @@ def make_match_panel(target,
             n_sampling=n_sampling,
             n_permutation=n_permutation,
             random_seed=random_seed)
+
         scores.index = features.index
+
         scores.sort_values('Score', ascending=scores_ascending, inplace=True)
 
         if file_path_prefix:
@@ -138,9 +138,9 @@ def make_match_panel(target,
             x=target_df.columns,
             y=target_df.index[::-1],
             colorscale=target_colorscale,
-            showscale=False,
             zmin=target_min,
-            zmax=target_max))
+            zmax=target_max,
+            showscale=False))
 
     data.append(
         dict(
@@ -150,9 +150,9 @@ def make_match_panel(target,
             x=features_to_plot.columns,
             y=features_to_plot.index[::-1],
             colorscale=features_colorscale,
-            showscale=False,
             zmin=features_min,
-            zmax=features_max))
+            zmax=features_max,
+            showscale=False))
 
     layout_annotations = [
         dict(
@@ -167,13 +167,21 @@ def make_match_panel(target,
 
         y = 1 - (row_fraction / 2)
         layout_annotations.append(
-            dict(x=x, y=y, text=annotation, **LAYOUT_ANNOTATION_TEMPLATE))
+            dict(
+                x=x,
+                y=y,
+                text='<b>{}</b>'.format(annotation),
+                **LAYOUT_ANNOTATION_TEMPLATE))
 
         y = 1 - 2 * row_fraction - (row_fraction / 2)
 
         for str_ in strs:
             layout_annotations.append(
-                dict(x=x, y=y, text=str_, **LAYOUT_ANNOTATION_TEMPLATE))
+                dict(
+                    x=x,
+                    y=y,
+                    text='<b>{}</b>'.format(str_),
+                    **LAYOUT_ANNOTATION_TEMPLATE))
             y -= row_fraction
 
     layout.update(annotations=layout_annotations)

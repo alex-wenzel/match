@@ -151,18 +151,22 @@ def make_summary_match_panel(
                     dict(
                         x=x,
                         y=y,
-                        text=annotation,
+                        text='<b>{}</b>'.format(annotation),
                         **LAYOUT_ANNOTATION_TEMPLATE))
 
             y = domain_end - (row_fraction / 2)
 
             for str_ in strs:
                 layout_annotations.append(
-                    dict(x=x, y=y, text=str_, **LAYOUT_ANNOTATION_TEMPLATE))
+                    dict(
+                        x=x,
+                        y=y,
+                        text='<b>{}</b>'.format(str_),
+                        **LAYOUT_ANNOTATION_TEMPLATE))
                 y -= row_fraction
 
     layout.update(annotations=layout_annotations)
 
     plot_and_save(dict(layout=layout, data=data), html_file_path)
 
-    return concat(multiple_scores)
+    return concat(multiple_scores).sort_values('Score')
