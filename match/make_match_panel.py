@@ -17,7 +17,9 @@ from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
-    width=800, height=800, margin=dict(l=100, r=240), xaxis1=dict(anchor='y1'))
+    width=800, margin=dict(l=100, r=240), xaxis1=dict(anchor='y1'))
+
+ROW_HEIGHT = 50
 
 LAYOUT_ANNOTATION_TEMPLATE = dict(
     xref='paper',
@@ -28,10 +30,6 @@ LAYOUT_ANNOTATION_TEMPLATE = dict(
     width=60,
     bgcolor='#ebf6f7',
     showarrow=False)
-
-TARGET_LAYOUT_ANNOTATION_TEMPLATE = LAYOUT_ANNOTATION_TEMPLATE.copy()
-TARGET_LAYOUT_ANNOTATION_TEMPLATE.update(
-    xanchor='right', width=None, bgcolor=None)
 
 
 def make_match_panel(target,
@@ -118,15 +116,19 @@ def make_match_panel(target,
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
-    n_row = 2 + features_to_plot.shape[0]
-    row_fraction = 1 / n_row
+    target_row_fraction = max(0.01, 1 / (features_to_plot.shape[0] + 2))
+
+    target_yaxis_domain = (1 - target_row_fraction, 1)
+    features_yaxis_domain = (0, 1 - target_row_fraction * 2)
+
+    feature_row_fraction = (features_yaxis_domain[1] - features_yaxis_domain[0]
+                            ) / features_to_plot.shape[0]
 
     layout.update(
-        height=max(layout['height'], n_row * 24),
+        height=(features_to_plot.shape[0] + 2) * ROW_HEIGHT,
         title=title,
-        yaxis1=dict(domain=(0, 1 - 2 * row_fraction), dtick=1),
-        yaxis2=dict(
-            domain=(1 - row_fraction, 1), ticks='', showticklabels=False))
+        yaxis1=dict(domain=features_yaxis_domain, dtick=1),
+        yaxis2=dict(domain=target_yaxis_domain, nticks=1))
 
     data = []
 
@@ -154,26 +156,19 @@ def make_match_panel(target,
             zmax=features_max,
             showscale=False))
 
-    layout_annotations = [
-        dict(
-            x=-0.002,
-            y=1 - (row_fraction / 2),
-            text='{} (n={})'.format(target.index[0], target.size),
-            **TARGET_LAYOUT_ANNOTATION_TEMPLATE)
-    ]
+    layout_annotations = []
 
     for i, (annotation, strs) in enumerate(annotations.items()):
         x = 1.08 + i / 7
 
-        y = 1 - (row_fraction / 2)
         layout_annotations.append(
             dict(
                 x=x,
-                y=y,
+                y=target_yaxis_domain[1] - (target_row_fraction / 2),
                 text='<b>{}</b>'.format(annotation),
                 **LAYOUT_ANNOTATION_TEMPLATE))
 
-        y = 1 - 2 * row_fraction - (row_fraction / 2)
+        y = features_yaxis_domain[1] - ((feature_row_fraction) / 2)
 
         for str_ in strs:
             layout_annotations.append(
@@ -182,7 +177,7 @@ def make_match_panel(target,
                     y=y,
                     text='<b>{}</b>'.format(str_),
                     **LAYOUT_ANNOTATION_TEMPLATE))
-            y -= row_fraction
+            y -= feature_row_fraction
 
     layout.update(annotations=layout_annotations)
 

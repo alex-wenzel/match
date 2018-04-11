@@ -4,8 +4,7 @@ from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .make_annotations import make_annotations
 from .make_match_panel import (LAYOUT_ANNOTATION_TEMPLATE,
-                               MATCH_PANEL_LAYOUT_TEMPLATE,
-                               TARGET_LAYOUT_ANNOTATION_TEMPLATE)
+                               MATCH_PANEL_LAYOUT_TEMPLATE, ROW_HEIGHT)
 from .match import match
 from .plot.plot.plot_and_save import plot_and_save
 from .process_target_or_features_for_plotting import \
@@ -29,7 +28,9 @@ def make_summary_match_panel(
         html_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
+
         for name, features_dict in multiple_features.items():
+
             target = target.loc[target.index & features_dict['df'].columns]
 
     if isinstance(target_ascending, bool):
@@ -41,28 +42,21 @@ def make_summary_match_panel(
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
-    n_row = 1
-    for i, (name, features_dict) in enumerate(multiple_features.items()):
-        n_row += 1
+    n_row = 1 + len(multiple_features)
+    for i, features_dict in enumerate(multiple_features.values()):
         n_row += len(features_dict['indices'])
-    row_fraction = 1 / n_row
 
-    layout.update(title=title, height=max(layout['height'], n_row * 24))
+    layout.update(title=title, height=n_row * ROW_HEIGHT)
 
     data = []
-    layout_annotations = [
-        dict(
-            x=-0.002,
-            y=1 - (row_fraction / 2),
-            text='{} (n={})'.format(target.index[0], target.size),
-            **TARGET_LAYOUT_ANNOTATION_TEMPLATE)
-    ]
+    layout_annotations = []
+
+    row_fraction = 1 / n_row
 
     yaxis_name = 'yaxis{}'.format(len(multiple_features) + 1)
     domain_end = 1
     domain_start = domain_end - row_fraction
-    layout[yaxis_name] = dict(
-        domain=(domain_start, domain_end), ticks='', showticklabels=False)
+    layout[yaxis_name] = dict(domain=(domain_start, domain_end))
 
     data.append(
         dict(
@@ -109,8 +103,11 @@ def make_summary_match_panel(
             n_sampling=n_sampling,
             n_permutation=n_permutation,
             random_seed=random_seed)
+
         scores.index = features.index
+
         scores.sort_values('Score', ascending=emphasis == 'low', inplace=True)
+
         multiple_scores.append(scores)
 
         features_to_plot = features.loc[scores.index]
@@ -163,6 +160,7 @@ def make_summary_match_panel(
                         y=y,
                         text='<b>{}</b>'.format(str_),
                         **LAYOUT_ANNOTATION_TEMPLATE))
+
                 y -= row_fraction
 
     layout.update(annotations=layout_annotations)
