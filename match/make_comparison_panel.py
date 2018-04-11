@@ -1,4 +1,4 @@
-from numpy import array
+from numpy import asarray
 from pandas import DataFrame
 
 from .information.information.compute_information_coefficient import \
@@ -9,29 +9,35 @@ from .plot.plot.plot_heat_map import plot_heat_map
 from .support.support.path import establish_path
 
 
-def make_comparison_panel(array_2d_0,
-                          array_2d_1,
+def make_comparison_panel(_2d_array_or_df_0,
+                          _2d_array_or_df_1,
                           match_function=compute_information_coefficient,
                           axis=0,
                           title='Comparison Panel',
-                          array_2d_0_name='',
-                          array_2d_1_name='',
+                          name_0='',
+                          name_1='',
                           file_path_prefix=None):
 
     comparison = apply_function_on_2_2d_arrays_slices(
-        array(array_2d_0), array(array_2d_1), match_function, axis=axis)
+        asarray(_2d_array_or_df_0),
+        asarray(_2d_array_or_df_1),
+        match_function,
+        axis=axis)
 
-    if isinstance(array_2d_0, DataFrame):
+    if isinstance(_2d_array_or_df_0, DataFrame) and isinstance(
+            _2d_array_or_df_1, DataFrame):
 
         if axis == 0:
             comparison = DataFrame(
                 comparison,
-                index=array_2d_0.columns,
-                columns=array_2d_1.columns)
+                index=_2d_array_or_df_0.columns,
+                columns=_2d_array_or_df_1.columns)
 
         elif axis == 1:
             comparison = DataFrame(
-                comparison, index=array_2d_0.index, columns=array_2d_1.index)
+                comparison,
+                index=_2d_array_or_df_0.index,
+                columns=_2d_array_or_df_1.index)
 
     if file_path_prefix:
         establish_path(file_path_prefix, 'file')
@@ -47,8 +53,8 @@ def make_comparison_panel(array_2d_0,
         comparison,
         cluster=True,
         title=title,
-        xaxis_title=array_2d_1_name,
-        yaxis_title=array_2d_0_name,
+        xaxis_title=name_1,
+        yaxis_title=name_0,
         html_file_path=html_file_path)
 
     return comparison

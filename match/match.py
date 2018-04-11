@@ -1,6 +1,6 @@
 from math import ceil
 
-from numpy import apply_along_axis, array, array_split, concatenate, empty
+from numpy import apply_along_axis, array_split, concatenate, empty
 from numpy.random import choice, get_state, seed, set_state, shuffle
 from pandas import DataFrame
 
@@ -111,7 +111,7 @@ def permute_target_and_match_target_and_features(target, features,
 
     feature_x_permutation = empty((features.shape[0], n_permutation))
 
-    permuted_target = array(target)
+    permuted_target = target.copy()
 
     seed(random_seed)
     for i in range(n_permutation):
