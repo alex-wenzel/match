@@ -1,6 +1,6 @@
 from math import ceil
 
-from numpy import apply_along_axis, array_split, concatenate, empty
+from numpy import apply_along_axis, array_split, concatenate, full, nan
 from numpy.random import choice, get_state, seed, set_state, shuffle
 from pandas import DataFrame
 
@@ -78,7 +78,7 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         raise ValueError('Cannot compute MoEs because 0.632 * n_sample < 3.')
 
     print('Computing MoE with {} samplings ...'.format(n_sampling))
-    feature_x_sampling = empty((features.shape[0], n_sampling))
+    feature_x_sampling = full((features.shape[0], n_sampling), nan)
 
     seed(random_seed)
     for i in range(n_sampling):
@@ -109,7 +109,7 @@ def permute_target_and_match_target_and_features(target, features,
     print('Computing p-value and FDR with {} permutations ...'.format(
         n_permutation))
 
-    feature_x_permutation = empty((features.shape[0], n_permutation))
+    feature_x_permutation = full((features.shape[0], n_permutation), nan)
 
     permuted_target = target.copy()
 
