@@ -44,6 +44,7 @@ def make_comparison_panel(_2d_array_or_df_0,
 
         comparison.to_csv(
             '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
+
         html_file_path = '{}.comparison_panel.png'.format(file_path_prefix)
 
     else:
