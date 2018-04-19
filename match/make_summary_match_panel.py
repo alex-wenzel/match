@@ -43,7 +43,7 @@ def make_summary_match_panel(
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
     n_row = 1 + len(multiple_features)
-    for i, features_dict in enumerate(multiple_features.values()):
+    for features_dict in multiple_features.values():
         n_row += len(features_dict['indices'])
 
     layout.update(
