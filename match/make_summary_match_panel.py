@@ -28,9 +28,7 @@ def make_summary_match_panel(
         html_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
-
-        for name, features_dict in multiple_features.items():
-
+        for features_dict in multiple_features.values():
             target = target.loc[target.index & features_dict['df'].columns]
 
     if isinstance(target_ascending, bool):
@@ -74,7 +72,9 @@ def make_summary_match_panel(
 
     multiple_scores = []
 
-    for i, (name, features_dict) in enumerate(multiple_features.items()):
+    for features_index, (name, features_dict) in enumerate(
+            multiple_features.items()):
+
         print('Making match panel for {} ...'.format(name))
 
         features = features_dict['df']
@@ -104,7 +104,6 @@ def make_summary_match_panel(
             n_sampling=n_sampling,
             n_permutation=n_permutation,
             random_seed=random_seed)
-
         scores.index = features.index
 
         scores.sort_values('Score', ascending=emphasis == 'low', inplace=True)
@@ -121,7 +120,7 @@ def make_summary_match_panel(
         features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
             features_to_plot, data_type, plot_max_std)
 
-        yaxis_name = 'yaxis{}'.format(len(multiple_features) - i)
+        yaxis_name = 'yaxis{}'.format(len(multiple_features) - features_index)
 
         domain_end = domain_start - row_fraction
         domain_start = domain_end - len(
@@ -140,15 +139,16 @@ def make_summary_match_panel(
                 zmin=features_min,
                 zmax=features_max))
 
-        for j, (annotation, strs) in enumerate(annotations.items()):
-            x = 1.08 + j / 7
+        for feature_index, (annotation, strs) in enumerate(
+                annotations.items()):
 
-            if j == 0:
-                y = 1 - (row_fraction / 2)
+            x = 1.08 + feature_index / 7
+
+            if feature_index == 0:
                 layout_annotations.append(
                     dict(
                         x=x,
-                        y=y,
+                        y=1 - (row_fraction / 2),
                         text='<b>{}</b>'.format(annotation),
                         **LAYOUT_ANNOTATION_TEMPLATE))
 

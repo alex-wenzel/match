@@ -17,9 +17,9 @@ from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
-    width=800, height=300, margin=dict(l=100, r=240), xaxis1=dict(anchor='y1'))
+    width=800, height=240, margin=dict(r=240), xaxis1=dict(anchor='y1'))
 
-ROW_HEIGHT = 50
+ROW_HEIGHT = 40
 
 LAYOUT_ANNOTATION_TEMPLATE = dict(
     xref='paper',
@@ -49,9 +49,19 @@ def make_match_panel(target,
                      features_type='continuous',
                      plot_max_std=3,
                      title='Match Panel',
+                     margin_left=None,
                      file_path_prefix=None):
 
-    target = target.loc[target.index & features.columns]
+    common_indices = target.index & features.columns
+    n_common = len(common_indices)
+
+    message = 'target.index ({}) & features.columns ({}) have {} in common.'.format(
+        target.index.size, features.columns.size, n_common)
+    if 0 < n_common:
+        print(message)
+        target = target.loc[common_indices]
+    else:
+        raise ValueError(message)
 
     if isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
@@ -60,6 +70,7 @@ def make_match_panel(target,
         features[target.index], 1, max_n_not_na_unique_object=1)
 
     if scores is None:
+
         scores = match(
             target.values,
             features.values,
@@ -70,7 +81,6 @@ def make_match_panel(target,
             n_sampling=n_sampling,
             n_permutation=n_permutation,
             random_seed=random_seed)
-
         scores.index = features.index
 
         scores.sort_values('Score', ascending=scores_ascending, inplace=True)
@@ -98,8 +108,9 @@ def make_match_panel(target,
     target_df = target.to_frame().T
 
     if target_type in ('binary', 'categorical') and cluster_within_category:
+
         if target.value_counts().min() < 2:
-            warn('Not clustering because a category has only 1 value.')
+            warn('Not clustering because a category has less than 2 values.')
         elif not nd_array_is_sorted(target.values):
             warn('Not clustering because target is not sorted.')
         else:
@@ -115,6 +126,7 @@ def make_match_panel(target,
         features_to_plot, features_type, plot_max_std)
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
+    layout['margin'].update(l=margin_left)
 
     target_row_fraction = max(0.01, 1 / (features_to_plot.shape[0] + 2))
 
@@ -158,9 +170,9 @@ def make_match_panel(target,
             showscale=False))
 
     layout_annotations = []
+    for annotation_index, (annotation, strs) in enumerate(annotations.items()):
 
-    for i, (annotation, strs) in enumerate(annotations.items()):
-        x = 1.08 + i / 7
+        x = 1.08 + annotation_index / 7
 
         layout_annotations.append(
             dict(
@@ -178,6 +190,7 @@ def make_match_panel(target,
                     y=y,
                     text='<b>{}</b>'.format(str_),
                     **LAYOUT_ANNOTATION_TEMPLATE))
+
             y -= feature_row_fraction
 
     layout.update(annotations=layout_annotations)

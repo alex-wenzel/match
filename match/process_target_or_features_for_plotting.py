@@ -45,6 +45,7 @@ def process_target_or_features_for_plotting(target_or_features, type_,
 
         min_ = nanmin(target_or_features)
         max_ = nanmax(target_or_features)
+
         colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 
     else:
@@ -55,10 +56,12 @@ def process_target_or_features_for_plotting(target_or_features, type_,
                 max_ = target_or_features.unique().size - 1
             else:
                 max_ = target_or_features.unstack().unique().size - 1
+
             colorscale = make_colorscale(CATEGORICAL_COLORS)
 
         elif type_ == 'binary':
             max_ = 1
+
             colorscale = make_colorscale(BINARY_COLORS_WHITE_BLACK)
 
         else:

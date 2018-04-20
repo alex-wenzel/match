@@ -78,12 +78,14 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         raise ValueError('Cannot compute MoEs because 0.632 * n_sample < 3.')
 
     print('Computing MoE with {} samplings ...'.format(n_sampling))
+
     feature_x_sampling = full((features.shape[0], n_sampling), nan)
 
     seed(random_seed)
     for i in range(n_sampling):
 
         random_indices = choice(target.size, ceil(0.632 * target.size))
+
         sampled_target = target[random_indices]
         sampled_features = features[:, random_indices]
 
