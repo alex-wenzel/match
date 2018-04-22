@@ -57,12 +57,12 @@ def process_target_or_features_for_plotting(target_or_features, type_,
             else:
                 max_ = target_or_features.unstack().unique().size - 1
 
-            colorscale = make_colorscale(CATEGORICAL_COLORS)
+            colorscale = make_colorscale(colors=CATEGORICAL_COLORS)
 
         elif type_ == 'binary':
             max_ = 1
 
-            colorscale = make_colorscale(BINARY_COLORS_WHITE_BLACK)
+            colorscale = make_colorscale(colors=BINARY_COLORS_WHITE_BLACK)
 
         else:
             raise ValueError('Unknown type_: {}.'.format(type_))

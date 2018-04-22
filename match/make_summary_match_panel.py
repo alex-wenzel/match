@@ -54,7 +54,8 @@ def make_summary_match_panel(
 
     row_fraction = 1 / n_row
 
-    yaxis_name = 'yaxis{}'.format(len(multiple_features) + 1)
+    yaxis_name = 'yaxis{}'.format(len(multiple_features) + 1).replace(
+        'axis1', 'axis')
     domain_end = 1
     domain_start = domain_end - row_fraction
     layout[yaxis_name] = dict(domain=(domain_start, domain_end))
@@ -121,7 +122,8 @@ def make_summary_match_panel(
         features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
             features_to_plot, data_type, plot_max_std)
 
-        yaxis_name = 'yaxis{}'.format(len(multiple_features) - features_index)
+        yaxis_name = 'yaxis{}'.format(
+            len(multiple_features) - features_index).replace('axis1', 'axis')
 
         domain_end = domain_start - row_fraction
         domain_start = domain_end - len(
