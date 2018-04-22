@@ -17,7 +17,7 @@ from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
-    width=800, height=240, margin=dict(r=240), xaxis1=dict(anchor='y1'))
+    width=800, height=240, margin=dict(r=240), xaxis=dict(anchor='y'))
 
 ROW_HEIGHT = 40
 
@@ -140,36 +140,37 @@ def make_match_panel(target,
         height=max(layout['height'],
                    (features_to_plot.shape[0] + 2) * ROW_HEIGHT),
         title=title,
-        yaxis1=dict(domain=features_yaxis_domain, dtick=1),
+        yaxis=dict(domain=features_yaxis_domain, dtick=1),
         yaxis2=dict(domain=target_yaxis_domain, nticks=1))
 
     data = []
 
     data.append(
         dict(
-            type='heatmap',
             yaxis='y2',
+            type='heatmap',
             z=target_df.values[::-1],
             x=target_df.columns,
             y=target_df.index[::-1],
-            colorscale=target_colorscale,
             zmin=target_min,
             zmax=target_max,
+            colorscale=target_colorscale,
             showscale=False))
 
     data.append(
         dict(
+            yaxis='y',
             type='heatmap',
-            yaxis='y1',
             z=features_to_plot.values[::-1],
             x=features_to_plot.columns,
             y=features_to_plot.index[::-1],
-            colorscale=features_colorscale,
             zmin=features_min,
             zmax=features_max,
+            colorscale=features_colorscale,
             showscale=False))
 
     layout_annotations = []
+
     for annotation_index, (annotation, strs) in enumerate(annotations.items()):
 
         x = 1.08 + annotation_index / 7

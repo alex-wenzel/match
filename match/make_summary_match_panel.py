@@ -28,7 +28,9 @@ def make_summary_match_panel(
         html_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
+
         for features_dict in multiple_features.values():
+
             target = target.loc[target.index & features_dict['df'].columns]
 
     if isinstance(target_ascending, bool):
@@ -45,7 +47,7 @@ def make_summary_match_panel(
         n_row += len(features_dict['indices'])
 
     layout.update(
-        title=title, height=max(layout['height'], n_row * ROW_HEIGHT))
+        height=max(layout['height'], n_row * ROW_HEIGHT), title=title)
 
     data = []
     layout_annotations = []
@@ -59,16 +61,15 @@ def make_summary_match_panel(
 
     data.append(
         dict(
-            type='heatmap',
-            showlegend=True,
             yaxis=yaxis_name.replace('axis', ''),
+            type='heatmap',
             z=target_df.values[::-1],
             x=target_df.columns,
             y=target_df.index[::-1],
-            colorscale=target_colorscale,
-            showscale=False,
             zmin=target_min,
-            zmax=target_max))
+            zmax=target_max,
+            colorscale=target_colorscale,
+            showscale=False))
 
     multiple_scores = []
 
@@ -129,15 +130,15 @@ def make_summary_match_panel(
 
         data.append(
             dict(
-                type='heatmap',
                 yaxis=yaxis_name.replace('axis', ''),
+                type='heatmap',
                 z=features_to_plot.values[::-1],
                 x=features_to_plot.columns,
                 y=features_to_plot.index[::-1],
-                colorscale=features_colorscale,
-                showscale=False,
                 zmin=features_min,
-                zmax=features_max))
+                zmax=features_max,
+                colorscale=features_colorscale,
+                showscale=False))
 
         for feature_index, (annotation, strs) in enumerate(
                 annotations.items()):
