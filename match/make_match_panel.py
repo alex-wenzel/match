@@ -47,7 +47,7 @@ def make_match_panel(target,
                      n_permutation=0,
                      target_type='continuous',
                      features_type='continuous',
-                     plot_max_std=3,
+                     plot_std_max=3,
                      title='Match Panel',
                      margin_left=None,
                      file_path_prefix=None):
@@ -104,7 +104,7 @@ def make_match_panel(target,
         html_file_path = None
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
-        target, target_type, plot_max_std)
+        target, target_type, plot_std_max)
     target_df = target.to_frame().T
 
     if target_type in ('binary', 'categorical') and cluster_within_category:
@@ -123,7 +123,7 @@ def make_match_panel(target,
                                                              target.values))]
 
     features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
-        features_to_plot, features_type, plot_max_std)
+        features_to_plot, features_type, plot_std_max)
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
     layout['margin'].update(l=margin_left)

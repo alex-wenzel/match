@@ -9,7 +9,7 @@ from .plot.plot.style import (BINARY_COLORS_WHITE_BLACK, CATEGORICAL_COLORS,
 
 
 def process_target_or_features_for_plotting(target_or_features, type_,
-                                            plot_max_std):
+                                            plot_std_max):
 
     if isinstance(target_or_features, Series):
         is_target = True
@@ -41,7 +41,7 @@ def process_target_or_features_for_plotting(target_or_features, type_,
                 index=target_or_features.index,
                 columns=target_or_features.columns)
 
-        target_or_features.clip(-plot_max_std, plot_max_std),
+        target_or_features.clip(-plot_std_max, plot_std_max),
 
         min_ = nanmin(target_or_features)
         max_ = nanmax(target_or_features)

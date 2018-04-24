@@ -23,7 +23,7 @@ def make_summary_match_panel(
         n_sampling=0,
         n_permutation=0,
         target_type='continuous',
-        plot_max_std=3,
+        plot_std_max=3,
         title='Summary Match Panel',
         html_file_path=None):
 
@@ -37,7 +37,7 @@ def make_summary_match_panel(
         target.sort_values(ascending=target_ascending, inplace=True)
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
-        target, target_type, plot_max_std)
+        target, target_type, plot_std_max)
     target_df = target.to_frame().T
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
@@ -119,7 +119,7 @@ def make_summary_match_panel(
         annotations = make_annotations(scores)
 
         features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
-            features_to_plot, data_type, plot_max_std)
+            features_to_plot, data_type, plot_std_max)
 
         yaxis_name = 'yaxis{}'.format(
             len(multiple_features) - features_index).replace('axis1', 'axis')
