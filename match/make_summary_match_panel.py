@@ -37,7 +37,7 @@ def make_summary_match_panel(
     if target.dtype == 'O':
         target = target.map(make_object_int_mapping(target)[0])
 
-    elif isinstance(target_ascending, bool):
+    if isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(

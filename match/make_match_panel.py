@@ -69,7 +69,7 @@ def make_match_panel(target,
     if target.dtype == 'O':
         target = target.map(make_object_int_mapping(target)[0])
 
-    elif isinstance(target_ascending, bool):
+    if isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
 
     features = drop_df_slices(
