@@ -46,8 +46,7 @@ def make_summary_match_panel(
     for features_dict in multiple_features.values():
         n_row += len(features_dict['indices'])
 
-    layout.update(
-        height=max(layout['height'], n_row * ROW_HEIGHT), title=title)
+    layout.update(height=ROW_HEIGHT * max(8, n_row), title=title)
 
     data = []
     layout_annotations = []
