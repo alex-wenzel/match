@@ -10,6 +10,7 @@ from .plot.plot.plot_and_save import plot_and_save
 from .process_target_or_features_for_plotting import \
     process_target_or_features_for_plotting
 from .support.support.df import drop_df_slices
+from .support.support.iterable import make_object_int_mapping
 
 
 def make_summary_match_panel(
@@ -33,11 +34,15 @@ def make_summary_match_panel(
 
             target = target.loc[target.index & features_dict['df'].columns]
 
-    if isinstance(target_ascending, bool):
+    if target.dtype == 'O':
+        target = target.map(make_object_int_mapping(target)[0])
+
+    elif isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
         target, target_type, plot_std_max)
+
     target_df = target.to_frame().T
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
@@ -49,14 +54,17 @@ def make_summary_match_panel(
     layout.update(height=ROW_HEIGHT * max(8, n_row), title=title)
 
     data = []
+
     layout_annotations = []
 
     row_fraction = 1 / n_row
 
     yaxis_name = 'yaxis{}'.format(len(multiple_features) + 1).replace(
         'axis1', 'axis')
+
     domain_end = 1
     domain_start = domain_end - row_fraction
+
     layout[yaxis_name] = dict(domain=(domain_start, domain_end))
 
     data.append(
@@ -86,9 +94,11 @@ def make_summary_match_panel(
 
         missing_indices = tuple(
             index for index in indices if index not in features.index)
+
         if len(missing_indices):
             raise ValueError(
                 'features do not have indices {}.'.format(missing_indices))
+
         features = features.loc[indices]
 
         features = drop_df_slices(
@@ -105,6 +115,7 @@ def make_summary_match_panel(
             n_sampling=n_sampling,
             n_permutation=n_permutation,
             random_seed=random_seed)
+
         scores.index = features.index
 
         scores.sort_values('Score', ascending=emphasis == 'low', inplace=True)
@@ -112,6 +123,7 @@ def make_summary_match_panel(
         multiple_scores.append(scores)
 
         features_to_plot = features.loc[scores.index]
+
         features_to_plot.index = features_to_plot.index.map(
             {index: alias
              for index, alias in zip(indices, index_aliases)}.get)
@@ -127,6 +139,7 @@ def make_summary_match_panel(
         domain_end = domain_start - row_fraction
         domain_start = domain_end - len(
             features_dict['indices']) * row_fraction
+
         layout[yaxis_name] = dict(domain=(domain_start, domain_end), dtick=1)
 
         data.append(
@@ -157,6 +170,7 @@ def make_summary_match_panel(
             y = domain_end - (row_fraction / 2)
 
             for str_ in strs:
+
                 layout_annotations.append(
                     dict(
                         x=x,

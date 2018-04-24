@@ -13,6 +13,7 @@ from .plot.plot.plot_and_save import plot_and_save
 from .process_target_or_features_for_plotting import \
     process_target_or_features_for_plotting
 from .support.support.df import drop_df_slices
+from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
@@ -53,17 +54,22 @@ def make_match_panel(target,
                      file_path_prefix=None):
 
     common_indices = target.index & features.columns
+
     n_common = len(common_indices)
 
     message = 'target.index ({}) & features.columns ({}) have {} in common.'.format(
         target.index.size, features.columns.size, n_common)
+
     if 0 < n_common:
         print(message)
         target = target.loc[common_indices]
     else:
         raise ValueError(message)
 
-    if isinstance(target_ascending, bool):
+    if target.dtype == 'O':
+        target = target.map(make_object_int_mapping(target)[0])
+
+    elif isinstance(target_ascending, bool):
         target.sort_values(ascending=target_ascending, inplace=True)
 
     features = drop_df_slices(
@@ -81,19 +87,24 @@ def make_match_panel(target,
             n_sampling=n_sampling,
             n_permutation=n_permutation,
             random_seed=random_seed)
+
         scores.index = features.index
 
         scores.sort_values('Score', ascending=scores_ascending, inplace=True)
 
         if file_path_prefix:
+
             tsv_file_path = file_path_prefix + '.match.tsv'
+
             establish_path(tsv_file_path, 'file')
+
             scores.to_csv(tsv_file_path, sep='\t')
 
     indices = get_extreme_series_indices(
         scores['Score'], extreme_feature_threshold, scores_ascending)
 
     features_to_plot = features.loc[indices]
+
     scores_to_plot = scores.loc[indices]
 
     annotations = make_annotations(scores_to_plot)
@@ -105,6 +116,7 @@ def make_match_panel(target,
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
         target, target_type, plot_std_max)
+
     target_df = target.to_frame().T
 
     if target_type in ('binary', 'categorical') and cluster_within_category:
@@ -126,11 +138,13 @@ def make_match_panel(target,
         features_to_plot, features_type, plot_std_max)
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
+
     layout['margin'].update(l=margin_left)
 
     target_row_fraction = max(0.01, 1 / (features_to_plot.shape[0] + 2))
 
     target_yaxis_domain = (1 - target_row_fraction, 1)
+
     features_yaxis_domain = (0, 1 - target_row_fraction * 2)
 
     feature_row_fraction = (features_yaxis_domain[1] - features_yaxis_domain[0]
@@ -184,6 +198,7 @@ def make_match_panel(target,
         y = features_yaxis_domain[1] - ((feature_row_fraction) / 2)
 
         for str_ in strs:
+
             layout_annotations.append(
                 dict(
                     x=x,
