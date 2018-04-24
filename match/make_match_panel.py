@@ -137,8 +137,7 @@ def make_match_panel(target,
                             ) / features_to_plot.shape[0]
 
     layout.update(
-        height=max(layout['height'],
-                   (features_to_plot.shape[0] + 2) * ROW_HEIGHT),
+        height=ROW_HEIGHT * max(8, features_to_plot.shape[0] + 2),
         title=title,
         yaxis=dict(domain=features_yaxis_domain, dtick=1),
         yaxis2=dict(domain=target_yaxis_domain, nticks=1))
