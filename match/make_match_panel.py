@@ -28,7 +28,7 @@ LAYOUT_ANNOTATION_TEMPLATE = dict(
     xanchor='center',
     yanchor='middle',
     font=dict(size=10, color='#000000'),
-    width=60,
+    width=64,
     bgcolor='#ebf6f7',
     showarrow=False)
 
@@ -186,7 +186,7 @@ def make_match_panel(target,
 
     for annotation_index, (annotation, strs) in enumerate(annotations.items()):
 
-        x = 1.08 + annotation_index / 7
+        x = 1.08 + annotation_index / 6.4
 
         layout_annotations.append(
             dict(
