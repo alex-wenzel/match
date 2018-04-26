@@ -17,15 +17,19 @@ from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
+SIDE_MARGIN = 240
+
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
-    width=800, margin=dict(r=240), xaxis=dict(anchor='y'))
+    width=960,
+    margin=dict(l=SIDE_MARGIN, r=SIDE_MARGIN),
+    xaxis=dict(anchor='y'))
 
 ROW_HEIGHT = 64
 
 LAYOUT_ANNOTATION_TEMPLATE = dict(
     xref='paper',
     yref='paper',
-    xanchor='center',
+    xanchor='left',
     yanchor='middle',
     font=dict(size=10, color='#000000'),
     width=64,
@@ -50,7 +54,7 @@ def make_match_panel(target,
                      features_type='continuous',
                      plot_std_max=3,
                      title='Match Panel',
-                     margin_left=None,
+                     annotation_font_size=10,
                      file_path_prefix=None):
 
     common_indices = target.index & features.columns
@@ -139,7 +143,7 @@ def make_match_panel(target,
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
-    layout['margin'].update(l=margin_left)
+    layout['xaxis'].update(tickfont=dict(size=annotation_font_size))
 
     target_row_fraction = max(0.01, 1 / (features_to_plot.shape[0] + 2))
 
@@ -153,8 +157,14 @@ def make_match_panel(target,
     layout.update(
         height=ROW_HEIGHT * max(8, ((features_to_plot.shape[0] + 2)**0.8)),
         title=title,
-        yaxis=dict(domain=features_yaxis_domain, dtick=1),
-        yaxis2=dict(domain=target_yaxis_domain, nticks=1))
+        yaxis=dict(
+            domain=features_yaxis_domain,
+            dtick=1,
+            tickfont=dict(size=annotation_font_size)),
+        yaxis2=dict(
+            domain=target_yaxis_domain,
+            nticks=1,
+            tickfont=dict(size=annotation_font_size)))
 
     data = []
 
@@ -186,7 +196,7 @@ def make_match_panel(target,
 
     for annotation_index, (annotation, strs) in enumerate(annotations.items()):
 
-        x = 1.08 + annotation_index / 6.4
+        x = 1.008 + annotation_index / 6.4
 
         layout_annotations.append(
             dict(

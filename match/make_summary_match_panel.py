@@ -26,6 +26,7 @@ def make_summary_match_panel(
         target_type='continuous',
         plot_std_max=3,
         title='Summary Match Panel',
+        annotation_font_size=10,
         html_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
@@ -65,7 +66,9 @@ def make_summary_match_panel(
     domain_end = 1
     domain_start = domain_end - row_fraction
 
-    layout[yaxis_name] = dict(domain=(domain_start, domain_end))
+    layout[yaxis_name] = dict(
+        domain=(domain_start, domain_end),
+        tickfont=dict(size=annotation_font_size))
 
     data.append(
         dict(
@@ -140,7 +143,10 @@ def make_summary_match_panel(
         domain_start = domain_end - len(
             features_dict['indices']) * row_fraction
 
-        layout[yaxis_name] = dict(domain=(domain_start, domain_end), dtick=1)
+        layout[yaxis_name] = dict(
+            domain=(domain_start, domain_end),
+            dtick=1,
+            tickfont=dict(size=annotation_font_size))
 
         data.append(
             dict(
@@ -154,12 +160,13 @@ def make_summary_match_panel(
                 colorscale=features_colorscale,
                 showscale=False))
 
-        for feature_index, (annotation, strs) in enumerate(
+        for annotation_index, (annotation, strs) in enumerate(
                 annotations.items()):
 
-            x = 1.08 + feature_index / 7
+            x = 1.008 + annotation_index / 6.4
 
-            if feature_index == 0:
+            if annotation_index == 0:
+
                 layout_annotations.append(
                     dict(
                         x=x,
