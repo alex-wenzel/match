@@ -28,12 +28,14 @@ def make_comparison_panel(_2d_array_or_df_0,
             _2d_array_or_df_1, DataFrame):
 
         if axis == 0:
+
             comparison = DataFrame(
                 comparison,
                 index=_2d_array_or_df_0.columns,
                 columns=_2d_array_or_df_1.columns)
 
         elif axis == 1:
+
             comparison = DataFrame(
                 comparison,
                 index=_2d_array_or_df_0.index,

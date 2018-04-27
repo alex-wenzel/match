@@ -26,8 +26,7 @@ def match(target,
 
     results = DataFrame(columns=('Score', '0.95 MoE', 'P-Value', 'FDR'))
 
-    if 1 < n_job:
-        n_job = min(features.shape[0], n_job)
+    n_job = min(features.shape[0], n_job)
 
     print('Computing score using {} with {} process{} ...'.format(
         match_function.__name__, n_job, ('', 'es')[1 < n_job]))
@@ -45,6 +44,7 @@ def match(target,
                                          extreme_feature_threshold)
 
     if 3 <= n_sampling and 3 <= ceil(0.632 * target.size):
+
         results.loc[
             indices,
             '0.95 MoE'] = match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
@@ -52,6 +52,7 @@ def match(target,
                 random_seed)
 
     if 1 <= n_permutation:
+
         permutation_scores = concatenate(
             multiprocess(permute_target_and_match_target_and_features,
                          ((target, features_, min_n_sample, match_function,
@@ -61,7 +62,9 @@ def match(target,
 
         p_values, fdrs = compute_empirical_p_values_and_fdrs(
             results['Score'], permutation_scores.flatten())
+
         results['P-Value'] = p_values
+
         results['FDR'] = fdrs
 
     return results
@@ -82,11 +85,13 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
     feature_x_sampling = full((features.shape[0], n_sampling), nan)
 
     seed(random_seed)
+
     for i in range(n_sampling):
 
         random_indices = choice(target.size, ceil(0.632 * target.size))
 
         sampled_target = target[random_indices]
+
         sampled_features = features[:, random_indices]
 
         random_state = get_state()
@@ -116,6 +121,7 @@ def permute_target_and_match_target_and_features(target, features,
     permuted_target = target.copy()
 
     seed(random_seed)
+
     for i in range(n_permutation):
 
         shuffle(permuted_target)

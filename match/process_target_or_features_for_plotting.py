@@ -13,8 +13,10 @@ def process_target_or_features_for_plotting(target_or_features, type_,
 
     if isinstance(target_or_features, Series):
         is_target = True
+
     elif isinstance(target_or_features, DataFrame):
         is_target = False
+
     else:
         raise ValueError(
             'target_or_features ({}) is neither a Series or DataFrame.'.format(
@@ -52,8 +54,10 @@ def process_target_or_features_for_plotting(target_or_features, type_,
         min_ = 0
 
         if type_ == 'categorical':
+
             if is_target:
                 max_ = target_or_features.unique().size - 1
+
             else:
                 max_ = target_or_features.unstack().unique().size - 1
 

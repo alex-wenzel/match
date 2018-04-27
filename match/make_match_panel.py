@@ -17,11 +17,11 @@ from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
-SIDE_MARGIN = 240
+LAYOUT_SIDE_MARGIN = 240
 
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
     width=960,
-    margin=dict(l=SIDE_MARGIN, r=SIDE_MARGIN),
+    margin=dict(l=LAYOUT_SIDE_MARGIN, r=LAYOUT_SIDE_MARGIN),
     xaxis=dict(anchor='y'))
 
 ROW_HEIGHT = 64
@@ -66,7 +66,9 @@ def make_match_panel(target,
 
     if 0 < n_common:
         print(message)
+
         target = target.loc[common_indices]
+
     else:
         raise ValueError(message)
 
@@ -74,10 +76,14 @@ def make_match_panel(target,
         target = target.map(make_object_int_mapping(target)[0])
 
     if isinstance(target_ascending, bool):
+
         target.sort_values(ascending=target_ascending, inplace=True)
 
     features = drop_df_slices(
         features[target.index], 1, max_n_not_na_unique_object=1)
+
+    if file_path_prefix:
+        establish_path(file_path_prefix, 'file')
 
     if scores is None:
 
@@ -97,12 +103,7 @@ def make_match_panel(target,
         scores.sort_values('Score', ascending=scores_ascending, inplace=True)
 
         if file_path_prefix:
-
-            tsv_file_path = file_path_prefix + '.match.tsv'
-
-            establish_path(tsv_file_path, 'file')
-
-            scores.to_csv(tsv_file_path, sep='\t')
+            scores.to_csv(file_path_prefix + '.match.tsv', sep='\t')
 
     indices = get_extreme_series_indices(
         scores['Score'], extreme_feature_threshold, scores_ascending)
@@ -113,11 +114,6 @@ def make_match_panel(target,
 
     annotations = make_annotations(scores_to_plot)
 
-    if file_path_prefix:
-        html_file_path = file_path_prefix + '.match_panel.html'
-    else:
-        html_file_path = None
-
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
         target, target_type, plot_std_max)
 
@@ -127,8 +123,10 @@ def make_match_panel(target,
 
         if target.value_counts().min() < 2:
             warn('Not clustering because a category has less than 2 values.')
+
         elif not nd_array_is_sorted(target.values):
             warn('Not clustering because target is not sorted.')
+
         else:
             features_to_plot = features_to_plot.iloc[:,
                                                      cluster_2d_array_slices_by_group(
@@ -166,9 +164,7 @@ def make_match_panel(target,
             nticks=1,
             tickfont=dict(size=annotation_font_size)))
 
-    data = []
-
-    data.append(
+    data = [
         dict(
             yaxis='y2',
             type='heatmap',
@@ -178,9 +174,7 @@ def make_match_panel(target,
             zmin=target_min,
             zmax=target_max,
             colorscale=target_colorscale,
-            showscale=False))
-
-    data.append(
+            showscale=False),
         dict(
             yaxis='y',
             type='heatmap',
@@ -190,7 +184,8 @@ def make_match_panel(target,
             zmin=features_min,
             zmax=features_max,
             colorscale=features_colorscale,
-            showscale=False))
+            showscale=False)
+    ]
 
     layout_annotations = []
 
@@ -219,6 +214,11 @@ def make_match_panel(target,
             y -= feature_row_fraction
 
     layout.update(annotations=layout_annotations)
+
+    if file_path_prefix:
+        html_file_path = file_path_prefix + '.match_panel.html'
+    else:
+        html_file_path = None
 
     plot_and_save(dict(layout=layout, data=data), html_file_path)
 

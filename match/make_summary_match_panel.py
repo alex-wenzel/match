@@ -36,9 +36,11 @@ def make_summary_match_panel(
             target = target.loc[target.index & features_dict['df'].columns]
 
     if target.dtype == 'O':
+
         target = target.map(make_object_int_mapping(target)[0])
 
     if isinstance(target_ascending, bool):
+
         target.sort_values(ascending=target_ascending, inplace=True)
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
@@ -49,12 +51,12 @@ def make_summary_match_panel(
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
     n_row = 1 + len(multiple_features)
+
     for features_dict in multiple_features.values():
+
         n_row += len(features_dict['indices'])
 
     layout.update(height=ROW_HEIGHT / 2 * max(8, n_row), title=title)
-
-    data = []
 
     layout_annotations = []
 
@@ -64,13 +66,14 @@ def make_summary_match_panel(
         'axis1', 'axis')
 
     domain_end = 1
+
     domain_start = domain_end - row_fraction
 
     layout[yaxis_name] = dict(
         domain=(domain_start, domain_end),
         tickfont=dict(size=annotation_font_size))
 
-    data.append(
+    data = [
         dict(
             yaxis=yaxis_name.replace('axis', ''),
             type='heatmap',
@@ -80,7 +83,8 @@ def make_summary_match_panel(
             zmin=target_min,
             zmax=target_max,
             colorscale=target_colorscale,
-            showscale=False))
+            showscale=False)
+    ]
 
     multiple_scores = []
 
@@ -90,9 +94,13 @@ def make_summary_match_panel(
         print('Making match panel for {} ...'.format(name))
 
         features = features_dict['df']
+
         indices = features_dict['indices']
+
         index_aliases = features_dict['index_aliases']
+
         emphasis = features_dict['emphasis']
+
         data_type = features_dict['data_type']
 
         missing_indices = tuple(
@@ -140,6 +148,7 @@ def make_summary_match_panel(
             len(multiple_features) - features_index).replace('axis1', 'axis')
 
         domain_end = domain_start - row_fraction
+
         domain_start = domain_end - len(
             features_dict['indices']) * row_fraction
 
