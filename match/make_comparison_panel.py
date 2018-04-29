@@ -14,8 +14,8 @@ def make_comparison_panel(_2d_array_or_df_0,
                           match_function=compute_information_coefficient,
                           axis=0,
                           title='Comparison Panel',
-                          name_0='',
-                          name_1='',
+                          name_0=None,
+                          name_1=None,
                           file_path_prefix=None):
 
     comparison = apply_function_on_2_2d_arrays_slices(
