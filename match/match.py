@@ -30,12 +30,14 @@ def match(target,
 
     print('Computing score using {} with {} process{} ...'.format(
         match_function.__name__, n_job, ('', 'es')[1 < n_job]))
+
     results['Score'] = concatenate(
         multiprocess(match_target_and_features,
                      ((target, features_, min_n_sample, match_function)
                       for features_ in array_split(features, n_job)), n_job))
 
     if results['Score'].isna().all():
+
         raise ValueError(
             'Could not compute any score; perhaps because there were less than {} (min_n_sample) non-na values for all target-feature pairs to compute the score.'.
             format(min_n_sample))
@@ -75,9 +77,11 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         random_seed):
 
     if n_sampling < 3:
+
         raise ValueError('Cannot compute MoEs because n_sampling < 3.')
 
     if ceil(0.632 * target.size) < 3:
+
         raise ValueError('Cannot compute MoEs because 0.632 * n_sample < 3.')
 
     print('Computing MoE with {} samplings ...'.format(n_sampling))
@@ -110,6 +114,7 @@ def permute_target_and_match_target_and_features(target, features,
                                                  n_permutation, random_seed):
 
     if n_permutation < 1:
+
         raise ValueError(
             'Not computing P-Value and FDR because n_permutation < 1.')
 

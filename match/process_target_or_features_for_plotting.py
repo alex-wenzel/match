@@ -12,12 +12,15 @@ def process_target_or_features_for_plotting(target_or_features, type_,
                                             plot_std_max):
 
     if isinstance(target_or_features, Series):
+
         is_target = True
 
     elif isinstance(target_or_features, DataFrame):
+
         is_target = False
 
     else:
+
         raise ValueError(
             'target_or_features ({}) is neither a Series or DataFrame.'.format(
                 type(target_or_features)))
@@ -25,6 +28,7 @@ def process_target_or_features_for_plotting(target_or_features, type_,
     if type_ == 'continuous':
 
         if is_target:
+
             target_or_features = Series(
                 normalize_1d_array(
                     target_or_features.values,
@@ -34,6 +38,7 @@ def process_target_or_features_for_plotting(target_or_features, type_,
                 index=target_or_features.index)
 
         else:
+
             target_or_features = DataFrame(
                 normalize_2d_array(
                     target_or_features.values,
@@ -46,29 +51,35 @@ def process_target_or_features_for_plotting(target_or_features, type_,
         target_or_features.clip(-plot_std_max, plot_std_max),
 
         min_ = nanmin(target_or_features)
+
         max_ = nanmax(target_or_features)
 
         colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 
     else:
+
         min_ = 0
 
         if type_ == 'categorical':
 
             if is_target:
+
                 max_ = target_or_features.unique().size - 1
 
             else:
+
                 max_ = target_or_features.unstack().unique().size - 1
 
             colorscale = make_colorscale(colors=CATEGORICAL_COLORS)
 
         elif type_ == 'binary':
+
             max_ = 1
 
             colorscale = make_colorscale(colors=BINARY_COLORS_WHITE_BLACK)
 
         else:
+
             raise ValueError('Unknown type_: {}.'.format(type_))
 
     return target_or_features, min_, max_, colorscale

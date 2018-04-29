@@ -65,14 +65,17 @@ def make_match_panel(target,
         target.index.size, features.columns.size, n_common)
 
     if 0 < n_common:
+
         print(message)
 
         target = target.loc[common_indices]
 
     else:
+
         raise ValueError(message)
 
     if target.dtype == 'O':
+
         target = target.map(make_object_int_mapping(target)[0])
 
     if isinstance(target_ascending, bool):
@@ -83,6 +86,7 @@ def make_match_panel(target,
         features[target.index], 1, max_n_not_na_unique_object=1)
 
     if file_path_prefix:
+
         establish_path(file_path_prefix, 'file')
 
     if scores is None:
@@ -103,6 +107,7 @@ def make_match_panel(target,
         scores.sort_values('Score', ascending=scores_ascending, inplace=True)
 
         if file_path_prefix:
+
             scores.to_csv(file_path_prefix + '.match.tsv', sep='\t')
 
     indices = get_extreme_series_indices(
@@ -122,12 +127,15 @@ def make_match_panel(target,
     if target_type in ('binary', 'categorical') and cluster_within_category:
 
         if target.value_counts().min() < 2:
+
             warn('Not clustering because a category has less than 2 values.')
 
         elif not nd_array_is_sorted(target.values):
+
             warn('Not clustering because target is not sorted.')
 
         else:
+
             features_to_plot = features_to_plot.iloc[:,
                                                      cluster_2d_array_slices_by_group(
                                                          nan_to_num(
@@ -216,8 +224,11 @@ def make_match_panel(target,
     layout.update(annotations=layout_annotations)
 
     if file_path_prefix:
+
         html_file_path = file_path_prefix + '.match_panel.html'
+
     else:
+
         html_file_path = None
 
     plot_and_save(dict(layout=layout, data=data), html_file_path)

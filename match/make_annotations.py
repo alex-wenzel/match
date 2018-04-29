@@ -10,6 +10,7 @@ def make_annotations(scores):
         annotations['IC'] = scores['Score'].apply('{:.2f}'.format)
 
     else:
+
         annotations['IC(\u0394)'] = scores[['Score', '0.95 MoE']].apply(
             lambda score_moe: '{:.2f}({:.2f})'.format(*score_moe), axis=1)
 

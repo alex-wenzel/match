@@ -42,6 +42,7 @@ def make_comparison_panel(_2d_array_or_df_0,
                 columns=_2d_array_or_df_1.index)
 
     if file_path_prefix:
+
         establish_path(file_path_prefix, 'file')
 
         comparison.to_csv(
@@ -50,6 +51,7 @@ def make_comparison_panel(_2d_array_or_df_0,
         html_file_path = '{}.comparison_panel.html'.format(file_path_prefix)
 
     else:
+
         html_file_path = None
 
     plot_heat_map(

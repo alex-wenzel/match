@@ -107,6 +107,7 @@ def make_summary_match_panel(
             index for index in indices if index not in features.index)
 
         if len(missing_indices):
+
             raise ValueError(
                 'features do not have indices {}.'.format(missing_indices))
 
