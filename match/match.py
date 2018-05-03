@@ -19,7 +19,7 @@ def match(target,
           min_n_sample,
           match_function,
           n_job=1,
-          extreme_feature_threshold=80,
+          extreme_feature_threshold=24,
           n_sampling=0,
           n_permutation=0,
           random_seed=20121020):
