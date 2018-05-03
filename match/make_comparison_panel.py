@@ -56,7 +56,7 @@ def make_comparison_panel(_2d_array_or_df_0,
 
     plot_heat_map(
         comparison,
-        cluster=True,
+        cluster_axis='01',
         title=title,
         xaxis_title=name_1,
         yaxis_title=name_0,
