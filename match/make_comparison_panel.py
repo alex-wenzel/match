@@ -11,8 +11,8 @@ from .support.support.path import establish_path
 
 def make_comparison_panel(_2d_array_or_df_0,
                           _2d_array_or_df_1,
+                          axis,
                           match_function=compute_information_coefficient,
-                          axis=0,
                           title='Comparison Panel',
                           name_0=None,
                           name_1=None,
