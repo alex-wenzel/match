@@ -63,7 +63,7 @@ def match(target,
                          n_job))
 
         p_values, fdrs = compute_empirical_p_values_and_fdrs(
-            results['Score'], permutation_scores.flatten())
+            results['Score'], permutation_scores.flatten(), 'less_or_great')
 
         results['P-Value'] = p_values
 
@@ -150,4 +150,4 @@ def match_target_and_features(target, features, min_n_sample, match_function):
         target,
         min_n_sample,
         match_function,
-        raise_=False)
+        raise_for_n_less_than_required=False)
