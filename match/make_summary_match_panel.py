@@ -3,7 +3,8 @@ from pandas import concat
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .make_annotations import make_annotations
-from .make_match_panel import (LAYOUT_ANNOTATION_TEMPLATE,
+from .make_match_panel import (ANNOTATION_FONT_SIZE,
+                               LAYOUT_ANNOTATION_TEMPLATE,
                                MATCH_PANEL_LAYOUT_TEMPLATE, ROW_HEIGHT)
 from .match import match
 from .plot.plot.plot_and_save import plot_and_save
@@ -26,7 +27,6 @@ def make_summary_match_panel(
         target_type='continuous',
         plot_std_max=3,
         title='Summary Match Panel',
-        annotation_font_size=10,
         html_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
@@ -71,7 +71,7 @@ def make_summary_match_panel(
 
     layout[yaxis_name] = dict(
         domain=(domain_start, domain_end),
-        tickfont=dict(size=annotation_font_size))
+        tickfont=dict(size=ANNOTATION_FONT_SIZE))
 
     data = [
         dict(
@@ -156,7 +156,7 @@ def make_summary_match_panel(
         layout[yaxis_name] = dict(
             domain=(domain_start, domain_end),
             dtick=1,
-            tickfont=dict(size=annotation_font_size))
+            tickfont=dict(size=ANNOTATION_FONT_SIZE))
 
         data.append(
             dict(
@@ -173,7 +173,7 @@ def make_summary_match_panel(
         for annotation_index, (annotation, strs) in enumerate(
                 annotations.items()):
 
-            x = 1.008 + annotation_index / 6.4
+            x = 1.008 + annotation_index / 8
 
             if annotation_index == 0:
 
