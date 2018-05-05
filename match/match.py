@@ -105,8 +105,11 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         set_state(random_state)
 
-    return apply_along_axis(compute_nd_array_margin_of_error, 1,
-                            feature_x_sampling)
+    return apply_along_axis(
+        compute_nd_array_margin_of_error,
+        1,
+        feature_x_sampling,
+        raise_for_bad_value=False)
 
 
 def permute_target_and_match_target_and_features(target, features,
