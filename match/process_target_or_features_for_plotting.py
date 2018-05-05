@@ -44,7 +44,7 @@ def process_target_or_features_for_plotting(target_or_features, type_,
                     target_or_features.values,
                     '-0-',
                     1,
-                    ignore_bad_value=False),
+                    raise_for_bad_value=False),
                 index=target_or_features.index,
                 columns=target_or_features.columns)
 
