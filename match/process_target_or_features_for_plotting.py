@@ -48,7 +48,7 @@ def process_target_or_features_for_plotting(target_or_features, type_,
                 index=target_or_features.index,
                 columns=target_or_features.columns)
 
-        target_or_features.clip(-plot_std_max, plot_std_max),
+        target_or_features.clip(-plot_std_max, plot_std_max, inplace=True)
 
         min_ = nanmin(target_or_features)
 
