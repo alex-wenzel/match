@@ -19,10 +19,8 @@ def make_comparison_panel(_2d_array_or_df_0,
                           file_path_prefix=None):
 
     comparison = apply_function_on_2_2d_arrays_slices(
-        asarray(_2d_array_or_df_0),
-        asarray(_2d_array_or_df_1),
-        match_function,
-        axis=axis)
+        asarray(_2d_array_or_df_0), asarray(_2d_array_or_df_1), match_function,
+        axis)
 
     if isinstance(_2d_array_or_df_0, DataFrame) and isinstance(
             _2d_array_or_df_1, DataFrame):

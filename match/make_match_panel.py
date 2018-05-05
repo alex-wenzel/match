@@ -142,7 +142,8 @@ def make_match_panel(target,
                                                              features_to_plot.
                                                              values),
                                                          nan_to_num(
-                                                             target.values))]
+                                                             target.values),
+                                                         1)]
 
     features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
         features_to_plot, features_type, plot_std_max)
