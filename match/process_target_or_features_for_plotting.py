@@ -1,8 +1,7 @@
 from numpy import nanmax, nanmin
 from pandas import DataFrame, Series
 
-from .nd_array.nd_array.normalize_1d_array import normalize_1d_array
-from .nd_array.nd_array.normalize_2d_array import normalize_2d_array
+from .nd_array.nd_array.normalize_nd_array import normalize_nd_array
 from .plot.plot.make_colorscale import make_colorscale
 from .plot.plot.style import (BINARY_COLORS_WHITE_BLACK, CATEGORICAL_COLORS,
                               CONTINUOUS_COLORSCALE_FOR_MATCH)
@@ -30,21 +29,22 @@ def process_target_or_features_for_plotting(target_or_features, type_,
         if is_target:
 
             target_or_features = Series(
-                normalize_1d_array(
+                normalize_nd_array(
                     target_or_features.values,
-                    method='-0-',
-                    ignore_bad_value=True),
+                    '-0-',
+                    None,
+                    raise_for_bad_value=False),
                 name=target_or_features.name,
                 index=target_or_features.index)
 
         else:
 
             target_or_features = DataFrame(
-                normalize_2d_array(
+                normalize_nd_array(
                     target_or_features.values,
-                    method='-0-',
-                    axis=1,
-                    ignore_bad_value=True),
+                    '-0-',
+                    1,
+                    ignore_bad_value=False),
                 index=target_or_features.index,
                 columns=target_or_features.columns)
 
