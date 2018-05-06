@@ -12,7 +12,7 @@ from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
 from .plot.plot.plot_and_save import plot_and_save
 from .process_target_or_features_for_plotting import \
     process_target_or_features_for_plotting
-from .support.support.df import drop_df_slices
+from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
@@ -82,7 +82,7 @@ def make_match_panel(target,
 
         target.sort_values(ascending=target_ascending, inplace=True)
 
-    features = drop_df_slices(
+    features = drop_df_slice(
         features[target.index], 1, max_n_not_na_unique_object=1)
 
     if file_path_prefix:
