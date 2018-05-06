@@ -1,4 +1,3 @@
-from numpy import nan
 from pandas import concat
 
 from .information.information.compute_information_coefficient import \
@@ -117,8 +116,7 @@ def make_summary_match_panel(
         features = drop_df_slice(
             features.reindex(columns=target.index),
             1,
-            only_object=nan,
-            max_n_not_na_unique_object=min_n_sample)
+            max_n_not_na_unique_object=1)
 
         scores = match(
             target.values,
