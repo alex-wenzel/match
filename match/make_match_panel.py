@@ -82,7 +82,7 @@ def make_match_panel(target,
 
         target.sort_values(ascending=target_ascending, inplace=True)
 
-    features = drop_df_slice(features[target.index], 1, None, 1)
+    features = drop_df_slice(features[target.index], 1, 1)
 
     if file_path_prefix:
 

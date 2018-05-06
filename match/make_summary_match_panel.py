@@ -113,8 +113,7 @@ def make_summary_match_panel(
 
         features = features.loc[indices]
 
-        features = drop_df_slice(
-            features.reindex(columns=target.index), 1, None, 1)
+        features = drop_df_slice(features.reindex(columns=target.index), 1, 1)
 
         scores = match(
             target.values,
