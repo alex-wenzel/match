@@ -1,6 +1,6 @@
 from warnings import warn
 
-from numpy import nan_to_num
+from numpy import nan, nan_to_num
 
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
@@ -83,7 +83,10 @@ def make_match_panel(target,
         target.sort_values(ascending=target_ascending, inplace=True)
 
     features = drop_df_slice(
-        features[target.index], 1, max_n_not_na_unique_object=1)
+        features[target.index],
+        1,
+        only_object=nan,
+        max_n_not_na_unique_object=1)
 
     if file_path_prefix:
 
