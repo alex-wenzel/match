@@ -27,7 +27,8 @@ def make_summary_match_panel(
         target_type='continuous',
         plot_std_max=3,
         title='Summary Match Panel',
-        html_file_path=None):
+        html_file_path=None,
+        plotly_file_path=None):
 
     if plot_only_columns_shared_by_target_and_all_features:
 
@@ -196,6 +197,7 @@ def make_summary_match_panel(
 
     layout.update(annotations=layout_annotations)
 
-    plot_and_save(dict(layout=layout, data=data), html_file_path)
+    plot_and_save(
+        dict(layout=layout, data=data), html_file_path, plotly_file_path)
 
     return concat(multiple_scores).sort_values('Score')

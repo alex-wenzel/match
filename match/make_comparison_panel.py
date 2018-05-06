@@ -44,8 +44,12 @@ def make_comparison_panel(_2d_array_or_df_0,
 
         establish_path(file_path_prefix, 'file')
 
+    if file_path_prefix:
+
         comparison.to_csv(
             '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
+
+    if file_path_prefix:
 
         html_file_path = '{}.comparison_panel.html'.format(file_path_prefix)
 
@@ -53,12 +57,21 @@ def make_comparison_panel(_2d_array_or_df_0,
 
         html_file_path = None
 
+    if plotly_file_path_prefix:
+
+        plotly_file_path = '{}.comparison_panel.html'.format(file_path_prefix)
+
+    else:
+
+        plotly_file_path = None
+
     plot_heat_map(
         comparison,
         cluster_axis='01',
         title=title,
         xaxis_title=name_1,
         yaxis_title=name_0,
-        html_file_path=html_file_path)
+        html_file_path=html_file_path,
+        plotly_file_path=plotly_file_path)
 
     return comparison

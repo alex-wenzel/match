@@ -55,7 +55,8 @@ def make_match_panel(target,
                      features_type='continuous',
                      plot_std_max=3,
                      title='Match Panel',
-                     file_path_prefix=None):
+                     file_path_prefix=None,
+                     plotly_file_path_prefix=None):
 
     common_indices = target.index & features.columns
 
@@ -230,6 +231,15 @@ def make_match_panel(target,
 
         html_file_path = None
 
-    plot_and_save(dict(layout=layout, data=data), html_file_path)
+    if plotly_file_path_prefix:
+
+        plotly_file_path = '{}.match_panel.html'.format(file_path_prefix)
+
+    else:
+
+        plotly_file_path = None
+
+    plot_and_save(
+        dict(layout=layout, data=data), html_file_path, plotly_file_path)
 
     return scores
