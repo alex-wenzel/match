@@ -223,9 +223,11 @@ def make_match_panel(target,
 
     layout.update(annotations=layout_annotations)
 
+    suffix = '.match_panel.html'
+
     if file_path_prefix:
 
-        html_file_path = file_path_prefix + '.match_panel.html'
+        html_file_path = file_path_prefix + suffix
 
     else:
 
@@ -233,7 +235,7 @@ def make_match_panel(target,
 
     if plotly_file_path_prefix:
 
-        plotly_file_path = '{}.match_panel.html'.format(file_path_prefix)
+        plotly_file_path = plotly_file_path_prefix + suffix
 
     else:
 
