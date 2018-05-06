@@ -86,7 +86,7 @@ def make_match_panel(target,
         features[target.index],
         1,
         only_object=nan,
-        max_n_not_na_unique_object=1)
+        max_n_not_na_unique_object=min_n_sample)
 
     if file_path_prefix:
 

@@ -11,7 +11,7 @@ from .match import match
 from .plot.plot.plot_and_save import plot_and_save
 from .process_target_or_features_for_plotting import \
     process_target_or_features_for_plotting
-from .support.support.df import drop_df_slices
+from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
 
 
@@ -114,11 +114,11 @@ def make_summary_match_panel(
 
         features = features.loc[indices]
 
-        features = drop_df_slices(
+        features = drop_df_slice(
             features.reindex(columns=target.index),
             1,
             only_object=nan,
-            max_n_not_na_unique_object=1)
+            max_n_not_na_unique_object=min_n_sample)
 
         scores = match(
             target.values,
