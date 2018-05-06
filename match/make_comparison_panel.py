@@ -49,9 +49,11 @@ def make_comparison_panel(_2d_array_or_df_0,
         comparison.to_csv(
             '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
 
+    suffix = '.comparison_panel.html'
+
     if file_path_prefix:
 
-        html_file_path = '{}.comparison_panel.html'.format(file_path_prefix)
+        html_file_path = file_path_prefix + suffix
 
     else:
 
@@ -59,7 +61,7 @@ def make_comparison_panel(_2d_array_or_df_0,
 
     if plotly_file_path_prefix:
 
-        plotly_file_path = '{}.comparison_panel.html'.format(file_path_prefix)
+        plotly_file_path = plotly_file_path_prefix + suffix
 
     else:
 
