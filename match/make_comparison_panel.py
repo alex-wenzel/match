@@ -16,7 +16,8 @@ def make_comparison_panel(_2d_array_or_df_0,
                           title='Comparison Panel',
                           name_0=None,
                           name_1=None,
-                          file_path_prefix=None):
+                          file_path_prefix=None,
+                          plotly_file_path_prefix=None):
 
     comparison = apply_function_on_2_2d_arrays_slices(
         asarray(_2d_array_or_df_0), asarray(_2d_array_or_df_1), match_function,
