@@ -5,6 +5,8 @@ from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .nd_array.nd_array.apply_function_on_2_2d_arrays_slices import \
     apply_function_on_2_2d_arrays_slices
+from .plot.plot.make_html_and_plotly_file_paths import \
+    make_html_and_plotly_file_paths
 from .plot.plot.plot_heat_map import plot_heat_map
 from .support.support.path import establish_path
 
@@ -51,21 +53,8 @@ def make_comparison_panel(_2d_array_or_df_0,
 
     suffix = '.comparison_panel.html'
 
-    if file_path_prefix:
-
-        html_file_path = file_path_prefix + suffix
-
-    else:
-
-        html_file_path = None
-
-    if plotly_file_path_prefix:
-
-        plotly_file_path = plotly_file_path_prefix + suffix
-
-    else:
-
-        plotly_file_path = None
+    html_file_path, plotly_file_path = make_html_and_plotly_file_paths(
+        '.comparison_panel.html', file_path_prefix, plotly_file_path_prefix)
 
     plot_heat_map(
         comparison,

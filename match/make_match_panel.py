@@ -9,6 +9,8 @@ from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
 from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
+from .plot.plot.make_html_and_plotly_file_paths import \
+    make_html_and_plotly_file_paths
 from .plot.plot.plot_and_save import plot_and_save
 from .process_target_or_features_for_plotting import \
     process_target_or_features_for_plotting
@@ -223,23 +225,8 @@ def make_match_panel(target,
 
     layout.update(annotations=layout_annotations)
 
-    suffix = '.match_panel.html'
-
-    if file_path_prefix:
-
-        html_file_path = file_path_prefix + suffix
-
-    else:
-
-        html_file_path = None
-
-    if plotly_file_path_prefix:
-
-        plotly_file_path = plotly_file_path_prefix + suffix
-
-    else:
-
-        plotly_file_path = None
+    html_file_path, plotly_file_path = make_html_and_plotly_file_paths(
+        '.match_panel.html', file_path_prefix, plotly_file_path_prefix)
 
     plot_and_save(
         dict(layout=layout, data=data), html_file_path, plotly_file_path)
