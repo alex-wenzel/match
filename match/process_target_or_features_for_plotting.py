@@ -48,11 +48,9 @@ def process_target_or_features_for_plotting(target_or_features, type_,
                 index=target_or_features.index,
                 columns=target_or_features.columns)
 
-        target_or_features.clip(-plot_std_max, plot_std_max, inplace=True)
+        min_ = max(-plot_std_max, nanmin(target_or_features.values))
 
-        min_ = nanmin(target_or_features)
-
-        max_ = nanmax(target_or_features)
+        max_ = min(plot_std_max, nanmax(target_or_features.values))
 
         colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 
