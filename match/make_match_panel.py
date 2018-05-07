@@ -55,7 +55,8 @@ def make_match_panel(target,
                      n_permutation=0,
                      target_type='continuous',
                      features_type='continuous',
-                     plot_std_max=3,
+                     plot_target_std_max=3,
+                     plot_features_std_max=3,
                      title='Match Panel',
                      file_path_prefix=None,
                      plotly_file_path_prefix=None):
@@ -122,7 +123,7 @@ def make_match_panel(target,
     annotations = make_annotations(scores_to_plot)
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
-        target, target_type, plot_std_max)
+        target, target_type, plot_target_std_max)
 
     target_df = target.to_frame().T
 
@@ -148,7 +149,7 @@ def make_match_panel(target,
                                                          1)]
 
     features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
-        features_to_plot, features_type, plot_std_max)
+        features_to_plot, features_type, plot_features_std_max)
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 

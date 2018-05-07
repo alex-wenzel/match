@@ -25,7 +25,8 @@ def make_summary_match_panel(
         n_sampling=0,
         n_permutation=0,
         target_type='continuous',
-        plot_std_max=3,
+        plot_target_std_max=3,
+        plot_features_std_max=3,
         title='Summary Match Panel',
         html_file_path=None,
         plotly_file_path=None):
@@ -45,7 +46,7 @@ def make_summary_match_panel(
         target.sort_values(ascending=target_ascending, inplace=True)
 
     target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
-        target, target_type, plot_std_max)
+        target, target_type, plot_target_std_max)
 
     target_df = target.to_frame().T
 
@@ -141,7 +142,7 @@ def make_summary_match_panel(
         annotations = make_annotations(scores)
 
         features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
-            features_to_plot, data_type, plot_std_max)
+            features_to_plot, data_type, plot_features_std_max)
 
         yaxis_name = 'yaxis{}'.format(
             len(multiple_features) - features_index).replace('axis1', 'axis')
