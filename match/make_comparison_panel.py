@@ -51,8 +51,6 @@ def make_comparison_panel(_2d_array_or_df_0,
         comparison.to_csv(
             '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
 
-    suffix = '.comparison_panel.html'
-
     html_file_path, plotly_file_path = make_html_and_plotly_file_paths(
         '.comparison_panel.html', file_path_prefix, plotly_file_path_prefix)
 
