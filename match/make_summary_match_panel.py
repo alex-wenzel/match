@@ -45,7 +45,7 @@ def make_summary_match_panel(
 
         target.sort_values(ascending=target_ascending, inplace=True)
 
-    target, target_min, target_max, target_colorscale = process_target_or_features_for_plotting(
+    target, target_plot_min, target_plot_max, target_colorscale = process_target_or_features_for_plotting(
         target, target_type, plot_target_std_max)
 
     target_df = target.to_frame().T
@@ -82,8 +82,8 @@ def make_summary_match_panel(
             z=target_df.values[::-1],
             x=target_df.columns,
             y=target_df.index[::-1],
-            zmin=target_min,
-            zmax=target_max,
+            zmin=target_plot_min,
+            zmax=target_plot_max,
             colorscale=target_colorscale,
             showscale=False)
     ]
@@ -141,7 +141,7 @@ def make_summary_match_panel(
 
         annotations = make_annotations(scores)
 
-        features_to_plot, features_min, features_max, features_colorscale = process_target_or_features_for_plotting(
+        features_to_plot, features_plot_min, features_plot_max, features_colorscale = process_target_or_features_for_plotting(
             features_to_plot, data_type, plot_features_std_max)
 
         yaxis_name = 'yaxis{}'.format(
@@ -164,8 +164,8 @@ def make_summary_match_panel(
                 z=features_to_plot.values[::-1],
                 x=features_to_plot.columns,
                 y=features_to_plot.index[::-1],
-                zmin=features_min,
-                zmax=features_max,
+                zmin=features_plot_min,
+                zmax=features_plot_max,
                 colorscale=features_colorscale,
                 showscale=False))
 

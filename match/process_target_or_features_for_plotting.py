@@ -48,31 +48,31 @@ def process_target_or_features_for_plotting(target_or_features, type_,
                 index=target_or_features.index,
                 columns=target_or_features.columns)
 
-        min_ = max(-plot_std_max, nanmin(target_or_features.values))
+        plot_min = max(-plot_std_max, nanmin(target_or_features.values))
 
-        max_ = min(plot_std_max, nanmax(target_or_features.values))
+        plot_max = min(plot_std_max, nanmax(target_or_features.values))
 
         colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 
     else:
 
-        min_ = 0
+        plot_min = 0
 
         if type_ == 'categorical':
 
             if is_target:
 
-                max_ = target_or_features.unique().size - 1
+                plot_max = target_or_features.unique().size - 1
 
             else:
 
-                max_ = target_or_features.unstack().unique().size - 1
+                plot_max = target_or_features.unstack().unique().size - 1
 
             colorscale = make_colorscale(colors=CATEGORICAL_COLORS)
 
         elif type_ == 'binary':
 
-            max_ = 1
+            plot_max = 1
 
             colorscale = make_colorscale(colors=BINARY_COLORS_WHITE_BLACK)
 
@@ -80,4 +80,4 @@ def process_target_or_features_for_plotting(target_or_features, type_,
 
             raise ValueError('Unknown type_: {}.'.format(type_))
 
-    return target_or_features, min_, max_, colorscale
+    return target_or_features, plot_min, plot_max, colorscale
