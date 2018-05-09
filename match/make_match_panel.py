@@ -111,7 +111,7 @@ def make_match_panel(target,
 
         if file_path_prefix:
 
-            scores.to_csv(file_path_prefix + '.match.tsv', sep='\t')
+            scores.to_csv(file_path_prefix + '.match_panel.tsv', sep='\t')
 
     indices = get_extreme_series_indices(
         scores['Score'], extreme_feature_threshold, scores_ascending)
