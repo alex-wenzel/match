@@ -82,6 +82,7 @@ def make_summary_match_panel(
             z=target_df.values[::-1],
             x=target_df.columns,
             y=target_df.index[::-1],
+            text=(target_df.columns, ),
             zmin=target_plot_min,
             zmax=target_plot_max,
             colorscale=target_colorscale,
