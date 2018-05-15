@@ -63,7 +63,7 @@ def make_match_panel(target,
 
     if any(str(i).isdigit() for i in features.index):
 
-        raise ValueError('Set features\' index to be non-digit.')
+        raise ValueError('Use only non-digit features index.')
 
     common_indices = target.index & features.columns
 
