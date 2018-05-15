@@ -1,7 +1,7 @@
 from pandas import DataFrame
 
 
-def make_annotations(scores):
+def _make_annotations(scores):
 
     annotations = DataFrame(index=scores.index)
 
