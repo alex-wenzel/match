@@ -2,6 +2,7 @@ from pandas import concat
 
 from ._check_features_index import _check_features_index
 from ._make_annotations import _make_annotations
+from ._match import _match
 from ._process_target_or_features_for_plotting import \
     _process_target_or_features_for_plotting
 from .information.information.compute_information_coefficient import \
@@ -9,7 +10,6 @@ from .information.information.compute_information_coefficient import \
 from .make_match_panel import (ANNOTATION_FONT_SIZE,
                                LAYOUT_ANNOTATION_TEMPLATE,
                                MATCH_PANEL_LAYOUT_TEMPLATE, ROW_HEIGHT)
-from .match import match
 from .plot.plot.plot_and_save import plot_and_save
 from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
@@ -128,15 +128,9 @@ def make_summary_match_panel(
                 'features does not have any row with at least 2 not-NA unique values.'
             )
 
-        scores = match(
-            target.values,
-            features.values,
-            min_n_sample,
-            match_function,
-            extreme_feature_threshold=None,
-            n_sampling=n_sampling,
-            n_permutation=n_permutation,
-            random_seed=random_seed)
+        scores = _match(target.values, features.values, min_n_sample,
+                        match_function, 1, None, n_sampling, n_permutation,
+                        random_seed)
 
         scores.index = features.index
 
