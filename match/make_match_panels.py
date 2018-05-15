@@ -35,7 +35,7 @@ def make_match_panels(targets,
 
             print('{} ...'.format(file_path_prefix))
 
-            scores_file_path = '{}.match_panel.tsv'.format(file_path_prefix)
+            scores_file_path = '{}.tsv'.format(file_path_prefix)
 
             if isfile(scores_file_path):
 

@@ -108,7 +108,7 @@ def make_match_panel(target,
 
         if file_path_prefix:
 
-            scores.to_csv(file_path_prefix + '.match_panel.tsv', sep='\t')
+            scores.to_csv(file_path_prefix + '.tsv', sep='\t')
 
     indices = get_extreme_series_indices(
         scores['Score'], extreme_feature_threshold, scores_ascending)
@@ -225,7 +225,7 @@ def make_match_panel(target,
     layout.update(annotations=layout_annotations)
 
     html_file_path, plotly_file_path = make_html_and_plotly_file_paths(
-        '.match_panel.html', file_path_prefix, plotly_file_path_prefix)
+        '.html', file_path_prefix, plotly_file_path_prefix)
 
     plot_and_save(
         dict(layout=layout, data=data), html_file_path, plotly_file_path)
