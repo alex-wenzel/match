@@ -25,7 +25,7 @@ def make_match_panels(targets,
 
             features = feature_dict['df']
 
-            check_features_index(features)
+            _check_features_index(features)
 
             file_path_prefix, plotly_file_path_prefix = make_html_and_plotly_file_paths(
                 '{}/{}'.format(target.name, feature_name),

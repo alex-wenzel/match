@@ -2,6 +2,7 @@ from warnings import warn
 
 from numpy import nan_to_num
 
+from ._check_features_index import _check_features_index
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .make_annotations import make_annotations
@@ -61,9 +62,7 @@ def make_match_panel(target,
                      file_path_prefix=None,
                      plotly_file_path_prefix=None):
 
-    if any(str(i).isdigit() for i in features.index):
-
-        raise ValueError('Use only non-digit features index.')
+    _check_features_index(features)
 
     common_indices = target.index & features.columns
 
