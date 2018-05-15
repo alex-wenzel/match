@@ -4,11 +4,11 @@ from numpy import nan_to_num
 
 from ._check_features_index import _check_features_index
 from ._make_annotations import _make_annotations
+from ._match import _match
 from ._process_target_or_features_for_plotting import \
     _process_target_or_features_for_plotting
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
-from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
 from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
@@ -104,16 +104,9 @@ def make_match_panel(target,
 
     if scores is None:
 
-        scores = match(
-            target.values,
-            features.values,
-            min_n_sample,
-            match_function,
-            n_job=n_job,
-            extreme_feature_threshold=extreme_feature_threshold,
-            n_sampling=n_sampling,
-            n_permutation=n_permutation,
-            random_seed=random_seed)
+        scores = _match(target.values, features.values, min_n_sample,
+                        match_function, n_job, extreme_feature_threshold,
+                        n_sampling, n_permutation, random_seed)
 
         scores.index = features.index
 

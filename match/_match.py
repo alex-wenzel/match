@@ -14,8 +14,8 @@ from .support.support.multiprocess import multiprocess
 from .support.support.series import get_extreme_series_indices
 
 
-def match(target, features, min_n_sample, match_function, n_job,
-          extreme_feature_threshold, n_sampling, n_permutation, random_seed):
+def _match(target, features, min_n_sample, match_function, n_job,
+           extreme_feature_threshold, n_sampling, n_permutation, random_seed):
 
     results = DataFrame(columns=('Score', '0.95 MoE', 'P-Value', 'FDR'))
 
