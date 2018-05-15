@@ -48,11 +48,10 @@ def make_comparison_panel(_2d_array_or_df_0,
 
     if file_path_prefix:
 
-        comparison.to_csv(
-            '{}.comparison_panel.tsv'.format(file_path_prefix), sep='\t')
+        comparison.to_csv('{}.tsv'.format(file_path_prefix), sep='\t')
 
     html_file_path, plotly_file_path = make_html_and_plotly_file_paths(
-        '.comparison_panel.html', file_path_prefix, plotly_file_path_prefix)
+        '.html', file_path_prefix, plotly_file_path_prefix)
 
     plot_heat_map(
         comparison,
