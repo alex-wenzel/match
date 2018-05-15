@@ -90,7 +90,10 @@ def make_match_panel(target,
         target.sort_values(ascending=target_ascending, inplace=True)
 
     features = drop_df_slice(features[target.index], 1, min_n_not_na_unique=2)
-    print(features)
+
+    if features.empty:
+
+        raise ValueError('features has become empty.')
 
     if file_path_prefix:
 

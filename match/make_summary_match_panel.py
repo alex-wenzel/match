@@ -122,6 +122,10 @@ def make_summary_match_panel(
         features = drop_df_slice(
             features[target.index], 1, min_n_not_na_unique=2)
 
+        if features.empty:
+
+            raise ValueError('features has become empty.')
+
         scores = match(
             target.values,
             features.values,
