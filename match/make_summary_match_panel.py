@@ -120,11 +120,13 @@ def make_summary_match_panel(
         features = features.loc[indices]
 
         features = drop_df_slice(
-            features[target.index], 1, min_n_not_na_unique=2)
+            features[target.index], 1, min_n_not_na_unique_value=2)
 
         if features.empty:
 
-            raise ValueError('features has become empty.')
+            raise ValueError(
+                'features does not have any row with at least 2 not-NA unique values.'
+            )
 
         scores = match(
             target.values,
