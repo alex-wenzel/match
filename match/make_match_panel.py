@@ -92,12 +92,6 @@ def make_match_panel(target,
     features = drop_df_slice(
         features[target.index], 1, min_n_not_na_unique_value=2)
 
-    if features.empty:
-
-        raise ValueError(
-            'features does not have any row with at least 2 not-NA unique values.'
-        )
-
     if file_path_prefix:
 
         establish_path(file_path_prefix, 'file')
