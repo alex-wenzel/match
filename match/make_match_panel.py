@@ -61,6 +61,10 @@ def make_match_panel(target,
                      file_path_prefix=None,
                      plotly_file_path_prefix=None):
 
+    if any(str(i).isdigit() for i in features.index):
+
+        raise ValueError('Set features\' index to be non-digit.')
+
     common_indices = target.index & features.columns
 
     n_common = len(common_indices)
