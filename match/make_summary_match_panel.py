@@ -1,5 +1,6 @@
 from pandas import concat
 
+from ._check_features_index import _check_features_index
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .make_annotations import make_annotations
@@ -97,6 +98,8 @@ def make_summary_match_panel(
         print('Making match panel for {} ...'.format(name))
 
         features = features_dict['df']
+
+        _check_features_index(features)
 
         indices = features_dict['indices']
 
