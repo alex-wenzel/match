@@ -1,16 +1,16 @@
 from pandas import concat
 
 from ._check_features_index import _check_features_index
+from ._make_annotations import _make_annotations
+from ._process_target_or_features_for_plotting import \
+    _process_target_or_features_for_plotting
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
-from .make_annotations import make_annotations
 from .make_match_panel import (ANNOTATION_FONT_SIZE,
                                LAYOUT_ANNOTATION_TEMPLATE,
                                MATCH_PANEL_LAYOUT_TEMPLATE, ROW_HEIGHT)
 from .match import match
 from .plot.plot.plot_and_save import plot_and_save
-from .process_target_or_features_for_plotting import \
-    process_target_or_features_for_plotting
 from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
 
@@ -46,7 +46,7 @@ def make_summary_match_panel(
 
         target.sort_values(ascending=target_ascending, inplace=True)
 
-    target, target_plot_min, target_plot_max, target_colorscale = process_target_or_features_for_plotting(
+    target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target, target_type, plot_target_std_max)
 
     target_df = target.to_frame().T
@@ -150,9 +150,9 @@ def make_summary_match_panel(
             {index: alias
              for index, alias in zip(indices, index_aliases)}.get)
 
-        annotations = make_annotations(scores)
+        annotations = _make_annotations(scores)
 
-        features_to_plot, features_plot_min, features_plot_max, features_colorscale = process_target_or_features_for_plotting(
+        features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
             features_to_plot, data_type, plot_features_std_max)
 
         yaxis_name = 'yaxis{}'.format(

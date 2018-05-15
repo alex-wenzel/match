@@ -7,8 +7,8 @@ from .plot.plot.style import (BINARY_COLORS_WHITE_BLACK, CATEGORICAL_COLORS,
                               CONTINUOUS_COLORSCALE_FOR_MATCH)
 
 
-def process_target_or_features_for_plotting(target_or_features, type_,
-                                            plot_std_max):
+def _process_target_or_features_for_plotting(target_or_features, type_,
+                                             plot_std_max):
 
     if isinstance(target_or_features, Series):
 

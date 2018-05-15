@@ -3,9 +3,11 @@ from warnings import warn
 from numpy import nan_to_num
 
 from ._check_features_index import _check_features_index
+from ._make_annotations import _make_annotations
+from ._process_target_or_features_for_plotting import \
+    _process_target_or_features_for_plotting
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
-from .make_annotations import make_annotations
 from .match import match
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
@@ -13,8 +15,6 @@ from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
 from .plot.plot.make_html_and_plotly_file_paths import \
     make_html_and_plotly_file_paths
 from .plot.plot.plot_and_save import plot_and_save
-from .process_target_or_features_for_plotting import \
-    process_target_or_features_for_plotting
 from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
@@ -130,9 +130,9 @@ def make_match_panel(target,
 
     scores_to_plot = scores.loc[indices]
 
-    annotations = make_annotations(scores_to_plot)
+    annotations = _make_annotations(scores_to_plot)
 
-    target, target_plot_min, target_plot_max, target_colorscale = process_target_or_features_for_plotting(
+    target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target, target_type, plot_target_std_max)
 
     target_df = target.to_frame().T
@@ -158,7 +158,7 @@ def make_match_panel(target,
                                                              target.values),
                                                          1)]
 
-    features_to_plot, features_plot_min, features_plot_max, features_colorscale = process_target_or_features_for_plotting(
+    features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
         features_to_plot, features_type, plot_features_std_max)
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
