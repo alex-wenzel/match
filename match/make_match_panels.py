@@ -2,6 +2,7 @@ from os.path import isfile
 
 from pandas import read_table
 
+from ._check_features_index import _check_features_index
 from .make_match_panel import make_match_panel
 from .plot.plot.make_html_and_plotly_file_paths import \
     make_html_and_plotly_file_paths
@@ -21,6 +22,10 @@ def make_match_panels(targets,
     for target in targets:
 
         for feature_name, feature_dict in feature_dicts.items():
+
+            features = feature_dict['df']
+
+            check_features_index(features)
 
             file_path_prefix, plotly_file_path_prefix = make_html_and_plotly_file_paths(
                 '{}/{}'.format(target.name, feature_name),
@@ -52,7 +57,7 @@ def make_match_panels(targets,
 
             make_match_panel(
                 target,
-                feature_dict['df'],
+                features,
                 scores=scores,
                 n_job=n_job,
                 scores_ascending=scores_ascending,
