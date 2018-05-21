@@ -87,7 +87,7 @@ def make_match_panel(target,
 
     if isinstance(target_ascending, bool):
 
-        target.sort_values(ascending=target_ascending, inplace=True)
+        target = target.sort_values(ascending=target_ascending)
 
     features = drop_df_slice(
         features[target.index], 1, min_n_not_na_unique_value=2)
