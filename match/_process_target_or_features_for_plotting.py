@@ -56,23 +56,23 @@ def _process_target_or_features_for_plotting(target_or_features, type_,
 
     else:
 
-        plot_min = 0
+        plot_min = None
+
+        plot_max = None
 
         if type_ == 'categorical':
 
             if is_target:
 
-                plot_max = target_or_features.unique().size - 1
+                n_color = target_or_features.unique().size
 
             else:
 
-                plot_max = target_or_features.unstack().unique().size - 1
+                n_color = target_or_features.unstack().unique().size
 
-            colorscale = make_colorscale(colors=CATEGORICAL_COLORS)
+            colorscale = make_colorscale(colors=CATEGORICAL_COLORS[:n_color])
 
         elif type_ == 'binary':
-
-            plot_max = 1
 
             colorscale = make_colorscale(colors=BINARY_COLORS_WHITE_BLACK)
 
