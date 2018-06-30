@@ -120,7 +120,9 @@ def make_summary_match_panel(
         features = features.loc[indices]
 
         features = drop_df_slice(
-            features[target.index], 1, min_n_not_na_unique_value=2)
+            features.reindex(columns=target.index),
+            1,
+            min_n_not_na_unique_value=2)
 
         scores = _match(target.values, features.values, min_n_sample,
                         match_function, 1, None, n_sampling, n_permutation,
@@ -143,8 +145,8 @@ def make_summary_match_panel(
         features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
             features_to_plot, data_type, plot_features_std_max)
 
-        yaxis_name = 'yaxis{}'.format(
-            len(multiple_features) - features_index).replace('axis1', 'axis')
+        yaxis_name = 'yaxis{}'.format(len(multiple_features) -
+                                      features_index).replace('axis1', 'axis')
 
         domain_end = domain_start - row_fraction
 
@@ -168,8 +170,8 @@ def make_summary_match_panel(
                 colorscale=features_colorscale,
                 showscale=False))
 
-        for annotation_index, (annotation, strs) in enumerate(
-                annotations.items()):
+        for annotation_index, (annotation,
+                               strs) in enumerate(annotations.items()):
 
             x = 1.008 + annotation_index / 8
 
