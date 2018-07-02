@@ -18,7 +18,8 @@ def make_match_panels(targets,
                       plot_target_std_max=3,
                       plot_features_std_max=3,
                       directory_path=None,
-                      plotly_directory_path=None):
+                      plotly_directory_path=None,
+                      overwrite=False):
 
     for target in targets:
 
@@ -38,15 +39,15 @@ def make_match_panels(targets,
 
             scores_file_path = '{}.tsv'.format(file_path_prefix)
 
-            if isfile(scores_file_path):
+            if overwrite or not isfile(scores_file_path):
+
+                scores = None
+
+            else:
 
                 print('Reading scores from {} ...'.format(scores_file_path))
 
                 scores = read_table(scores_file_path, index_col=0)
-
-            else:
-
-                scores = None
 
             if feature_dict['emphasis'] == 'high':
 
