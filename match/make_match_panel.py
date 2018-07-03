@@ -62,6 +62,18 @@ def make_match_panel(target,
                      file_path_prefix=None,
                      plotly_file_path_prefix=None):
 
+    if target.dropna().unique().size < 2:
+
+        raise ValueError('target is constant.')
+
+    if target.name is None:
+
+        target.name = 'Target'
+
+    if features.unstack().dropna().unique().size < 2:
+
+        raise ValueError('features is empty or constant.')
+
     _check_features_index(features)
 
     common_indices = target.index & features.columns
@@ -122,8 +134,6 @@ def make_match_panel(target,
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target, target_type, plot_target_std_max)
 
-    target_df = target.to_frame().T
-
     if target_type in ('binary', 'categorical') and cluster_within_category:
 
         if target.value_counts().min() < 2:
@@ -136,14 +146,13 @@ def make_match_panel(target,
 
         else:
 
-            features_to_plot = features_to_plot.iloc[:,
-                                                     cluster_2d_array_slices_by_group(
-                                                         nan_to_num(
-                                                             features_to_plot.
-                                                             values),
-                                                         nan_to_num(
-                                                             target.values),
-                                                         1)]
+            clustered_indices = cluster_2d_array_slices_by_group(
+                nan_to_num(features_to_plot.values), nan_to_num(target.values),
+                1)
+
+            target = target.iloc[clustered_indices]
+
+            features_to_plot = features_to_plot.iloc[:, clustered_indices]
 
     features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
         features_to_plot, features_type, plot_features_std_max)
@@ -176,12 +185,10 @@ def make_match_panel(target,
         dict(
             yaxis='y2',
             type='heatmap',
-            z=target_df.values[::-1],
-            x=target_df.columns,
-            y=target_df.index[::-1],
-            text=(target_df.columns, ),
-            # zmin=target_plot_min,
-            # zmax=target_plot_max,
+            z=target.to_frame().T.values,
+            x=target.index,
+            y=(target.name, ),
+            text=(target.index, ),
             colorscale=target_colorscale,
             showscale=False),
         dict(
