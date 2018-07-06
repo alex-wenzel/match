@@ -21,7 +21,7 @@ def make_match_panels(targets,
                       plotly_directory_path=None,
                       overwrite=False):
 
-    for target in targets:
+    for target_index, target in targets.iterrows():
 
         for feature_name, feature_dict in feature_dicts.items():
 

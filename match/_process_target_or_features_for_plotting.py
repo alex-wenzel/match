@@ -31,8 +31,8 @@ def _process_target_or_features_for_plotting(target_or_features, type_,
             target_or_features = Series(
                 normalize_nd_array(
                     target_or_features.values,
-                    '-0-',
                     None,
+                    '-0-',
                     raise_for_bad_value=False),
                 name=target_or_features.name,
                 index=target_or_features.index)
@@ -42,8 +42,8 @@ def _process_target_or_features_for_plotting(target_or_features, type_,
             target_or_features = DataFrame(
                 normalize_nd_array(
                     target_or_features.values,
-                    '-0-',
                     1,
+                    '-0-',
                     raise_for_bad_value=False),
                 index=target_or_features.index,
                 columns=target_or_features.columns)
