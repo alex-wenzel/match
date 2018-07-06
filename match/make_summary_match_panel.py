@@ -103,7 +103,7 @@ def make_summary_match_panel(
 
         indices = features_dict['indices']
 
-        index_aliases = features_dict['index_aliases']
+        index_aliases = features_dict.get('index_aliases')
 
         emphasis = features_dict['emphasis']
 
@@ -136,9 +136,11 @@ def make_summary_match_panel(
 
         features_to_plot = features.loc[scores.index]
 
-        features_to_plot.index = features_to_plot.index.map(
-            {index: alias
-             for index, alias in zip(indices, index_aliases)}.get)
+        if index_aliases is not None:
+
+            features_to_plot.index = features_to_plot.index.map(
+                {index: alias
+                 for index, alias in zip(indices, index_aliases)}.get)
 
         annotations = _make_annotations(scores)
 
