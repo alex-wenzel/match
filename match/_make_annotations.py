@@ -11,8 +11,13 @@ def _make_annotations(scores):
 
     else:
 
-        annotations['IC(\u0394)'] = scores[['Score', '0.95 MoE']].apply(
-            lambda score_moe: '{:.2f}({:.2f})'.format(*score_moe), axis=1)
+        annotations['IC(\u0394)'] = scores[[
+            'Score',
+            '0.95 MoE',
+        ]].apply(
+            lambda score_moe: '{:.2f}({:.2f})'.format(*score_moe),
+            axis=1,
+        )
 
     if not scores['P-Value'].isna().all():
 

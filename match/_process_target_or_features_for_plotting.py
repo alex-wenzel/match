@@ -7,14 +7,23 @@ from .plot.plot.style import (BINARY_COLORS_WHITE_BLACK, CATEGORICAL_COLORS,
                               CONTINUOUS_COLORSCALE_FOR_MATCH)
 
 
-def _process_target_or_features_for_plotting(target_or_features, type_,
-                                             plot_std_max):
+def _process_target_or_features_for_plotting(
+        target_or_features,
+        type_,
+        plot_std_max,
+):
 
-    if isinstance(target_or_features, Series):
+    if isinstance(
+            target_or_features,
+            Series,
+    ):
 
         is_target = True
 
-    elif isinstance(target_or_features, DataFrame):
+    elif isinstance(
+            target_or_features,
+            DataFrame,
+    ):
 
         is_target = False
 
@@ -33,9 +42,11 @@ def _process_target_or_features_for_plotting(target_or_features, type_,
                     target_or_features.values,
                     None,
                     '-0-',
-                    raise_for_bad_value=False),
+                    raise_for_bad_value=False,
+                ),
                 name=target_or_features.name,
-                index=target_or_features.index)
+                index=target_or_features.index,
+            )
 
         else:
 
@@ -44,13 +55,21 @@ def _process_target_or_features_for_plotting(target_or_features, type_,
                     target_or_features.values,
                     1,
                     '-0-',
-                    raise_for_bad_value=False),
+                    raise_for_bad_value=False,
+                ),
                 index=target_or_features.index,
-                columns=target_or_features.columns)
+                columns=target_or_features.columns,
+            )
 
-        plot_min = max(-plot_std_max, nanmin(target_or_features.values))
+        plot_min = max(
+            -plot_std_max,
+            nanmin(target_or_features.values),
+        )
 
-        plot_max = min(plot_std_max, nanmax(target_or_features.values))
+        plot_max = min(
+            plot_std_max,
+            nanmax(target_or_features.values),
+        )
 
         colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 
