@@ -11,7 +11,7 @@ from .plot.plot.make_html_and_plotly_file_paths import \
 def make_match_panels(
         targets,
         feature_dicts,
-        min_n_sample=3,
+        min_n_sample=2,
         n_job=1,
         extreme_feature_threshold=16,
         n_sampling=0,
@@ -71,6 +71,7 @@ def make_match_panels(
                 target,
                 features,
                 scores=scores,
+                min_n_sample=min_n_sample,
                 n_job=n_job,
                 scores_ascending=scores_ascending,
                 extreme_feature_threshold=extreme_feature_threshold,

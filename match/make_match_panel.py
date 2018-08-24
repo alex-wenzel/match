@@ -52,7 +52,7 @@ def make_match_panel(
         target_ascending=False,
         cluster_within_category=True,
         scores=None,
-        min_n_sample=3,
+        min_n_sample=2,
         match_function=compute_information_coefficient,
         random_seed=20121020,
         n_job=1,
