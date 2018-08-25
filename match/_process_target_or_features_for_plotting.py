@@ -61,15 +61,27 @@ def _process_target_or_features_for_plotting(
                 columns=target_or_features.columns,
             )
 
-        plot_min = max(
-            -plot_std_max,
-            nanmin(target_or_features.values),
-        )
+        target_or_features_nanmin = nanmin(target_or_features.values)
 
-        plot_max = min(
-            plot_std_max,
-            nanmax(target_or_features.values),
-        )
+        target_or_features_nanmax = nanmax(target_or_features.values)
+
+        if plot_std_max is None:
+
+            plot_min = target_or_features_nanmin
+
+            plot_max = target_or_features_nanmax
+
+        else:
+
+            plot_min = max(
+                -plot_std_max,
+                target_or_features_nanmin,
+            )
+
+            plot_max = min(
+                plot_std_max,
+                target_or_features_nanmax,
+            )
 
         colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 

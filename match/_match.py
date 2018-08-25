@@ -49,7 +49,7 @@ def _match(
 
     results['Score'] = concatenate(
         multiprocess(
-            match_target_and_features,
+            _match_target_and_features,
             ((
                 target,
                 features_,
@@ -77,7 +77,7 @@ def _match(
 
         results.loc[
             indices, '0.95 MoE',
-        ] = match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
+        ] = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             target,
             features[indices],
             3,
@@ -90,7 +90,7 @@ def _match(
 
         permutation_scores = concatenate(
             multiprocess(
-                permute_target_and_match_target_and_features,
+                _permute_target_and_match_target_and_features,
                 ((
                     target,
                     features_,
@@ -118,7 +118,7 @@ def _match(
     return results
 
 
-def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
+def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         target,
         features,
         min_n_sample,
@@ -160,7 +160,7 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         random_state = get_state()
 
-        feature_x_sampling[:, i] = match_target_and_features(
+        feature_x_sampling[:, i] = _match_target_and_features(
             sampled_target,
             sampled_features,
             min_n_sample,
@@ -177,7 +177,7 @@ def match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
     )
 
 
-def permute_target_and_match_target_and_features(
+def _permute_target_and_match_target_and_features(
         target,
         features,
         min_n_sample,
@@ -212,7 +212,7 @@ def permute_target_and_match_target_and_features(
 
         random_state = get_state()
 
-        feature_x_permutation[:, i] = match_target_and_features(
+        feature_x_permutation[:, i] = _match_target_and_features(
             permuted_target,
             features,
             min_n_sample,
@@ -224,7 +224,7 @@ def permute_target_and_match_target_and_features(
     return feature_x_permutation
 
 
-def match_target_and_features(
+def _match_target_and_features(
         target,
         features,
         min_n_sample,

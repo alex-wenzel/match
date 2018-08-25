@@ -9,38 +9,35 @@ from .plot.plot.make_html_and_plotly_file_paths import \
 
 
 def make_match_panels(
-        target_x_sample,
+        multiple_target,
+        multiple_target_type,
+        multiple_drop_negative_target,
+        multiple_target_ascending,
         feature_dicts,
-        target_is_phenotype=False,
-        target_ascending=True,
         min_n_sample=2,
         n_job=1,
-        extreme_feature_threshold=16,
+        extreme_feature_threshold=8,
         n_sampling=0,
         n_permutation=0,
-        target_type='continuous',
-        plot_target_std_max=3,
-        plot_features_std_max=3,
+        plot_target_std_max=None,
+        plot_features_std_max=None,
         directory_path=None,
         plotly_directory_path=None,
         overwrite=False,
 ):
 
-    for target_index, target in target_x_sample.iterrows():
+    for target, target_type, drop_negative_target, target_ascending in zip(
+            multiple_target,
+            multiple_target_type,
+            multiple_drop_negative_target,
+            multiple_target_ascending,
+    ):
 
-        print(target_index)
+        print(target.name)
 
-        if target_is_phenotype:
+        if drop_negative_target:
 
             target = target[target != -1]
-
-            if target.unique().size == 2:
-
-                target_type = 'binary'
-
-            elif 2 < target.unique().size:
-
-                target_type = 'categorical'
 
         for feature_name, feature_dict in feature_dicts.items():
 
@@ -48,11 +45,13 @@ def make_match_panels(
 
             _check_features_index(features)
 
+            suffix = '{}/{}'.format(
+                target.name,
+                feature_name,
+            )
+
             file_path_prefix, plotly_file_path_prefix = make_html_and_plotly_file_paths(
-                '{}/{}'.format(
-                    target_index,
-                    feature_name,
-                ),
+                suffix,
                 directory_path,
                 plotly_directory_path,
                 prefix_is_directory=True,
@@ -98,9 +97,9 @@ def make_match_panels(
                 features_type=feature_dict['data_type'],
                 plot_target_std_max=plot_target_std_max,
                 plot_features_std_max=plot_features_std_max,
-                title='{}{}'.format(
-                    target_index,
-                    feature_name,
+                title=suffix.replace(
+                    '/',
+                    ' vs ',
                 ),
                 file_path_prefix=file_path_prefix,
                 plotly_file_path_prefix=plotly_file_path_prefix,

@@ -20,7 +20,7 @@ EPS = finfo(float).eps
 
 def make_summary_match_panel(
         target,
-        multiple_features,
+        feature_dicts,
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
         min_n_sample=2,
@@ -29,8 +29,8 @@ def make_summary_match_panel(
         n_sampling=0,
         n_permutation=0,
         target_type='continuous',
-        plot_target_std_max=3,
-        plot_features_std_max=3,
+        plot_target_std_max=None,
+        plot_features_std_max=None,
         title='Summary Match Panel',
         html_file_path=None,
         plotly_file_path=None,
@@ -38,7 +38,7 @@ def make_summary_match_panel(
 
     if plot_only_columns_shared_by_target_and_all_features:
 
-        for features_dict in multiple_features.values():
+        for features_dict in feature_dicts.values():
 
             target = target.loc[target.index & features_dict['df'].columns]
 
@@ -66,9 +66,9 @@ def make_summary_match_panel(
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
-    n_row = 1 + len(multiple_features)
+    n_row = 1 + len(feature_dicts)
 
-    for features_dict in multiple_features.values():
+    for features_dict in feature_dicts.values():
 
         n_row += len(features_dict['indices'])
 
@@ -84,7 +84,7 @@ def make_summary_match_panel(
 
     row_fraction = 1 / n_row
 
-    yaxis_name = 'yaxis{}'.format(len(multiple_features) + 1).replace(
+    yaxis_name = 'yaxis{}'.format(len(feature_dicts) + 1).replace(
         'axis1',
         'axis',
     )
@@ -128,7 +128,7 @@ def make_summary_match_panel(
     for features_index, (
             name,
             features_dict,
-    ) in enumerate(multiple_features.items()):
+    ) in enumerate(feature_dicts.items()):
 
         print('Making match panel for {} ...'.format(name))
 
@@ -202,7 +202,7 @@ def make_summary_match_panel(
             plot_features_std_max,
         )
 
-        yaxis_name = 'yaxis{}'.format(len(multiple_features) -
+        yaxis_name = 'yaxis{}'.format(len(feature_dicts) -
                                       features_index).replace(
                                           'axis1',
                                           'axis',
