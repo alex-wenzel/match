@@ -9,8 +9,10 @@ from .plot.plot.make_html_and_plotly_file_paths import \
 
 
 def make_match_panels(
-        targets,
+        target_x_sample,
         feature_dicts,
+        target_is_phenotype=False,
+        target_ascending=True,
         min_n_sample=2,
         n_job=1,
         extreme_feature_threshold=16,
@@ -24,7 +26,21 @@ def make_match_panels(
         overwrite=False,
 ):
 
-    for target_index, target in targets.iterrows():
+    for target_index, target in target_x_sample.iterrows():
+
+        print(target_index)
+
+        if target_is_phenotype:
+
+            target = target[target != -1]
+
+            if target.unique().size == 2:
+
+                target_type = 'binary'
+
+            elif 2 < target.unique().size:
+
+                target_type = 'categorical'
 
         for feature_name, feature_dict in feature_dicts.items():
 
@@ -34,7 +50,7 @@ def make_match_panels(
 
             file_path_prefix, plotly_file_path_prefix = make_html_and_plotly_file_paths(
                 '{}/{}'.format(
-                    target.name,
+                    target_index,
                     feature_name,
                 ),
                 directory_path,
@@ -46,11 +62,7 @@ def make_match_panels(
 
             scores_file_path = '{}.tsv'.format(file_path_prefix)
 
-            if overwrite or not isfile(scores_file_path):
-
-                scores = None
-
-            else:
+            if not overwrite and isfile(scores_file_path):
 
                 print('Reading scores from {} ...'.format(scores_file_path))
 
@@ -58,6 +70,10 @@ def make_match_panels(
                     scores_file_path,
                     index_col=0,
                 )
+
+            else:
+
+                scores = None
 
             if feature_dict['emphasis'] == 'high':
 
@@ -70,6 +86,7 @@ def make_match_panels(
             make_match_panel(
                 target,
                 features,
+                target_ascending=target_ascending,
                 scores=scores,
                 min_n_sample=min_n_sample,
                 n_job=n_job,
@@ -81,7 +98,10 @@ def make_match_panels(
                 features_type=feature_dict['data_type'],
                 plot_target_std_max=plot_target_std_max,
                 plot_features_std_max=plot_features_std_max,
-                title=feature_name,
+                title='{}{}'.format(
+                    target_index,
+                    feature_name,
+                ),
                 file_path_prefix=file_path_prefix,
                 plotly_file_path_prefix=plotly_file_path_prefix,
             )
