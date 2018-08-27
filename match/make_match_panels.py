@@ -23,7 +23,7 @@ def make_match_panels(
         plot_features_std_max=None,
         directory_path=None,
         plotly_directory_path=None,
-        overwrite=False,
+        overwrite=True,
 ):
 
     for target, target_type, drop_negative_target, target_ascending in zip(

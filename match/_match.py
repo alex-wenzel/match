@@ -17,7 +17,6 @@ from .support.support.series import get_extreme_series_indices
 def _match(
         target,
         features,
-        min_n_sample,
         match_function,
         n_job,
         extreme_feature_threshold,
@@ -38,13 +37,9 @@ def _match(
         n_job,
     )
 
-    print('Computing score using {} with {} process{} ...'.format(
+    print('Computing score using {} with {} process ...'.format(
         match_function.__name__,
         n_job,
-        (
-            '',
-            'es',
-        )[1 < n_job],
     ))
 
     results['Score'] = concatenate(
@@ -53,7 +48,6 @@ def _match(
             ((
                 target,
                 features_,
-                min_n_sample,
                 match_function,
             ) for features_ in array_split(
                 features,
@@ -62,31 +56,24 @@ def _match(
             n_job,
         ))
 
-    if results['Score'].isna().all():
-
-        raise ValueError(
-            'Could not compute any score; perhaps because there were less than {} (min_n_sample) non-na values for all target-feature pairs to compute the score.'.
-            format(min_n_sample))
-
     indices = get_extreme_series_indices(
         results['Score'],
         extreme_feature_threshold,
     )
 
-    if 3 <= n_sampling and 3 <= ceil(0.632 * target.size):
+    if n_sampling is not None:
 
         results.loc[
             indices, '0.95 MoE',
         ] = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             target,
             features[indices],
-            3,
             match_function,
             n_sampling,
             random_seed,
         )
 
-    if 1 <= n_permutation:
+    if n_permutation is not None:
 
         permutation_scores = concatenate(
             multiprocess(
@@ -94,7 +81,6 @@ def _match(
                 ((
                     target,
                     features_,
-                    min_n_sample,
                     match_function,
                     n_permutation,
                     random_seed,
@@ -121,7 +107,6 @@ def _match(
 def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         target,
         features,
-        min_n_sample,
         match_function,
         n_sampling,
         random_seed,
@@ -131,11 +116,13 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         raise ValueError('Cannot compute MoEs because n_sampling < 3.')
 
-    if ceil(0.632 * target.size) < 3:
+    n_sample_to_sample = ceil(0.632 * target.size)
+
+    if n_sample_to_sample < 3:
 
         raise ValueError('Cannot compute MoEs because 0.632 * n_sample < 3.')
 
-    print('Computing MoE with {} samplings ...'.format(n_sampling))
+    print('Computing MoE with {} sampling ...'.format(n_sampling))
 
     feature_x_sampling = full(
         (
@@ -151,7 +138,8 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         random_indices = choice(
             target.size,
-            ceil(0.632 * target.size),
+            size=n_sample_to_sample,
+            replace=False,
         )
 
         sampled_target = target[random_indices]
@@ -163,7 +151,6 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         feature_x_sampling[:, i] = _match_target_and_features(
             sampled_target,
             sampled_features,
-            min_n_sample,
             match_function,
         )
 
@@ -180,18 +167,12 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 def _permute_target_and_match_target_and_features(
         target,
         features,
-        min_n_sample,
         match_function,
         n_permutation,
         random_seed,
 ):
 
-    if n_permutation < 1:
-
-        raise ValueError(
-            'Not computing P-Value and FDR because n_permutation < 1.')
-
-    print('Computing p-value and FDR with {} permutations ...'.format(
+    print('Computing p-value and FDR with {} permutation ...'.format(
         n_permutation))
 
     feature_x_permutation = full(
@@ -215,7 +196,6 @@ def _permute_target_and_match_target_and_features(
         feature_x_permutation[:, i] = _match_target_and_features(
             permuted_target,
             features,
-            min_n_sample,
             match_function,
         )
 
@@ -227,7 +207,6 @@ def _permute_target_and_match_target_and_features(
 def _match_target_and_features(
         target,
         features,
-        min_n_sample,
         match_function,
 ):
 
@@ -236,7 +215,6 @@ def _match_target_and_features(
         1,
         features,
         target,
-        min_n_sample,
         match_function,
         raise_for_n_less_than_required=False,
     )

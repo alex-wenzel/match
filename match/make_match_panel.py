@@ -50,9 +50,9 @@ def make_match_panel(
         target,
         features,
         target_ascending=False,
-        cluster_within_category=True,
+        min_n_not_na_feature=2,
         scores=None,
-        min_n_sample=2,
+        cluster_within_category=True,
         match_function=compute_information_coefficient,
         random_seed=20121020,
         n_job=1,
@@ -69,39 +69,16 @@ def make_match_panel(
         plotly_file_path_prefix=None,
 ):
 
-    if target.dropna().unique().size < 2:
-
-        raise ValueError('target is constant.')
-
-    if target.name is None:
-
-        target.name = 'Target'
-
-    if features.unstack().dropna().unique().size < 2:
-
-        raise ValueError('features is empty or constant.')
-
-    _check_features_index(features)
-
     common_indices = target.index & features.columns
 
-    n_common = len(common_indices)
+    print(
+        'target.index ({}) & features.columns ({}) have {} in common.'.format(
+            target.index.size,
+            features.columns.size,
+            len(common_indices),
+        ))
 
-    message = 'target.index ({}) & features.columns ({}) have {} in common.'.format(
-        target.index.size,
-        features.columns.size,
-        n_common,
-    )
-
-    if 0 < n_common:
-
-        print(message)
-
-        target = target.loc[common_indices]
-
-    else:
-
-        raise ValueError(message)
+    target = target.loc[common_indices]
 
     if target.dtype == 'O':
 
@@ -114,10 +91,14 @@ def make_match_panel(
 
         target = target.sort_values(ascending=target_ascending)
 
+    features = features[target.index]
+
+    _check_features_index(features)
+
     features = drop_df_slice(
-        features[target.index],
+        features,
         1,
-        min_n_not_na_unique_value=2,
+        max_na=features.shape[1] - min_n_not_na_feature,
     )
 
     if file_path_prefix:
@@ -132,7 +113,6 @@ def make_match_panel(
         scores = _match(
             target.values,
             features.values,
-            min_n_sample,
             match_function,
             n_job,
             extreme_feature_threshold,
