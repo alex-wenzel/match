@@ -151,6 +151,8 @@ def make_summary_match_panel(
             features.values,
             1,
             match_function,
+            n_required_for_match_function,
+            raise_for_n_less_than_required,
             None,
             random_seed,
             n_sampling,
