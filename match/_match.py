@@ -225,5 +225,5 @@ def _match_target_and_features(
         target,
         match_function,
         n_required_for_match_function=n_required_for_match_function,
-        raise_for_n_less_than_required=False,
+        raise_for_n_less_than_required=raise_for_n_less_than_required,
     )
