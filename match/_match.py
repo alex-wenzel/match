@@ -19,6 +19,7 @@ def _match(
         features,
         n_job,
         match_function,
+        n_required_for_match_function,
         extreme_feature_threshold,
         random_seed,
         n_sampling,
@@ -200,6 +201,8 @@ def _match_target_and_features(
         target,
         features,
         match_function,
+        n_required_for_match_function,
+        raise_for_n_less_than_required,
 ):
 
     return apply_along_axis(
@@ -208,4 +211,6 @@ def _match_target_and_features(
         features,
         target,
         match_function,
+        n_required_for_match_function=n_required_for_match_function,
+        raise_for_n_less_than_required=False,
     )
