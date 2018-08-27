@@ -168,13 +168,12 @@ def make_summary_match_panel(
         scores = _match(
             target.values,
             features.values,
-            min_n_sample,
-            match_function,
             1,
+            match_function,
             None,
+            random_seed,
             n_sampling,
             n_permutation,
-            random_seed,
         )
 
         scores.index = features.index
