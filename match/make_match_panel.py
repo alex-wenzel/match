@@ -52,17 +52,17 @@ def make_match_panel(
         target_ascending=False,
         min_n_not_na_feature=2,
         scores=None,
-        cluster_within_category=True,
         match_function=compute_information_coefficient,
-        random_seed=20121020,
         n_job=1,
-        scores_ascending=False,
         extreme_feature_threshold=8,
         n_sampling=None,
         n_permutation=None,
+        random_seed=20121020,
+        scores_ascending=False,
         target_type='continuous',
-        features_type='continuous',
         plot_target_std_max=None,
+        cluster_within_category=True,
+        features_type='continuous',
         plot_features_std_max=None,
         title='Match Panel',
         file_path_prefix=None,
@@ -91,9 +91,9 @@ def make_match_panel(
 
         target = target.sort_values(ascending=target_ascending)
 
-    features = features[target.index]
-
     _check_features_index(features)
+
+    features = features[target.index]
 
     features = drop_df_slice(
         features,
@@ -113,12 +113,12 @@ def make_match_panel(
         scores = _match(
             target.values,
             features.values,
-            match_function,
             n_job,
+            match_function,
             extreme_feature_threshold,
+            random_seed,
             n_sampling,
             n_permutation,
-            random_seed,
         )
 
         scores.index = features.index

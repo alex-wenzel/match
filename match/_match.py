@@ -17,12 +17,12 @@ from .support.support.series import get_extreme_series_indices
 def _match(
         target,
         features,
-        match_function,
         n_job,
+        match_function,
         extreme_feature_threshold,
+        random_seed,
         n_sampling,
         n_permutation,
-        random_seed,
 ):
 
     results = DataFrame(columns=(
@@ -66,9 +66,9 @@ def _match(
         moes = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             target,
             features[indices],
-            match_function,
-            n_sampling,
             random_seed,
+            n_sampling,
+            match_function,
         )
 
         results.loc[indices, '0.95 MoE'] = moes
@@ -81,9 +81,9 @@ def _match(
                 ((
                     target,
                     features_,
-                    match_function,
-                    n_permutation,
                     random_seed,
+                    n_permutation,
+                    match_function,
                 ) for features_ in array_split(
                     features,
                     n_job,
@@ -107,16 +107,14 @@ def _match(
 def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         target,
         features,
-        match_function,
-        n_sampling,
         random_seed,
+        n_sampling,
+        match_function,
 ):
 
-    if n_sampling < 3:
-
-        raise ValueError('Cannot compute MoEs because n_sampling < 3.')
-
     print('Computing MoE with {} sampling ...'.format(n_sampling))
+
+    seed(random_seed)
 
     feature_x_sampling = full(
         (
@@ -125,8 +123,6 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         ),
         nan,
     )
-
-    seed(random_seed)
 
     n_sample_to_sample = ceil(0.632 * target.size)
 
@@ -163,13 +159,15 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 def _permute_target_and_match_target_and_features(
         target,
         features,
-        match_function,
-        n_permutation,
         random_seed,
+        n_permutation,
+        match_function,
 ):
 
     print('Computing p-value and FDR with {} permutation ...'.format(
         n_permutation))
+
+    seed(random_seed)
 
     feature_x_permutation = full(
         (
@@ -180,8 +178,6 @@ def _permute_target_and_match_target_and_features(
     )
 
     permuted_target = target.copy()
-
-    seed(random_seed)
 
     for i in range(n_permutation):
 
