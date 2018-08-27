@@ -21,8 +21,8 @@ EPS = finfo(float).eps
 def make_summary_match_panel(
         target,
         feature_dicts,
-        plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=False,
+        plot_only_columns_shared_by_target_and_all_features=False,
         min_n_sample=2,
         match_function=compute_information_coefficient,
         random_seed=20121020,
@@ -36,12 +36,6 @@ def make_summary_match_panel(
         plotly_file_path=None,
 ):
 
-    if plot_only_columns_shared_by_target_and_all_features:
-
-        for features_dict in feature_dicts.values():
-
-            target = target.loc[target.index & features_dict['df'].columns]
-
     if target.dtype == 'O':
 
         target = target.map(make_object_int_mapping(target)[0])
@@ -51,10 +45,13 @@ def make_summary_match_panel(
             bool,
     ):
 
-        target.sort_values(
-            ascending=target_ascending,
-            inplace=True,
-        )
+        target = target.sort_values(ascending=target_ascending)
+
+    if plot_only_columns_shared_by_target_and_all_features:
+
+        for features_dict in feature_dicts.values():
+
+            target = target.loc[target.index & features_dict['df'].columns]
 
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target,
