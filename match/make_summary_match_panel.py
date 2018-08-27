@@ -27,6 +27,8 @@ def make_summary_match_panel(
         plot_only_columns_shared_by_target_and_all_features=False,
         min_n_not_na_feature=2,
         match_function=compute_information_coefficient,
+        n_required_for_match_function=2,
+        raise_for_n_less_than_required=False,
         random_seed=20121020,
         n_sampling=0,
         n_permutation=0,

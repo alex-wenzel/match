@@ -120,6 +120,8 @@ def make_match_panel(
             features.values,
             n_job,
             match_function,
+            n_required_for_match_function,
+            raise_for_n_less_than_required,
             extreme_feature_threshold,
             random_seed,
             n_sampling,
