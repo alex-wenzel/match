@@ -63,15 +63,15 @@ def _match(
 
     if n_sampling is not None:
 
-        results.loc[
-            indices,
-            '0.95 MoE'] = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
-                target,
-                features[indices],
-                match_function,
-                n_sampling,
-                random_seed,
-            )
+        moes = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
+            target,
+            features[indices],
+            match_function,
+            n_sampling,
+            random_seed,
+        )
+
+        results.loc[indices, '0.95 MoE'] = moes
 
     if n_permutation is not None:
 
