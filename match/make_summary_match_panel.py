@@ -22,14 +22,13 @@ def make_summary_match_panel(
         target,
         feature_dicts,
         target_ascending=False,
+        plot_target_std_max=None,
         plot_only_columns_shared_by_target_and_all_features=False,
-        min_n_sample=2,
         match_function=compute_information_coefficient,
         random_seed=20121020,
         n_sampling=0,
         n_permutation=0,
         target_type='continuous',
-        plot_target_std_max=None,
         plot_features_std_max=None,
         title='Summary Match Panel',
         html_file_path=None,
@@ -135,6 +134,12 @@ def make_summary_match_panel(
         features = features_dict['df']
 
         _check_features_index(features)
+
+        features = drop_df_slice(
+            features,
+            1,
+            max_na=features.shape[1] - min_n_not_na_feature,
+        )
 
         indices = features_dict['indices']
 
