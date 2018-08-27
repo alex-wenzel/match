@@ -54,6 +54,8 @@ def make_match_panel(
         scores=None,
         n_job=1,
         match_function=compute_information_coefficient,
+        n_required_for_match_function=2,
+        raise_for_n_less_than_required=False,
         extreme_feature_threshold=8,
         random_seed=20121020,
         n_sampling=None,
