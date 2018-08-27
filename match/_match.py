@@ -111,6 +111,8 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         random_seed,
         n_sampling,
         match_function,
+        n_required_for_match_function,
+        raise_for_n_less_than_required,
 ):
 
     print('Computing MoE with {} sampling ...'.format(n_sampling))
@@ -145,6 +147,8 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             sampled_target,
             sampled_features,
             match_function,
+            n_required_for_match_function,
+            raise_for_n_less_than_required,
         )
 
         set_state(random_state)
@@ -163,6 +167,8 @@ def _permute_target_and_match_target_and_features(
         random_seed,
         n_permutation,
         match_function,
+        n_required_for_match_function,
+        raise_for_n_less_than_required,
 ):
 
     print('Computing p-value and FDR with {} permutation ...'.format(
@@ -190,6 +196,8 @@ def _permute_target_and_match_target_and_features(
             permuted_target,
             features,
             match_function,
+            n_required_for_match_function,
+            raise_for_n_less_than_required,
         )
 
         set_state(random_state)
