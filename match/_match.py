@@ -20,6 +20,7 @@ def _match(
         n_job,
         match_function,
         n_required_for_match_function,
+        raise_for_n_less_than_required,
         extreme_feature_threshold,
         random_seed,
         n_sampling,
@@ -70,6 +71,8 @@ def _match(
             random_seed,
             n_sampling,
             match_function,
+            n_required_for_match_function,
+            raise_for_n_less_than_required,
         )
 
         results.loc[indices, '0.95 MoE'] = moes
@@ -85,6 +88,8 @@ def _match(
                     random_seed,
                     n_permutation,
                     match_function,
+                    n_required_for_match_function,
+                    raise_for_n_less_than_required,
                 ) for features_ in array_split(
                     features,
                     n_job,
