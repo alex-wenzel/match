@@ -12,7 +12,6 @@ from .make_match_panel import (ANNOTATION_FONT_SIZE,
                                LAYOUT_ANNOTATION_TEMPLATE,
                                MATCH_PANEL_LAYOUT_TEMPLATE, ROW_HEIGHT)
 from .plot.plot.plot_and_save import plot_and_save
-from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
 
 EPS = finfo(float).eps
@@ -25,7 +24,6 @@ def make_summary_match_panel(
         target_type='continuous',
         plot_target_std_max=None,
         plot_only_columns_shared_by_target_and_all_features=False,
-        min_n_not_na_feature=2,
         match_function=compute_information_coefficient,
         n_required_for_match_function=2,
         raise_for_n_less_than_required=False,
@@ -139,12 +137,6 @@ def make_summary_match_panel(
         features = features[target.index]
 
         _check_features_index(features)
-
-        features = drop_df_slice(
-            features.loc[features_dict['indices']],
-            1,
-            max_na=features.shape[1] - min_n_not_na_feature,
-        )
 
         scores = _match(
             target.values,

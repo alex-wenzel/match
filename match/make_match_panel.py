@@ -15,7 +15,6 @@ from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
 from .plot.plot.make_html_and_plotly_file_paths import \
     make_html_and_plotly_file_paths
 from .plot.plot.plot_and_save import plot_and_save
-from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
@@ -50,7 +49,6 @@ def make_match_panel(
         target,
         features,
         target_ascending=False,
-        min_n_not_na_feature=2,
         scores=None,
         n_job=1,
         match_function=compute_information_coefficient,
@@ -99,12 +97,6 @@ def make_match_panel(
     features = features[target.index]
 
     _check_features_index(features)
-
-    features = drop_df_slice(
-        features,
-        1,
-        max_na=features.shape[1] - min_n_not_na_feature,
-    )
 
     if file_path_prefix:
 

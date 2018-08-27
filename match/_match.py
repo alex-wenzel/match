@@ -51,6 +51,8 @@ def _match(
                 target,
                 features_,
                 match_function,
+                n_required_for_match_function,
+                raise_for_n_less_than_required,
             ) for features_ in array_split(
                 features,
                 n_job,

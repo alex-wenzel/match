@@ -2,7 +2,6 @@ from os.path import isfile
 
 from pandas import read_table
 
-from ._check_features_index import _check_features_index
 from .make_match_panel import make_match_panel
 from .plot.plot.make_html_and_plotly_file_paths import \
     make_html_and_plotly_file_paths
@@ -10,27 +9,21 @@ from .plot.plot.make_html_and_plotly_file_paths import \
 
 def make_match_panels(
         multiple_target,
-        multiple_target_type,
         multiple_drop_negative_target,
         multiple_target_ascending,
+        multiple_target_type,
         feature_dicts,
-        min_n_sample=2,
-        n_job=1,
-        extreme_feature_threshold=8,
-        n_sampling=0,
-        n_permutation=0,
-        plot_target_std_max=None,
-        plot_features_std_max=None,
         directory_path=None,
         plotly_directory_path=None,
         overwrite=True,
+        **kwargs,
 ):
 
-    for target, target_type, drop_negative_target, target_ascending in zip(
+    for target, drop_negative_target, target_ascending, target_type in zip(
             multiple_target,
-            multiple_target_type,
             multiple_drop_negative_target,
             multiple_target_ascending,
+            multiple_target_type,
     ):
 
         print(target.name)
@@ -40,10 +33,6 @@ def make_match_panels(
             target = target[target != -1]
 
         for feature_name, feature_dict in feature_dicts.items():
-
-            features = feature_dict['df']
-
-            _check_features_index(features)
 
             suffix = '{}/{}'.format(
                 target.name,
@@ -74,33 +63,19 @@ def make_match_panels(
 
                 scores = None
 
-            if feature_dict['emphasis'] == 'high':
-
-                scores_ascending = False
-
-            elif feature_dict['emphasis'] == 'low':
-
-                scores_ascending = True
-
             make_match_panel(
                 target,
-                features,
+                feature_dict['df'],
                 target_ascending=target_ascending,
                 scores=scores,
-                min_n_sample=min_n_sample,
-                n_job=n_job,
-                scores_ascending=scores_ascending,
-                extreme_feature_threshold=extreme_feature_threshold,
-                n_sampling=n_sampling,
-                n_permutation=n_permutation,
+                scores_ascending=feature_dict['emphasis'] == 'low',
                 target_type=target_type,
                 features_type=feature_dict['data_type'],
-                plot_target_std_max=plot_target_std_max,
-                plot_features_std_max=plot_features_std_max,
                 title=suffix.replace(
                     '/',
                     ' vs ',
                 ),
                 file_path_prefix=file_path_prefix,
                 plotly_file_path_prefix=plotly_file_path_prefix,
+                **kwargs,
             )
