@@ -45,13 +45,10 @@ def make_summary_match_panel(
             bool,
     ):
 
-        target = target.sort_values(ascending=target_ascending)
-
-    if plot_only_columns_shared_by_target_and_all_features:
-
-        for features_dict in feature_dicts.values():
-
-            target = target.loc[target.index & features_dict['df'].columns]
+        target = target.sort_values(
+            ascending=target_ascending,
+            inplace=True,
+        )
 
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target,
@@ -60,6 +57,12 @@ def make_summary_match_panel(
     )
 
     target_df = target.to_frame().T
+
+    if plot_only_columns_shared_by_target_and_all_features:
+
+        for features_dict in feature_dicts.values():
+
+            target = target.loc[target.index & features_dict['df'].columns]
 
     layout = MATCH_PANEL_LAYOUT_TEMPLATE
 
