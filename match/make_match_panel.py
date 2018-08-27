@@ -78,7 +78,7 @@ def make_match_panel(
             len(common_indices),
         ))
 
-    target = target.loc[common_indices]
+    target = target[common_indices]
 
     if target.dtype == 'O':
 
@@ -94,9 +94,9 @@ def make_match_panel(
             inplace=True,
         )
 
-    _check_features_index(features)
-
     features = features[target.index]
+
+    _check_features_index(features)
 
     features = drop_df_slice(
         features,

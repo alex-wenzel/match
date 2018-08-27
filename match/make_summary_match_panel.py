@@ -22,13 +22,14 @@ def make_summary_match_panel(
         target,
         feature_dicts,
         target_ascending=False,
+        target_type='continuous',
         plot_target_std_max=None,
         plot_only_columns_shared_by_target_and_all_features=False,
+        min_n_not_na_feature=2,
         match_function=compute_information_coefficient,
         random_seed=20121020,
         n_sampling=0,
         n_permutation=0,
-        target_type='continuous',
         plot_features_std_max=None,
         title='Summary Match Panel',
         html_file_path=None,
@@ -133,36 +134,14 @@ def make_summary_match_panel(
 
         features = features_dict['df']
 
+        features = features[target.index]
+
         _check_features_index(features)
 
         features = drop_df_slice(
-            features,
+            features.loc[features_dict['indices']],
             1,
             max_na=features.shape[1] - min_n_not_na_feature,
-        )
-
-        indices = features_dict['indices']
-
-        index_aliases = features_dict.get('index_aliases')
-
-        emphasis = features_dict['emphasis']
-
-        data_type = features_dict['data_type']
-
-        missing_indices = tuple(
-            index for index in indices if index not in features.index)
-
-        if len(missing_indices):
-
-            raise ValueError(
-                'features do not have indices {}.'.format(missing_indices))
-
-        features = features.loc[indices]
-
-        features = drop_df_slice(
-            features.reindex(columns=target.index),
-            1,
-            min_n_not_na_unique_value=2,
         )
 
         scores = _match(
@@ -180,7 +159,7 @@ def make_summary_match_panel(
 
         scores.sort_values(
             'Score',
-            ascending=emphasis == 'low',
+            ascending=features_dict['emphasis'] == 'low',
             inplace=True,
         )
 
@@ -188,12 +167,14 @@ def make_summary_match_panel(
 
         features_to_plot = features.loc[scores.index]
 
+        index_aliases = features_dict.get('index_aliases')
+
         if index_aliases is not None:
 
             features_to_plot.index = features_to_plot.index.map({
                 index: alias
                 for index, alias in zip(
-                    indices,
+                    features.index,
                     index_aliases,
                 )
             }.get)
@@ -202,7 +183,7 @@ def make_summary_match_panel(
 
         features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
             features_to_plot,
-            data_type,
+            features_dict['data_type'],
             plot_features_std_max,
         )
 
