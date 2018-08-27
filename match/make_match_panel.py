@@ -89,7 +89,7 @@ def make_match_panel(
             bool,
     ):
 
-        target = target.sort_values(
+        target.sort_values(
             ascending=target_ascending,
             inplace=True,
         )

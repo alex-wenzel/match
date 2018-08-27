@@ -208,5 +208,4 @@ def _match_target_and_features(
         features,
         target,
         match_function,
-        raise_for_n_less_than_required=False,
     )
