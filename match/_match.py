@@ -139,7 +139,7 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         random_indices = choice(
             target.size,
             size=n_sample_to_sample,
-            replace=False,
+            replace=True,
         )
 
         sampled_target = target[random_indices]
