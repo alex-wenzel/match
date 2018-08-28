@@ -28,8 +28,8 @@ def make_summary_match_panel(
         n_required_for_match_function=2,
         raise_for_n_less_than_required=False,
         random_seed=20121020,
-        n_sampling=0,
-        n_permutation=0,
+        n_sampling=None,
+        n_permutation=None,
         plot_features_std_max=None,
         title='Summary Match Panel',
         html_file_path=None,
@@ -133,6 +133,8 @@ def make_summary_match_panel(
         print('Making match panel for {} ...'.format(name))
 
         features = features_dict['df']
+
+        features = features.loc[features_dict['indices']]
 
         features = features[target.index]
 
