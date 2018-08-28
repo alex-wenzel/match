@@ -231,7 +231,7 @@ def make_summary_match_panel(
 
             x = 1.008 + annotation_index / 8
 
-            if annotation_index == 0:
+            if features_index == 0:
 
                 layout_annotations.append(
                     dict(
