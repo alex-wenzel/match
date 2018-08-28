@@ -47,7 +47,10 @@ def make_summary_match_panels(
                 feature_dicts,
                 target_ascending=target_ascending,
                 target_type=target_type,
-                title=title,
+                title=suffix.replace(
+                    '/',
+                    ' & ',
+                ),
                 html_file_path=html_file_path,
                 plotly_file_path=plotly_file_path,
                 **kwargs,
