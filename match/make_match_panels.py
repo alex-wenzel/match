@@ -37,7 +37,7 @@ def make_match_panels(
                 feature_name,
             )
 
-            print('{} ...'.format(suffix))
+            print('Making match panel for {} ...'.format(suffix))
 
             file_path_prefix, plotly_file_path_prefix = make_html_and_plotly_file_paths(
                 suffix,
