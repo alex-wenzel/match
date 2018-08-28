@@ -1,4 +1,4 @@
-from . import make_summary_match_panel
+from .make_summary_match_panel import make_summary_match_panel
 from .plot.plot.make_html_and_plotly_file_paths import \
     make_html_and_plotly_file_paths
 
