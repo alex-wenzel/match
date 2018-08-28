@@ -39,14 +39,14 @@ def make_match_panels(
                 feature_name,
             )
 
+            print('{} ...'.format(suffix))
+
             file_path_prefix, plotly_file_path_prefix = make_html_and_plotly_file_paths(
                 suffix,
                 directory_path,
                 plotly_directory_path,
                 prefix_is_directory=True,
             )
-
-            print('{} ...'.format(file_path_prefix))
 
             scores_file_path = '{}.tsv'.format(file_path_prefix)
 
