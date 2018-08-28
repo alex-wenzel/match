@@ -71,7 +71,7 @@ def make_match_panels(
                 features_type=feature_dict['data_type'],
                 title=suffix.replace(
                     '/',
-                    ' vs ',
+                    ' & ',
                 ),
                 file_path_prefix=file_path_prefix,
                 plotly_file_path_prefix=plotly_file_path_prefix,
