@@ -132,11 +132,8 @@ def make_summary_match_panel(
 
         print('Making match panel for {} ...'.format(name))
 
-        features = features_dict['df']
-
-        features = features.loc[features_dict['indices']]
-
-        features = features[target.index]
+        features = features_dict['df'].loc[list(features_dict['indices']),
+                                           target.index]
 
         _check_features_index(features)
 
