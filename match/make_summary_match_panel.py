@@ -226,10 +226,8 @@ def make_summary_match_panel(
                 showscale=False,
             ))
 
-        for annotation_index, (
-                annotation,
-                strs,
-        ) in enumerate(annotations.items()):
+        for annotation_index, (annotation,
+                               strs) in enumerate(annotations.items()):
 
             x = 1.008 + annotation_index / 8
 
