@@ -26,8 +26,6 @@ def make_match_panels(
             multiple_target_type,
     ):
 
-        print(target.name)
-
         if drop_negative_target:
 
             target = target[target != -1]

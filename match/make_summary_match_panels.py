@@ -33,7 +33,7 @@ def make_summary_match_panels(
                 title,
             )
 
-            print('{} ...'.format(suffix))
+            print('Making summary match panel for {} ...'.format(suffix))
 
             html_file_path, plotly_file_path = make_html_and_plotly_file_paths(
                 '{}.html'.format(suffix),
