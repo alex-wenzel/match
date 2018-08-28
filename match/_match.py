@@ -44,6 +44,11 @@ def _match(
         n_job,
     ))
 
+    features_split = array_split(
+        features,
+        n_job,
+    )
+
     results['Score'] = concatenate(
         multiprocess(
             _match_target_and_features,
@@ -53,10 +58,7 @@ def _match(
                 match_function,
                 n_required_for_match_function,
                 raise_for_n_less_than_required,
-            ) for features_ in array_split(
-                features,
-                n_job,
-            )),
+            ) for features_ in features_split),
             n_job,
         ))
 
@@ -92,10 +94,7 @@ def _match(
                     match_function,
                     n_required_for_match_function,
                     raise_for_n_less_than_required,
-                ) for features_ in array_split(
-                    features,
-                    n_job,
-                )),
+                ) for features_ in features_split),
                 n_job,
             ))
 
@@ -103,6 +102,7 @@ def _match(
             results['Score'],
             permutation_scores.flatten(),
             'less_or_great',
+            raise_for_bad_value=False,
         )
 
         results['P-Value'] = p_values
