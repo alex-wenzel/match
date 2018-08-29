@@ -236,7 +236,7 @@ def make_summary_match_panel(
         for annotation_index, (annotation,
                                strs) in enumerate(annotations.items()):
 
-            x = 1 + annotation_index / 10
+            x = 1.0016 + annotation_index / 10
 
             if features_index == 0:
 
