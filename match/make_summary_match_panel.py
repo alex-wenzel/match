@@ -132,25 +132,34 @@ def make_summary_match_panel(
 
         print('Making match panel for {} ...'.format(name))
 
-        features = features_dict['df'].loc[list(features_dict['indices']),
-                                           target.index]
+        df = features_dict['df']
+
+        indices = list(features_dict['indices'])
+
+        features = df.loc[indices, target.index]
 
         _check_features_index(features)
 
-        scores = _match(
-            target.values,
-            features.values,
-            1,
-            match_function,
-            n_required_for_match_function,
-            raise_for_n_less_than_required,
-            None,
-            random_seed,
-            n_sampling,
-            n_permutation,
-        )
+        if 'score' in features_dict:
 
-        scores.index = features.index
+            scores = features_dict['score'].loc[indices]
+
+        else:
+
+            scores = _match(
+                target.values,
+                features.values,
+                1,
+                match_function,
+                n_required_for_match_function,
+                raise_for_n_less_than_required,
+                None,
+                random_seed,
+                n_sampling,
+                n_permutation,
+            )
+
+            scores.index = features.index
 
         scores.sort_values(
             'Score',
@@ -162,15 +171,13 @@ def make_summary_match_panel(
 
         features_to_plot = features.loc[scores.index]
 
-        index_aliases = features_dict.get('index_aliases')
-
-        if index_aliases is not None:
+        if 'index_aliases' in features_dict:
 
             features_to_plot.index = features_to_plot.index.map({
                 index: alias
                 for index, alias in zip(
                     features.index,
-                    index_aliases,
+                    features_dict['index_aliases'],
                 )
             }.get)
 
