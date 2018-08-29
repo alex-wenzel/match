@@ -251,7 +251,7 @@ def make_match_panel(
 
     for annotation_index, (annotation, strs) in enumerate(annotations.items()):
 
-        x = 1.008 + annotation_index / 8
+        x = 1 + annotation_index / 10
 
         layout_annotations.append(
             dict(

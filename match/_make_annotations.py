@@ -1,30 +1,36 @@
-from pandas import DataFrame
+from .support.support.str_ import make_float_str
 
 
 def _make_annotations(scores):
 
-    annotations = DataFrame(index=scores.index)
+    annotations = scores.applymap(make_float_str)
 
-    if scores['0.95 MoE'].isna().all():
+    if '0.95 MoE' in annotations.columns:
 
-        annotations['IC'] = scores['Score'].apply('{:.2f}'.format)
+        annotations['Score'] = tuple(
+            _combine_score_str_and_moe_str(
+                score_str,
+                moe_str,
+            ) for score_str, moe_str in zip(
+                annotations['Score'],
+                annotations.pop('0.95 MoE'),
+            ))
+
+    return annotations
+
+
+def _combine_score_str_and_moe_str(
+        score_str,
+        moe_str,
+):
+
+    if moe_str == 'nan':
+
+        return score_str
 
     else:
 
-        annotations['IC(\u0394)'] = scores[[
-            'Score',
-            '0.95 MoE',
-        ]].apply(
-            lambda score_moe: '{:.2f}({:.2f})'.format(*score_moe),
-            axis=1,
+        return '{} \u00B1 {}'.format(
+            score_str,
+            moe_str,
         )
-
-    if not scores['P-Value'].isna().all():
-
-        function = '{:.2e}'.format
-
-        annotations['P-Value'] = scores['P-Value'].apply(function)
-
-        annotations['FDR'] = scores['FDR'].apply(function)
-
-    return annotations
