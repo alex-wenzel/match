@@ -19,7 +19,7 @@ from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
-LAYOUT_SIDE_MARGIN = 208
+LAYOUT_SIDE_MARGIN = 200
 
 MATCH_PANEL_LAYOUT_TEMPLATE = dict(
     width=960,
