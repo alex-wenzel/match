@@ -19,31 +19,6 @@ from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
-LAYOUT_SIDE_MARGIN = 200
-
-MATCH_PANEL_LAYOUT_TEMPLATE = dict(
-    width=960,
-    margin=dict(
-        l=LAYOUT_SIDE_MARGIN,
-        r=LAYOUT_SIDE_MARGIN,
-    ),
-    xaxis=dict(anchor='y'),
-)
-
-ROW_HEIGHT = 64
-
-ANNOTATION_FONT_SIZE = 9.6
-
-LAYOUT_ANNOTATION_TEMPLATE = dict(
-    xref='paper',
-    yref='paper',
-    xanchor='left',
-    yanchor='middle',
-    font=dict(size=ANNOTATION_FONT_SIZE),
-    width=64,
-    showarrow=False,
-)
-
 
 def make_match_panel(
         target,
@@ -65,6 +40,10 @@ def make_match_panel(
         features_type='continuous',
         plot_features_std_max=None,
         title='Match Panel',
+        layout_width=960,
+        row_height=64,
+        layout_side_margin=200,
+        annotation_font_size=9.6,
         file_path_prefix=None,
         plotly_file_path_prefix=None,
 ):
@@ -184,10 +163,6 @@ def make_match_panel(
         plot_features_std_max,
     )
 
-    layout = MATCH_PANEL_LAYOUT_TEMPLATE
-
-    layout['xaxis'].update(tickfont=dict(size=ANNOTATION_FONT_SIZE))
-
     target_row_fraction = max(
         0.01,
         1 / (features_to_plot.shape[0] + 2),
@@ -206,21 +181,31 @@ def make_match_panel(
     feature_row_fraction = (features_yaxis_domain[1] - features_yaxis_domain[0]
                             ) / features_to_plot.shape[0]
 
-    layout.update(
-        height=ROW_HEIGHT * max(
+    layout = dict(
+        width=layout_width,
+        height=row_height * max(
             8,
             (features_to_plot.shape[0] + 2)**0.8,
         ),
-        title=title,
+        margin=dict(
+            l=layout_side_margin,
+            r=layout_side_margin,
+        ),
+        xaxis=dict(
+            anchor='y',
+            tickfont=dict(size=annotation_font_size),
+        ),
         yaxis=dict(
             domain=features_yaxis_domain,
             dtick=1,
-            tickfont=dict(size=ANNOTATION_FONT_SIZE),
+            tickfont=dict(size=annotation_font_size),
         ),
         yaxis2=dict(
             domain=target_yaxis_domain,
-            tickfont=dict(size=ANNOTATION_FONT_SIZE),
+            tickfont=dict(size=annotation_font_size),
         ),
+        title=title,
+        annotations=[],
     )
 
     data = [
@@ -247,35 +232,41 @@ def make_match_panel(
         ),
     ]
 
-    layout_annotations = []
+    layout_annotation_template = dict(
+        xref='paper',
+        yref='paper',
+        xanchor='left',
+        yanchor='middle',
+        font=dict(size=annotation_font_size),
+        width=64,
+        showarrow=False,
+    )
 
     for annotation_index, (annotation, strs) in enumerate(annotations.items()):
 
         x = 1.0016 + annotation_index / 10
 
-        layout_annotations.append(
+        layout['annotations'].append(
             dict(
                 x=x,
                 y=target_yaxis_domain[1] - (target_row_fraction / 2),
                 text='<b>{}</b>'.format(annotation),
-                **LAYOUT_ANNOTATION_TEMPLATE,
+                **layout_annotation_template,
             ))
 
         y = features_yaxis_domain[1] - ((feature_row_fraction) / 2)
 
         for str_ in strs:
 
-            layout_annotations.append(
+            layout['annotations'].append(
                 dict(
                     x=x,
                     y=y,
                     text='<b>{}</b>'.format(str_),
-                    **LAYOUT_ANNOTATION_TEMPLATE,
+                    **layout_annotation_template,
                 ))
 
             y -= feature_row_fraction
-
-    layout.update(annotations=layout_annotations)
 
     html_file_path, plotly_file_path = make_html_and_plotly_file_paths(
         '.html',

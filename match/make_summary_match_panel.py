@@ -8,9 +8,6 @@ from ._process_target_or_features_for_plotting import \
     _process_target_or_features_for_plotting
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
-from .make_match_panel import (ANNOTATION_FONT_SIZE,
-                               LAYOUT_ANNOTATION_TEMPLATE,
-                               MATCH_PANEL_LAYOUT_TEMPLATE, ROW_HEIGHT)
 from .plot.plot.plot_and_save import plot_and_save
 from .support.support.iterable import make_object_int_mapping
 
@@ -32,6 +29,10 @@ def make_summary_match_panel(
         n_permutation=None,
         plot_features_std_max=None,
         title='Summary Match Panel',
+        layout_width=960,
+        row_height=64,
+        layout_side_margin=200,
+        annotation_font_size=9.6,
         html_file_path=None,
         plotly_file_path=None,
 ):
@@ -64,23 +65,26 @@ def make_summary_match_panel(
 
             target = target.loc[target.index & features_dict['df'].columns]
 
-    layout = MATCH_PANEL_LAYOUT_TEMPLATE
-
     n_row = 1 + len(feature_dicts)
 
     for features_dict in feature_dicts.values():
 
         n_row += len(features_dict['indices'])
 
-    layout.update(
-        height=ROW_HEIGHT / 2 * max(
+    layout = dict(
+        width=layout_width,
+        margin=dict(
+            l=layout_side_margin,
+            r=layout_side_margin,
+        ),
+        xaxis=dict(anchor='y'),
+        height=row_height / 2 * max(
             8,
             n_row,
         ),
         title=title,
+        annotations=[],
     )
-
-    layout_annotations = []
 
     row_fraction = 1 / n_row
 
@@ -102,7 +106,7 @@ def make_summary_match_panel(
             domain_start,
             domain_end,
         ),
-        tickfont=dict(size=ANNOTATION_FONT_SIZE),
+        tickfont=dict(size=annotation_font_size),
     )
 
     data = [
@@ -214,7 +218,7 @@ def make_summary_match_panel(
                 domain_end,
             ),
             dtick=1,
-            tickfont=dict(size=ANNOTATION_FONT_SIZE),
+            tickfont=dict(size=annotation_font_size),
         )
 
         data.append(
@@ -233,6 +237,16 @@ def make_summary_match_panel(
                 showscale=False,
             ))
 
+        layout_annotation_template = dict(
+            xref='paper',
+            yref='paper',
+            xanchor='left',
+            yanchor='middle',
+            font=dict(size=annotation_font_size),
+            width=64,
+            showarrow=False,
+        )
+
         for annotation_index, (annotation,
                                strs) in enumerate(annotations.items()):
 
@@ -240,29 +254,27 @@ def make_summary_match_panel(
 
             if features_index == 0:
 
-                layout_annotations.append(
+                layout['annotations'].append(
                     dict(
                         x=x,
                         y=1 - (row_fraction / 2),
                         text='<b>{}</b>'.format(annotation),
-                        **LAYOUT_ANNOTATION_TEMPLATE,
+                        **layout_annotation_template,
                     ))
 
             y = domain_end - (row_fraction / 2)
 
             for str_ in strs:
 
-                layout_annotations.append(
+                layout['annotations'].append(
                     dict(
                         x=x,
                         y=y,
                         text='<b>{}</b>'.format(str_),
-                        **LAYOUT_ANNOTATION_TEMPLATE,
+                        **layout_annotation_template,
                     ))
 
                 y -= row_fraction
-
-    layout.update(annotations=layout_annotations)
 
     plot_and_save(
         dict(
