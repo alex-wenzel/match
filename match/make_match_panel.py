@@ -19,6 +19,8 @@ from .support.support.iterable import make_object_int_mapping
 from .support.support.path import establish_path
 from .support.support.series import get_extreme_series_indices
 
+from .support.support.df import drop_df_slice
+
 
 def make_match_panel(
         target,
@@ -76,6 +78,12 @@ def make_match_panel(
     features = features[target.index]
 
     _check_features_index(features)
+
+    features = drop_df_slice(
+        features,
+        1,
+        min_n_not_na_unique_value=2,
+    )
 
     if file_path_prefix:
 

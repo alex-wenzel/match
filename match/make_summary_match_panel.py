@@ -10,6 +10,7 @@ from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .plot.plot.plot_and_save import plot_and_save
 from .support.support.iterable import make_object_int_mapping
+from .support.support.df import drop_df_slice
 
 EPS = finfo(float).eps
 
@@ -143,6 +144,12 @@ def make_summary_match_panel(
         features = df.loc[indices, target.index]
 
         _check_features_index(features)
+
+        features = drop_df_slice(
+            features,
+            1,
+            min_n_not_na_unique_value=2,
+        )
 
         if 'score' in features_dict:
 
