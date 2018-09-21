@@ -151,6 +151,10 @@ def make_summary_match_panel(
             min_n_not_na_unique_value=2,
         )
 
+        if features.empty:
+
+            continue
+
         if 'score' in features_dict:
 
             scores = features_dict['score'].loc[indices]

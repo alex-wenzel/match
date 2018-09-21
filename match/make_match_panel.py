@@ -85,6 +85,10 @@ def make_match_panel(
         min_n_not_na_unique_value=2,
     )
 
+    if features.empty:
+
+        return
+
     if file_path_prefix:
 
         establish_path(
