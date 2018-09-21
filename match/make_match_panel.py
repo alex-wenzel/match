@@ -136,7 +136,11 @@ def make_match_panel(
 
     scores_to_plot = scores.loc[indices]
 
-    annotations = _make_annotations(scores_to_plot)
+    annotations = _make_annotations(
+        scores_to_plot.dropna(
+            axis=1,
+            how='all',
+        ))
 
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target,

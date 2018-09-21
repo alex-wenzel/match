@@ -196,7 +196,10 @@ def make_summary_match_panel(
                 )
             }.get)
 
-        annotations = _make_annotations(scores)
+        annotations = _make_annotations(scores.dropna(
+            axis=1,
+            how='all',
+        ))
 
         features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
             features_to_plot,
