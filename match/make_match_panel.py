@@ -87,6 +87,10 @@ def make_match_panel(
 
     if features.empty:
 
+        warn(
+            'Features is empty (after dropping rows with less than 2 not-NA-unique values).'
+        )
+
         return
 
     if file_path_prefix:
@@ -125,6 +129,12 @@ def make_match_panel(
                 '{}.tsv'.format(file_path_prefix),
                 sep='\t',
             )
+
+    if scores['Score'].isna().all():
+
+        warn('Score is all NA.', )
+
+        return
 
     indices = get_extreme_series_indices(
         scores['Score'],
