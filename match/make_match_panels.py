@@ -8,7 +8,7 @@ from .plot.plot.make_html_and_plotly_file_paths import \
 
 
 def make_match_panels(
-        targets,
+        target_x_sample,
         feature_dicts,
         drop_negative_target=False,
         directory_path=None,
@@ -17,7 +17,7 @@ def make_match_panels(
         **kwargs,
 ):
 
-    for target in targets:
+    for target_name, target in target_x_sample.iterrows():
 
         if drop_negative_target:
 
