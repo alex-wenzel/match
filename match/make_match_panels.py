@@ -8,33 +8,26 @@ from .plot.plot.make_html_and_plotly_file_paths import \
 
 
 def make_match_panels(
-        multiple_target,
-        multiple_drop_negative_target,
-        multiple_target_ascending,
-        multiple_target_type,
+        targets,
         feature_dicts,
+        drop_negative_target=False,
         directory_path=None,
         plotly_directory_path=None,
         overwrite=True,
         **kwargs,
 ):
 
-    for target, drop_negative_target, target_ascending, target_type in zip(
-            multiple_target,
-            multiple_drop_negative_target,
-            multiple_target_ascending,
-            multiple_target_type,
-    ):
+    for target in targets:
 
         if drop_negative_target:
 
             target = target[target != -1]
 
-        for feature_name, feature_dict in feature_dicts.items():
+        for feature_group, feature_dict in feature_dicts.items():
 
             suffix = '{}/{}'.format(
                 target.name,
-                feature_name,
+                feature_group,
             )
 
             print('Making match panel for {} ...'.format(suffix))
@@ -64,10 +57,8 @@ def make_match_panels(
             make_match_panel(
                 target,
                 feature_dict['df'],
-                target_ascending=target_ascending,
                 scores=scores,
                 scores_ascending=feature_dict['emphasis'] == 'low',
-                target_type=target_type,
                 features_type=feature_dict['data_type'],
                 title=suffix.replace(
                     '/',
