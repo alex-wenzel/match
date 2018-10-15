@@ -98,7 +98,7 @@ def make_summary_match_panel(
 
     domain_start = domain_end - row_fraction
 
-    if abs(domain_start) < EPS:
+    if abs(domain_start) <= EPS:
 
         domain_start = 0
 
@@ -215,14 +215,14 @@ def make_summary_match_panel(
 
         domain_end = domain_start - row_fraction
 
-        if abs(domain_end) < EPS:
+        if abs(domain_end) <= EPS:
 
             domain_end = 0
 
         domain_start = domain_end - len(
             features_dict['indices']) * row_fraction
 
-        if abs(domain_start) < EPS:
+        if abs(domain_start) <= EPS:
 
             domain_start = 0
 
@@ -254,15 +254,29 @@ def make_summary_match_panel(
         layout_annotation_template = dict(
             xref='paper',
             yref='paper',
-            xanchor='left',
             yanchor='middle',
             font=dict(size=annotation_font_size),
-            width=64,
             showarrow=False,
         )
 
-        for annotation_index, (annotation,
-                               strs) in enumerate(annotations.items()):
+        layout['annotations'].append(
+            dict(
+                xanchor='center',
+                x=0.5,
+                y=domain_end + (row_fraction / 2),
+                text='<b>{}</b>'.format(name),
+                **layout_annotation_template,
+            ))
+
+        layout_annotation_template.update(dict(
+            xanchor='left',
+            width=64,
+        ))
+
+        for annotation_index, (
+                annotation,
+                strs,
+        ) in enumerate(annotations.items()):
 
             x = 1.0016 + annotation_index / 10
 
