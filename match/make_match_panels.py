@@ -3,8 +3,7 @@ from os.path import isfile
 from pandas import read_table
 
 from .make_match_panel import make_match_panel
-from .plot.plot.make_html_and_plotly_file_paths import \
-    make_html_and_plotly_file_paths
+from .support.support.path import combine_path_prefix_and_suffix
 
 
 def make_match_panels(
@@ -32,11 +31,10 @@ def make_match_panels(
 
             print('Making match panel for {} ...'.format(suffix))
 
-            file_path_prefix, plotly_file_path_prefix = make_html_and_plotly_file_paths(
-                suffix,
+            file_path_prefix = combine_path_prefix_and_suffix(
                 directory_path,
-                plotly_directory_path,
-                prefix_is_directory=True,
+                suffix,
+                True,
             )
 
             scores_file_path = '{}.tsv'.format(file_path_prefix)
@@ -65,6 +63,10 @@ def make_match_panels(
                     '<br>',
                 ),
                 file_path_prefix=file_path_prefix,
-                plotly_file_path_prefix=plotly_file_path_prefix,
+                plotly_file_path_prefix=combine_path_prefix_and_suffix(
+                    plotly_directory_path,
+                    suffix,
+                    True,
+                ),
                 **kwargs,
             )

@@ -12,14 +12,12 @@ from .information.information.compute_information_coefficient import \
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
 from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
-from .plot.plot.make_html_and_plotly_file_paths import \
-    make_html_and_plotly_file_paths
 from .plot.plot.plot_and_save import plot_and_save
-from .support.support.iterable import make_object_int_mapping
-from .support.support.path import establish_path
-from .support.support.series import get_extreme_series_indices
-
 from .support.support.df import drop_df_slice
+from .support.support.iterable import make_object_int_mapping
+from .support.support.path import (combine_path_prefix_and_suffix,
+                                   establish_path)
+from .support.support.series import get_extreme_series_indices
 
 
 def make_match_panel(
@@ -294,19 +292,23 @@ def make_match_panel(
 
             y -= feature_row_fraction
 
-    html_file_path, plotly_file_path = make_html_and_plotly_file_paths(
-        '.html',
-        file_path_prefix,
-        plotly_file_path_prefix,
-    )
+    suffix = '.html'
 
     plot_and_save(
         dict(
             layout=layout,
             data=data,
         ),
-        html_file_path,
-        plotly_file_path,
+        combine_path_prefix_and_suffix(
+            file_path_prefix,
+            suffix,
+            False,
+        ),
+        combine_path_prefix_and_suffix(
+            plotly_file_path_prefix,
+            suffix,
+            False,
+        ),
     )
 
     return scores
