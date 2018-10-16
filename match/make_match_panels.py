@@ -16,16 +16,16 @@ def make_match_panels(
         **kwargs,
 ):
 
-    for target_name, target in target_x_sample.iterrows():
+    for target_name, target_values in target_x_sample.iterrows():
 
         if drop_negative_target:
 
-            target = target[target != -1]
+            target_values = target_values[target_values != -1]
 
         for feature_group, feature_dict in feature_dicts.items():
 
             suffix = '{}/{}'.format(
-                target.name,
+                target_values.name,
                 feature_group,
             )
 
@@ -53,7 +53,7 @@ def make_match_panels(
                 scores = None
 
             make_match_panel(
-                target,
+                target_values,
                 feature_dict['df'],
                 scores=scores,
                 scores_ascending=feature_dict['emphasis'] == 'low',
