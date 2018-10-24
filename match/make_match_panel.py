@@ -40,10 +40,10 @@ def make_match_panel(
         features_type='continuous',
         plot_features_std_max=None,
         title='Match Panel',
-        layout_width=960,
+        layout_width=1080,
         row_height=64,
-        layout_side_margin=200,
-        annotation_font_size=9.6,
+        layout_side_margin=230,
+        annotation_font_size=9,
         file_path_prefix=None,
         plotly_file_path_prefix=None,
 ):

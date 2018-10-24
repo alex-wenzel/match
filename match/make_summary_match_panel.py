@@ -9,8 +9,8 @@ from ._process_target_or_features_for_plotting import \
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .plot.plot.plot_and_save import plot_and_save
-from .support.support.iterable import make_object_int_mapping
 from .support.support.df import drop_df_slice
+from .support.support.iterable import make_object_int_mapping
 
 EPS = finfo(float).eps
 
@@ -30,10 +30,10 @@ def make_summary_match_panel(
         n_permutation=None,
         plot_features_std_max=None,
         title='Summary Match Panel',
-        layout_width=960,
+        layout_width=1080,
         row_height=64,
-        layout_side_margin=200,
-        annotation_font_size=9.6,
+        layout_side_margin=230,
+        annotation_font_size=9,
         html_file_path=None,
         plotly_file_path=None,
 ):
