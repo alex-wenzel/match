@@ -6,6 +6,8 @@ from ._make_annotations import _make_annotations
 from ._match import _match
 from ._process_target_or_features_for_plotting import \
     _process_target_or_features_for_plotting
+from ._style import (ANNOTATION_FONT_SIZE, LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH,
+                     ROW_HEIGHT)
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .plot.plot.plot_and_save import plot_and_save
@@ -30,10 +32,10 @@ def make_summary_match_panel(
         n_permutation=None,
         plot_features_std_max=None,
         title='Summary Match Panel',
-        layout_width=1080,
-        row_height=64,
-        layout_side_margin=230,
-        annotation_font_size=9,
+        layout_width=LAYOUT_WIDTH,
+        row_height=ROW_HEIGHT,
+        layout_side_margin=LAYOUT_SIDE_MARGIN,
+        annotation_font_size=ANNOTATION_FONT_SIZE,
         html_file_path=None,
         plotly_file_path=None,
 ):
