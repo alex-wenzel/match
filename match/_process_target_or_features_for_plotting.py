@@ -101,11 +101,17 @@ def _process_target_or_features_for_plotting(
 
                 n_color = target_or_features.unstack().unique().size
 
-            colorscale = make_colorscale(colors=CATEGORICAL_COLORS[:n_color])
+            colorscale = make_colorscale(
+                colors=CATEGORICAL_COLORS[:n_color],
+                plot=False,
+            )
 
         elif type_ == 'binary':
 
-            colorscale = make_colorscale(colors=BINARY_COLORS_WHITE_BLACK)
+            colorscale = make_colorscale(
+                colors=BINARY_COLORS_WHITE_BLACK,
+                plot=False,
+            )
 
         else:
 
