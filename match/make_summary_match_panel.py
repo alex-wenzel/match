@@ -18,7 +18,7 @@ def make_summary_match_panel(
         plot_only_columns_shared_by_target_and_all_features=False,
         target_ascending=True,
         target_type='continuous',
-        plot_std_max=None,
+        plot_std=None,
         title='Summary Match Panel',
         layout_width=LAYOUT_WIDTH,
         row_height=ROW_HEIGHT,
@@ -48,7 +48,7 @@ def make_summary_match_panel(
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target,
         target_type,
-        plot_std_max,
+        plot_std,
     )
 
     n_row = 1 + len(feature_dicts)
@@ -120,7 +120,9 @@ def make_summary_match_panel(
 
         print('Making match panel for {} ...'.format(feature_name))
 
-        features_to_plot = feature_dict['df'][target.index]
+        df = feature_dict['df']
+
+        features_to_plot = df.reindex(columns=target.index)
 
         score_moe_p_value_fdr_to_plot = score_moe_p_value_fdr.loc[
             features_to_plot.index].sort_values(
@@ -140,7 +142,7 @@ def make_summary_match_panel(
         features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
             features_to_plot,
             feature_dict['data_type'],
-            plot_std_max,
+            plot_std,
         )
 
         yaxis_name = 'yaxis{}'.format(len(feature_dicts) -
