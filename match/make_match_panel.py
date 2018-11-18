@@ -203,6 +203,13 @@ def make_match_panel(
         annotations=[],
     )
 
+    print(
+        target_plot_min,
+        target_plot_max,
+        features_plot_min,
+        features_plot_max,
+    )
+
     data = [
         dict(
             yaxis='y2',
