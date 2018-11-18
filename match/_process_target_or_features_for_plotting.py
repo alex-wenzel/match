@@ -59,15 +59,9 @@ def _process_target_or_features_for_plotting(
 
         else:
 
-            plot_min = max(
-                -plot_std_max,
-                target_or_features_nanmin,
-            )
+            plot_min = -plot_std_max
 
-            plot_max = min(
-                plot_std_max,
-                target_or_features_nanmax,
-            )
+            plot_max = plot_std_max
 
         colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 
