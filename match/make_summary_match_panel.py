@@ -123,7 +123,10 @@ def make_summary_match_panel(
         features_to_plot = feature_dict['df'][target.index]
 
         annotations = _make_annotations(
-            score_moe_p_value_fdr.loc[features_to_plot.index])
+            score_moe_p_value_fdr.loc[features_to_plot.index].dropna(
+                axis=1,
+                how='all',
+            ))
 
         features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
             features_to_plot,

@@ -68,7 +68,7 @@ def _match(
         extreme_feature_threshold,
     )
 
-    if n_sampling:
+    if 2 <= n_sampling:
 
         moes = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             target,
@@ -82,7 +82,7 @@ def _match(
 
         score_moe_p_value_fdr.loc[indices, '0.95 MoE'] = moes
 
-    if n_permutation:
+    if 1 <= n_permutation:
 
         permutation_scores = concatenate(
             multiprocess(
@@ -157,6 +157,13 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             match_function,
             n_required_for_match_function,
             raise_for_n_less_than_required,
+        )
+
+        print('v' * 80)
+        print(
+            sampled_target,
+            sampled_features,
+            feature_x_sampling[:, i],
         )
 
         set_state(random_state)

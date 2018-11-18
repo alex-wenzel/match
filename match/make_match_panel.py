@@ -31,8 +31,8 @@ def make_match_panel(
         raise_for_n_less_than_required=False,
         extreme_feature_threshold=8,
         random_seed=20121020,
-        n_sampling=None,
-        n_permutation=None,
+        n_sampling=0,
+        n_permutation=0,
         target_type='continuous',
         cluster_within_category=True,
         features_type='continuous',
@@ -115,7 +115,11 @@ def make_match_panel(
 
     scores_to_plot = score_moe_p_value_fdr.loc[indices]
 
-    annotations = _make_annotations(scores_to_plot)
+    annotations = _make_annotations(
+        scores_to_plot.dropna(
+            axis=1,
+            how='all',
+        ))
 
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target,
