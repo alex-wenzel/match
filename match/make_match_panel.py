@@ -177,7 +177,10 @@ def make_match_panel(
                             ) / features_to_plot.shape[0]
 
     layout = dict(
-        width=layout_width,
+        width=min(
+            row_height * features_to_plot[1],
+            layout_width,
+        ),
         height=row_height * max(
             10,
             (features_to_plot.shape[0] + 2)**0.8,
