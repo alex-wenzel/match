@@ -55,7 +55,7 @@ def make_summary_match_panel(
 
     for feature_dict in feature_dicts.values():
 
-        n_row += len(feature_dict['indices'])
+        n_row += feature_dict['df'].shape[0]
 
     layout = dict(
         width=layout_width,
@@ -122,7 +122,6 @@ def make_summary_match_panel(
 
         features_to_plot = feature_dict['df'][target.index]
 
-        print(score_moe_p_value_fdr)
         annotations = _make_annotations(
             score_moe_p_value_fdr.loc[features_to_plot.index].dropna(
                 axis=1,
@@ -147,7 +146,7 @@ def make_summary_match_panel(
 
             domain_end = 0
 
-        domain_start = domain_end - len(feature_dict['indices']) * row_fraction
+        domain_start = domain_end - feature_dict['df'].shape[0] * row_fraction
 
         if abs(domain_start) <= eps:
 
