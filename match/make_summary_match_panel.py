@@ -104,7 +104,7 @@ def make_summary_match_panel(
             type='heatmap',
             z=target.to_frame().T.values,
             x=target.index,
-            y=(target.feature_name, ),
+            y=(target.name, ),
             text=(target.index, ),
             zmin=target_plot_min,
             zmax=target_plot_max,
