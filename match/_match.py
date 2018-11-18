@@ -155,6 +155,8 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         set_state(random_state)
 
+    print(feature_x_sampling)
+
     return apply_along_axis(
         compute_nd_array_margin_of_error,
         1,
