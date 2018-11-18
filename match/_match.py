@@ -160,11 +160,7 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         )
 
         print('v' * 80)
-        print(
-            sampled_target,
-            sampled_features,
-            feature_x_sampling[:, i],
-        )
+        print(sampled_target)
 
         set_state(random_state)
 
