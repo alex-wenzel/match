@@ -6,8 +6,8 @@ from ._make_annotations import _make_annotations
 from ._match import _match
 from ._process_target_or_features_for_plotting import \
     _process_target_or_features_for_plotting
-from ._style import (ANNOTATION_FONT_SIZE, LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH,
-                     ROW_HEIGHT)
+from ._style import (ANNOTATION_FONT_SIZE, ANNOTATION_WIDTH,
+                     LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH, ROW_HEIGHT)
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
 from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
@@ -177,12 +177,9 @@ def make_match_panel(
                             ) / features_to_plot.shape[0]
 
     layout = dict(
-        width=min(
-            row_height * features_to_plot[1],
-            layout_width,
-        ),
+        width=layout_width,
         height=row_height * max(
-            10,
+            8,
             (features_to_plot.shape[0] + 2)**0.8,
         ),
         margin=dict(
@@ -238,7 +235,7 @@ def make_match_panel(
         xanchor='left',
         yanchor='middle',
         font=dict(size=annotation_font_size),
-        width=64,
+        width=ANNOTATION_WIDTH,
         showarrow=False,
     )
 

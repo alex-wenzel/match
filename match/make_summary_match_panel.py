@@ -3,8 +3,8 @@ from numpy import finfo
 from ._make_annotations import _make_annotations
 from ._process_target_or_features_for_plotting import \
     _process_target_or_features_for_plotting
-from ._style import (ANNOTATION_FONT_SIZE, LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH,
-                     ROW_HEIGHT)
+from ._style import (ANNOTATION_FONT_SIZE, ANNOTATION_WIDTH,
+                     LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH, ROW_HEIGHT)
 from .plot.plot.plot_and_save import plot_and_save
 from .support.support.iterable import make_object_int_mapping
 
@@ -194,10 +194,11 @@ def make_summary_match_panel(
                 **layout_annotation_template,
             ))
 
-        layout_annotation_template.update(dict(
-            xanchor='left',
-            width=64,
-        ))
+        layout_annotation_template.update(
+            dict(
+                xanchor='left',
+                width=ANNOTATION_WIDTH,
+            ))
 
         for annotation_index, (
                 annotation_column_name,
