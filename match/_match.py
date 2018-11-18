@@ -143,8 +143,6 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
 
         sampled_features = features[:, random_indices]
 
-        print(sampled_target, sampled_features)
-
         random_state = get_state()
 
         feature_x_sampling[:, i] = _match_target_and_features(
