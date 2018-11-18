@@ -1,4 +1,4 @@
-from numpy import nanmax, nanmin
+from numpy import nanmax, nanmin, unique
 from pandas import DataFrame, Series
 
 from .nd_array.nd_array.normalize_nd_array import normalize_nd_array
@@ -13,29 +13,12 @@ def _process_target_or_features_for_plotting(
         plot_std_max,
 ):
 
-    if isinstance(
-            target_or_features,
-            Series,
-    ):
-
-        is_target = True
-
-    elif isinstance(
-            target_or_features,
-            DataFrame,
-    ):
-
-        is_target = False
-
-    else:
-
-        raise ValueError(
-            'target_or_features ({}) is neither a Series or DataFrame.'.format(
-                type(target_or_features)))
-
     if type_ == 'continuous':
 
-        if is_target:
+        if isinstance(
+                target_or_features,
+                Series,
+        ):
 
             target_or_features = Series(
                 normalize_nd_array(
@@ -48,7 +31,10 @@ def _process_target_or_features_for_plotting(
                 index=target_or_features.index,
             )
 
-        else:
+        elif isinstance(
+                target_or_features,
+                DataFrame,
+        ):
 
             target_or_features = DataFrame(
                 normalize_nd_array(
@@ -93,13 +79,7 @@ def _process_target_or_features_for_plotting(
 
         if type_ == 'categorical':
 
-            if is_target:
-
-                n_color = target_or_features.unique().size
-
-            else:
-
-                n_color = target_or_features.unstack().unique().size
+            n_color = unique(target_or_features).size
 
             colorscale = make_colorscale(
                 colors=CATEGORICAL_COLORS[:n_color],
@@ -112,9 +92,5 @@ def _process_target_or_features_for_plotting(
                 colors=BINARY_COLORS_WHITE_BLACK,
                 plot=False,
             )
-
-        else:
-
-            raise ValueError('Unknown type_: {}.'.format(type_))
 
     return target_or_features, plot_min, plot_max, colorscale

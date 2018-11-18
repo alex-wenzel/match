@@ -12,7 +12,6 @@ def make_match_panels(
         drop_negative_target=False,
         directory_path=None,
         plotly_directory_path=None,
-        overwrite=True,
         **kwargs,
 ):
 
@@ -25,7 +24,7 @@ def make_match_panels(
         for feature_group, feature_dict in feature_dicts.items():
 
             suffix = '{}/{}'.format(
-                target_values.name,
+                target_name,
                 feature_group,
             )
 
@@ -39,24 +38,24 @@ def make_match_panels(
 
             scores_file_path = '{}.tsv'.format(file_path_prefix)
 
-            if not overwrite and isfile(scores_file_path):
+            if isfile(scores_file_path):
 
-                print('Reading scores from {} ...'.format(scores_file_path))
+                print('Reading score_moe_p_value_fdr from {} ...'.format(
+                    scores_file_path))
 
-                scores = read_table(
+                score_moe_p_value_fdr = read_table(
                     scores_file_path,
                     index_col=0,
                 )
 
             else:
 
-                scores = None
+                score_moe_p_value_fdr = None
 
             make_match_panel(
                 target_values,
                 feature_dict['df'],
-                scores=scores,
-                scores_ascending=feature_dict['emphasis'] == 'low',
+                score_moe_p_value_fdr=score_moe_p_value_fdr,
                 features_type=feature_dict['data_type'],
                 title=suffix.replace(
                     '/',

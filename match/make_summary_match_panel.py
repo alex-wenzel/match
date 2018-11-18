@@ -1,36 +1,24 @@
 from numpy import finfo
-from pandas import concat
 
-from ._check_features_index import _check_features_index
 from ._make_annotations import _make_annotations
-from ._match import _match
 from ._process_target_or_features_for_plotting import \
     _process_target_or_features_for_plotting
 from ._style import (ANNOTATION_FONT_SIZE, LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH,
                      ROW_HEIGHT)
-from .information.information.compute_information_coefficient import \
-    compute_information_coefficient
 from .plot.plot.plot_and_save import plot_and_save
-from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
 
-EPS = finfo(float).eps
+eps = finfo(float).eps
 
 
 def make_summary_match_panel(
         target,
         feature_dicts,
-        target_ascending=False,
-        target_type='continuous',
-        plot_target_std_max=None,
+        score_moe_p_value_fdr,
         plot_only_columns_shared_by_target_and_all_features=False,
-        match_function=compute_information_coefficient,
-        n_required_for_match_function=2,
-        raise_for_n_less_than_required=False,
-        random_seed=20121020,
-        n_sampling=None,
-        n_permutation=None,
-        plot_features_std_max=None,
+        target_ascending=True,
+        target_type='continuous',
+        plot_std_max=None,
         title='Summary Match Panel',
         layout_width=LAYOUT_WIDTH,
         row_height=ROW_HEIGHT,
@@ -40,14 +28,17 @@ def make_summary_match_panel(
         plotly_file_path=None,
 ):
 
+    if plot_only_columns_shared_by_target_and_all_features:
+
+        for feature_dict in feature_dicts.values():
+
+            target = target.loc[target.index & feature_dict['df'].columns]
+
     if target.dtype == 'O':
 
         target = target.map(make_object_int_mapping(target)[0])
 
-    if isinstance(
-            target_ascending,
-            bool,
-    ):
+    if target_ascending is not None:
 
         target.sort_values(
             ascending=target_ascending,
@@ -57,22 +48,14 @@ def make_summary_match_panel(
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target,
         target_type,
-        plot_target_std_max,
+        plot_std_max,
     )
-
-    target_df = target.to_frame().T
-
-    if plot_only_columns_shared_by_target_and_all_features:
-
-        for features_dict in feature_dicts.values():
-
-            target = target.loc[target.index & features_dict['df'].columns]
 
     n_row = 1 + len(feature_dicts)
 
-    for features_dict in feature_dicts.values():
+    for feature_dict in feature_dicts.values():
 
-        n_row += len(features_dict['indices'])
+        n_row += len(feature_dict['indices'])
 
     layout = dict(
         width=layout_width,
@@ -82,7 +65,7 @@ def make_summary_match_panel(
         ),
         xaxis=dict(anchor='y'),
         height=row_height / 2 * max(
-            8,
+            10,
             n_row,
         ),
         title=title,
@@ -100,7 +83,7 @@ def make_summary_match_panel(
 
     domain_start = domain_end - row_fraction
 
-    if abs(domain_start) <= EPS:
+    if abs(domain_start) <= eps:
 
         domain_start = 0
 
@@ -119,10 +102,10 @@ def make_summary_match_panel(
                 '',
             ),
             type='heatmap',
-            z=target_df.values[::-1],
-            x=target_df.columns,
-            y=target_df.index[::-1],
-            text=(target_df.columns, ),
+            z=target.to_frame().T.values,
+            x=target.index,
+            y=(target.feature_name, ),
+            text=(target.index, ),
             zmin=target_plot_min,
             zmax=target_plot_max,
             colorscale=target_colorscale,
@@ -130,101 +113,39 @@ def make_summary_match_panel(
         )
     ]
 
-    multiple_scores = []
-
-    for features_index, (
-            name,
-            features_dict,
+    for feature_group, (
+            feature_name,
+            feature_dict,
     ) in enumerate(feature_dicts.items()):
 
-        print('Making match panel for {} ...'.format(name))
+        print('Making match panel for {} ...'.format(feature_name))
 
-        df = features_dict['df']
+        features_to_plot = feature_dict['df'][target.index]
 
-        indices = list(features_dict['indices'])
-
-        features = df.loc[indices, target.index]
-
-        _check_features_index(features)
-
-        features = drop_df_slice(
-            features,
-            1,
-            min_n_not_na_unique_value=2,
-        )
-
-        if features.empty:
-
-            continue
-
-        if 'score' in features_dict:
-
-            scores = features_dict['score'].loc[indices]
-
-        else:
-
-            scores = _match(
-                target.values,
-                features.values,
-                1,
-                match_function,
-                n_required_for_match_function,
-                raise_for_n_less_than_required,
-                None,
-                random_seed,
-                n_sampling,
-                n_permutation,
-            )
-
-            scores.index = features.index
-
-        scores.sort_values(
-            'Score',
-            ascending=features_dict['emphasis'] == 'low',
-            inplace=True,
-        )
-
-        multiple_scores.append(scores)
-
-        features_to_plot = features.loc[scores.index]
-
-        if 'index_aliases' in features_dict:
-
-            features_to_plot.index = features_to_plot.index.map({
-                index: alias
-                for index, alias in zip(
-                    features.index,
-                    features_dict['index_aliases'],
-                )
-            }.get)
-
-        annotations = _make_annotations(scores.dropna(
-            axis=1,
-            how='all',
-        ))
+        annotations = _make_annotations(
+            score_moe_p_value_fdr.loc[features_to_plot.index])
 
         features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
             features_to_plot,
-            features_dict['data_type'],
-            plot_features_std_max,
+            feature_dict['data_type'],
+            plot_std_max,
         )
 
         yaxis_name = 'yaxis{}'.format(len(feature_dicts) -
-                                      features_index).replace(
+                                      feature_group).replace(
                                           'axis1',
                                           'axis',
                                       )
 
         domain_end = domain_start - row_fraction
 
-        if abs(domain_end) <= EPS:
+        if abs(domain_end) <= eps:
 
             domain_end = 0
 
-        domain_start = domain_end - len(
-            features_dict['indices']) * row_fraction
+        domain_start = domain_end - len(feature_dict['indices']) * row_fraction
 
-        if abs(domain_start) <= EPS:
+        if abs(domain_start) <= eps:
 
             domain_start = 0
 
@@ -266,7 +187,7 @@ def make_summary_match_panel(
                 xanchor='center',
                 x=0.5,
                 y=domain_end + (row_fraction / 2),
-                text='<b>{}</b>'.format(name),
+                text='<b>{}</b>'.format(feature_name),
                 **layout_annotation_template,
             ))
 
@@ -276,25 +197,25 @@ def make_summary_match_panel(
         ))
 
         for annotation_index, (
-                annotation,
-                strs,
+                annotation_column_name,
+                annotation_column_strs,
         ) in enumerate(annotations.items()):
 
             x = 1.0016 + annotation_index / 10
 
-            if features_index == 0:
+            if feature_group == 0:
 
                 layout['annotations'].append(
                     dict(
                         x=x,
                         y=1 - (row_fraction / 2),
-                        text='<b>{}</b>'.format(annotation),
+                        text='<b>{}</b>'.format(annotation_column_name),
                         **layout_annotation_template,
                     ))
 
             y = domain_end - (row_fraction / 2)
 
-            for str_ in strs:
+            for str_ in annotation_column_strs:
 
                 layout['annotations'].append(
                     dict(
@@ -314,5 +235,3 @@ def make_summary_match_panel(
         html_file_path,
         plotly_file_path,
     )
-
-    return concat(multiple_scores).sort_values('Score')

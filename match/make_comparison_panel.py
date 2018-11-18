@@ -60,7 +60,7 @@ def make_comparison_panel(
             'file',
         )
 
-    if file_path_prefix:
+    if file_path_prefix is not None:
 
         comparison.to_csv(
             '{}.tsv'.format(file_path_prefix),

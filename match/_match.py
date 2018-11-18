@@ -27,12 +27,13 @@ def _match(
         n_permutation,
 ):
 
-    results = DataFrame(columns=(
-        'Score',
-        '0.95 MoE',
-        'P-Value',
-        'FDR',
-    ))
+    score_moe_p_value_fdr = DataFrame(
+        columns=(
+            'Score',
+            '0.95 MoE',
+            'P-Value',
+            'FDR',
+        ))
 
     n_job = min(
         features.shape[0],
@@ -49,7 +50,7 @@ def _match(
         n_job,
     )
 
-    results['Score'] = concatenate(
+    score_moe_p_value_fdr['Score'] = concatenate(
         multiprocess(
             _match_target_and_features,
             ((
@@ -63,11 +64,11 @@ def _match(
         ))
 
     indices = get_extreme_series_indices(
-        results['Score'],
+        score_moe_p_value_fdr['Score'],
         extreme_feature_threshold,
     )
 
-    if n_sampling is not None:
+    if n_sampling:
 
         moes = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             target,
@@ -79,9 +80,9 @@ def _match(
             raise_for_n_less_than_required,
         )
 
-        results.loc[indices, '0.95 MoE'] = moes
+        score_moe_p_value_fdr.loc[indices, '0.95 MoE'] = moes
 
-    if n_permutation is not None:
+    if n_permutation:
 
         permutation_scores = concatenate(
             multiprocess(
@@ -99,17 +100,17 @@ def _match(
             ))
 
         p_values, fdrs = compute_empirical_p_values_and_fdrs(
-            results['Score'],
+            score_moe_p_value_fdr['Score'],
             permutation_scores.flatten(),
             'less_or_great',
             raise_for_bad_value=False,
         )
 
-        results['P-Value'] = p_values
+        score_moe_p_value_fdr['P-Value'] = p_values
 
-        results['FDR'] = fdrs
+        score_moe_p_value_fdr['FDR'] = fdrs
 
-    return results
+    return score_moe_p_value_fdr
 
 
 def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
@@ -134,13 +135,13 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         nan,
     )
 
-    n_sample_to_sample = ceil(0.632 * target.size)
+    n_sample = ceil(0.632 * target.size)
 
     for i in range(n_sampling):
 
         random_indices = choice(
             target.size,
-            size=n_sample_to_sample,
+            size=n_sample,
             replace=True,
         )
 

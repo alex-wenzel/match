@@ -2,7 +2,6 @@ from warnings import warn
 
 from numpy import nan_to_num
 
-from ._check_features_index import _check_features_index
 from ._make_annotations import _make_annotations
 from ._match import _match
 from ._process_target_or_features_for_plotting import \
@@ -15,7 +14,6 @@ from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
     cluster_2d_array_slices_by_group
 from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
 from .plot.plot.plot_and_save import plot_and_save
-from .support.support.df import drop_df_slice
 from .support.support.iterable import make_object_int_mapping
 from .support.support.path import (combine_path_prefix_and_suffix,
                                    establish_path)
@@ -25,8 +23,8 @@ from .support.support.series import get_extreme_series_indices
 def make_match_panel(
         target,
         features,
-        target_ascending=False,
-        scores=None,
+        target_ascending=True,
+        score_moe_p_value_fdr=None,
         n_job=1,
         match_function=compute_information_coefficient,
         n_required_for_match_function=2,
@@ -35,12 +33,10 @@ def make_match_panel(
         random_seed=20121020,
         n_sampling=None,
         n_permutation=None,
-        scores_ascending=False,
         target_type='continuous',
-        plot_target_std_max=None,
         cluster_within_category=True,
         features_type='continuous',
-        plot_features_std_max=None,
+        plot_std_max=None,
         title='Match Panel',
         layout_width=LAYOUT_WIDTH,
         row_height=ROW_HEIGHT,
@@ -65,10 +61,7 @@ def make_match_panel(
 
         target = target.map(make_object_int_mapping(target)[0])
 
-    if isinstance(
-            target_ascending,
-            bool,
-    ):
+    if target_ascending is not None:
 
         target.sort_values(
             ascending=target_ascending,
@@ -77,32 +70,16 @@ def make_match_panel(
 
     features = features[target.index]
 
-    _check_features_index(features)
-
-    features = drop_df_slice(
-        features,
-        1,
-        min_n_not_na_unique_value=2,
-    )
-
-    if features.empty:
-
-        warn(
-            'Features is empty (after dropping rows with less than 2 not-NA-unique values).'
-        )
-
-        return
-
-    if file_path_prefix:
+    if file_path_prefix is not None:
 
         establish_path(
             file_path_prefix,
             'file',
         )
 
-    if scores is None:
+    if score_moe_p_value_fdr is None:
 
-        scores = _match(
+        score_moe_p_value_fdr = _match(
             target.values,
             features.values,
             n_job,
@@ -115,47 +92,35 @@ def make_match_panel(
             n_permutation,
         )
 
-        scores.index = features.index
+        score_moe_p_value_fdr.index = features.index
 
-        scores.sort_values(
-            'Score',
-            ascending=scores_ascending,
-            inplace=True,
-        )
+        if file_path_prefix is not None:
 
-        if file_path_prefix:
-
-            scores.to_csv(
+            score_moe_p_value_fdr.to_csv(
                 '{}.tsv'.format(file_path_prefix),
                 sep='\t',
             )
 
-    if scores['Score'].isna().all():
-
-        warn('Score is all NA.', )
-
-        return
-
     indices = get_extreme_series_indices(
-        scores['Score'],
+        score_moe_p_value_fdr['Score'],
         extreme_feature_threshold,
-        scores_ascending,
+        ascending=False,
     )
+
+    if not len(indices):
+
+        return score_moe_p_value_fdr
 
     features_to_plot = features.loc[indices]
 
-    scores_to_plot = scores.loc[indices]
+    scores_to_plot = score_moe_p_value_fdr.loc[indices]
 
-    annotations = _make_annotations(
-        scores_to_plot.dropna(
-            axis=1,
-            how='all',
-        ))
+    annotations = _make_annotations(scores_to_plot)
 
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target,
         target_type,
-        plot_target_std_max,
+        plot_std_max,
     )
 
     if target_type in (
@@ -186,7 +151,7 @@ def make_match_panel(
     features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
         features_to_plot,
         features_type,
-        plot_features_std_max,
+        plot_std_max,
     )
 
     target_row_fraction = max(
@@ -210,7 +175,7 @@ def make_match_panel(
     layout = dict(
         width=layout_width,
         height=row_height * max(
-            8,
+            10,
             (features_to_plot.shape[0] + 2)**0.8,
         ),
         margin=dict(
@@ -268,7 +233,10 @@ def make_match_panel(
         showarrow=False,
     )
 
-    for annotation_index, (annotation, strs) in enumerate(annotations.items()):
+    for annotation_index, (
+            annotation,
+            strs,
+    ) in enumerate(annotations.items()):
 
         x = 1.0016 + annotation_index / 10
 
@@ -280,7 +248,7 @@ def make_match_panel(
                 **layout_annotation_template,
             ))
 
-        y = features_yaxis_domain[1] - ((feature_row_fraction) / 2)
+        y = features_yaxis_domain[1] - (feature_row_fraction / 2)
 
         for str_ in strs:
 
@@ -313,4 +281,4 @@ def make_match_panel(
         ),
     )
 
-    return scores
+    return score_moe_p_value_fdr
