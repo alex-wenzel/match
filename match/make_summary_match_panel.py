@@ -122,8 +122,17 @@ def make_summary_match_panel(
 
         features_to_plot = feature_dict['df'][target.index]
 
+        score_moe_p_value_fdr_to_plot = score_moe_p_value_fdr.loc[
+            features_to_plot.index].sort_values(
+                'Score',
+                ascending=feature_dict['emphasis'] == 'low',
+            )
+
+        features_to_plot = features_to_plot.loc[score_moe_p_value_fdr_to_plot.
+                                                index]
+
         annotations = _make_annotations(
-            score_moe_p_value_fdr.loc[features_to_plot.index].dropna(
+            score_moe_p_value_fdr_to_plot.dropna(
                 axis=1,
                 how='all',
             ))
