@@ -10,7 +10,7 @@ from .plot.plot.style import (BINARY_COLORS_WHITE_BLACK, CATEGORICAL_COLORS,
 def _process_target_or_features_for_plotting(
         target_or_features,
         type_,
-        plot_std_max,
+        plot_std,
 ):
 
     if type_ == 'continuous':
@@ -51,7 +51,7 @@ def _process_target_or_features_for_plotting(
 
         target_or_features_nanmax = nanmax(target_or_features.values)
 
-        if plot_std_max is None:
+        if plot_std is None:
 
             plot_min = target_or_features_nanmin
 
@@ -59,9 +59,9 @@ def _process_target_or_features_for_plotting(
 
         else:
 
-            plot_min = -plot_std_max
+            plot_min = -plot_std
 
-            plot_max = plot_std_max
+            plot_max = plot_std
 
         colorscale = CONTINUOUS_COLORSCALE_FOR_MATCH
 

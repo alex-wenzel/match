@@ -36,7 +36,7 @@ def make_match_panel(
         target_type='continuous',
         cluster_within_category=True,
         features_type='continuous',
-        plot_std_max=None,
+        plot_std=None,
         title='Match Panel',
         layout_width=LAYOUT_WIDTH,
         row_height=ROW_HEIGHT,
@@ -124,7 +124,7 @@ def make_match_panel(
     target, target_plot_min, target_plot_max, target_colorscale = _process_target_or_features_for_plotting(
         target,
         target_type,
-        plot_std_max,
+        plot_std,
     )
 
     if target_type in (
@@ -155,7 +155,7 @@ def make_match_panel(
     features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
         features_to_plot,
         features_type,
-        plot_std_max,
+        plot_std,
     )
 
     target_row_fraction = max(
