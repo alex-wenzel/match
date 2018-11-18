@@ -68,9 +68,9 @@ def _match(
         extreme_feature_threshold,
     )
 
-    if 2 <= n_sampling:
-
-        moes = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
+    score_moe_p_value_fdr.loc[
+        indices,
+        '0.95 MoE'] = _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             target,
             features[indices],
             random_seed,
@@ -80,11 +80,9 @@ def _match(
             raise_for_n_less_than_required,
         )
 
-        score_moe_p_value_fdr.loc[indices, '0.95 MoE'] = moes
-
-    if 1 <= n_permutation:
-
-        permutation_scores = concatenate(
+    p_values, fdrs = compute_empirical_p_values_and_fdrs(
+        score_moe_p_value_fdr['Score'],
+        concatenate(
             multiprocess(
                 _permute_target_and_match_target_and_features,
                 ((
@@ -97,18 +95,14 @@ def _match(
                     raise_for_n_less_than_required,
                 ) for features_ in features_split),
                 n_job,
-            ))
+            )).flatten(),
+        'less_or_great',
+        raise_for_bad_value=False,
+    )
 
-        p_values, fdrs = compute_empirical_p_values_and_fdrs(
-            score_moe_p_value_fdr['Score'],
-            permutation_scores.flatten(),
-            'less_or_great',
-            raise_for_bad_value=False,
-        )
+    score_moe_p_value_fdr['P-Value'] = p_values
 
-        score_moe_p_value_fdr['P-Value'] = p_values
-
-        score_moe_p_value_fdr['FDR'] = fdrs
+    score_moe_p_value_fdr['FDR'] = fdrs
 
     return score_moe_p_value_fdr
 
@@ -158,11 +152,6 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
             n_required_for_match_function,
             raise_for_n_less_than_required,
         )
-
-        print('v' * 80)
-        print(sampled_target)
-        print(sampled_features)
-        print(feature_x_sampling[:, i])
 
         set_state(random_state)
 
