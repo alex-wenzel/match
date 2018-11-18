@@ -203,6 +203,10 @@ def make_match_panel(
         annotations=[],
     )
 
+    if plot_std_max is None:
+
+        zmin = zmax = None
+
     data = [
         dict(
             yaxis='y2',
