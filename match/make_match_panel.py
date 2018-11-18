@@ -203,10 +203,6 @@ def make_match_panel(
         annotations=[],
     )
 
-    if plot_std_max is None:
-
-        zmin = zmax = None
-
     data = [
         dict(
             yaxis='y2',
@@ -215,8 +211,8 @@ def make_match_panel(
             x=target.index,
             y=(target.name, ),
             text=(target.index, ),
-            zmin=-plot_std_max,
-            zmax=plot_std_max,
+            zmin=target_plot_min,
+            zmax=target_plot_max,
             colorscale=target_colorscale,
             showscale=False,
         ),
@@ -226,8 +222,8 @@ def make_match_panel(
             z=features_to_plot.values[::-1],
             x=features_to_plot.columns,
             y=features_to_plot.index[::-1],
-            zmin=-plot_std_max,
-            zmax=plot_std_max,
+            zmin=features_plot_min,
+            zmax=features_plot_max,
             colorscale=features_colorscale,
             showscale=False,
         ),
