@@ -1,7 +1,5 @@
 from warnings import warn
 
-from numpy import nan_to_num
-
 from ._make_annotations import _make_annotations
 from ._match import _match
 from ._process_target_or_features_for_plotting import \
@@ -10,8 +8,7 @@ from ._style import (ANNOTATION_FONT_SIZE, ANNOTATION_WIDTH,
                      LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH, ROW_HEIGHT)
 from .information.information.compute_information_coefficient import \
     compute_information_coefficient
-from .nd_array.nd_array.cluster_2d_array_slices_by_group import \
-    cluster_2d_array_slices_by_group
+from .nd_array.nd_array.cluster_2d_array_slices import cluster_2d_array_slices
 from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
 from .plot.plot.plot_and_save import plot_and_save
 from .support.support.iterable import make_object_int_mapping
@@ -150,10 +147,11 @@ def make_match_panel(
 
         else:
 
-            clustered_indices = cluster_2d_array_slices_by_group(
-                nan_to_num(features_to_plot.values),
-                nan_to_num(target.values),
+            clustered_indices = cluster_2d_array_slices(
+                features_to_plot.values,
                 1,
+                groups=target.values,
+                raise_for_bad=False,
             )
 
             target = target.iloc[clustered_indices]
