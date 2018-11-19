@@ -135,28 +135,18 @@ def make_match_panel(
     if target_type in (
             'binary',
             'categorical',
-    ) and cluster_within_category:
+    ) and cluster_within_category and nd_array_is_sorted(target.values):
 
-        if target.value_counts().min() < 2:
+        clustered_indices = cluster_2d_array_slices(
+            features_to_plot.values,
+            1,
+            groups=target.values,
+            raise_for_bad=False,
+        )
 
-            warn('Not clustering because a category has less than 2 values.')
+        target = target.iloc[clustered_indices]
 
-        elif not nd_array_is_sorted(target.values):
-
-            warn('Not clustering because target is not sorted.')
-
-        else:
-
-            clustered_indices = cluster_2d_array_slices(
-                features_to_plot.values,
-                1,
-                groups=target.values,
-                raise_for_bad=False,
-            )
-
-            target = target.iloc[clustered_indices]
-
-            features_to_plot = features_to_plot.iloc[:, clustered_indices]
+        features_to_plot = features_to_plot.iloc[:, clustered_indices]
 
     features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
         features_to_plot,
