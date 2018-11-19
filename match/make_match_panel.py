@@ -132,10 +132,10 @@ def make_match_panel(
         plot_std,
     )
 
-    if target_type in (
+    if cluster_within_category and target_type in (
             'binary',
             'categorical',
-    ) and cluster_within_category and nd_array_is_sorted(target.values):
+    ) and nd_array_is_sorted(target.values):
 
         clustered_indices = cluster_2d_array_slices(
             features_to_plot.values,
