@@ -138,8 +138,8 @@ def make_match_panel(
     if cluster_within_category and target_type in (
             'binary',
             'categorical',
-    ) and nd_array_is_sorted(
-            target.values) and 1 < target.value_counts().min():
+    ) and 1 < target.value_counts().min() and nd_array_is_sorted(
+            target.values) and not features_to_plot.isna().all().any():
 
         print('Clustering heat map within category ...')
 
