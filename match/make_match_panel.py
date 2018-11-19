@@ -104,6 +104,11 @@ def make_match_panel(
                 sep='\t',
             )
 
+    else:
+
+        score_moe_p_value_fdr = score_moe_p_value_fdr.reindex(
+            index=features.index)
+
     indices = get_extreme_series_indices(
         score_moe_p_value_fdr['Score'],
         extreme_feature_threshold,
