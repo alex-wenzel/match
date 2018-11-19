@@ -139,6 +139,7 @@ def make_match_panel(
             target.values) and 1 < target.value_counts().min():
 
         print('Clustering within category ...' * 80)
+        print(target)
 
         clustered_indices = cluster_2d_array_slices(
             features_to_plot.values,
