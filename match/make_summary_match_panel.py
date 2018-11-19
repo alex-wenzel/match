@@ -28,6 +28,14 @@ def make_summary_match_panel(
         plotly_file_path=None,
 ):
 
+    if target.name is None:
+
+        target_name = 'Target'
+
+    else:
+
+        target_name = target.name
+
     if plot_only_columns_shared_by_target_and_all_features:
 
         for feature_dict in feature_dicts.values():
@@ -104,7 +112,7 @@ def make_summary_match_panel(
             type='heatmap',
             z=target.to_frame().T.values,
             x=target.index,
-            y=(target.name, ),
+            y=(target_name, ),
             text=(target.index, ),
             zmin=target_plot_min,
             zmax=target_plot_max,
@@ -113,7 +121,7 @@ def make_summary_match_panel(
         )
     ]
 
-    for feature_group, (
+    for feature_group_index, (
             feature_name,
             feature_dict,
     ) in enumerate(feature_dicts.items()):
@@ -122,7 +130,8 @@ def make_summary_match_panel(
 
         df = feature_dict['df']
 
-        features_to_plot = df.reindex(columns=target.index)
+        # features_to_plot = df.reindex(columns=target.index)
+        features_to_plot = df[df.columns & target.index]
 
         score_moe_p_value_fdr_to_plot = score_moe_p_value_fdr.loc[
             features_to_plot.index].sort_values(
@@ -145,11 +154,11 @@ def make_summary_match_panel(
             plot_std,
         )
 
-        yaxis_name = 'yaxis{}'.format(len(feature_dicts) -
-                                      feature_group).replace(
-                                          'axis1',
-                                          'axis',
-                                      )
+        yaxis_name = 'yaxis{}'.format(
+            len(feature_dicts) - feature_group_index).replace(
+                'axis1',
+                'axis',
+            )
 
         domain_end = domain_start - row_fraction
 
@@ -218,7 +227,7 @@ def make_summary_match_panel(
 
             x = 1.0016 + annotation_index / 10
 
-            if feature_group == 0:
+            if feature_group_index == 0:
 
                 layout['annotations'].append(
                     dict(

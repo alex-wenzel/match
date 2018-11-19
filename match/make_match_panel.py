@@ -46,6 +46,14 @@ def make_match_panel(
         plotly_file_path_prefix=None,
 ):
 
+    if target.name is None:
+
+        target_name = 'Target'
+
+    else:
+
+        target_name = target.name
+
     common_indices = target.index & features.columns
 
     print(
@@ -209,7 +217,7 @@ def make_match_panel(
             type='heatmap',
             z=target.to_frame().T.values,
             x=target.index,
-            y=(target.name, ),
+            y=(target_name, ),
             text=(target.index, ),
             zmin=target_plot_min,
             zmax=target_plot_max,
