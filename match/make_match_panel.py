@@ -138,8 +138,7 @@ def make_match_panel(
     ) and nd_array_is_sorted(
             target.values) and 1 < target.value_counts().min():
 
-        print('Clustering within category ...' * 80)
-        print(target)
+        print('Clustering heat map within category ...')
 
         clustered_indices = cluster_2d_array_slices(
             features_to_plot.values,
