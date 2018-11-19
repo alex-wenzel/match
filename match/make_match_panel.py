@@ -1,5 +1,3 @@
-from warnings import warn
-
 from ._make_annotations import _make_annotations
 from ._match import _match
 from ._process_target_or_features_for_plotting import \
