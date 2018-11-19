@@ -97,7 +97,7 @@ def _match(
                 n_job,
             )).flatten(),
         'less_or_great',
-        raise_for_bad_value=False,
+        raise_for_bad=False,
     )
 
     score_moe_p_value_fdr['P-Value'] = p_values
@@ -159,7 +159,7 @@ def _match_randomly_sampled_target_and_features_to_compute_margin_of_errors(
         compute_nd_array_margin_of_error,
         1,
         feature_x_sampling,
-        raise_for_bad_value=False,
+        raise_for_bad=False,
     )
 
 
