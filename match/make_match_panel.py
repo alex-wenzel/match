@@ -136,7 +136,7 @@ def make_match_panel(
             'binary',
             'categorical',
     ) and nd_array_is_sorted(
-            target.values) and 1 < features_to_plot.value_counts().min():
+            target.values) and 1 < target.value_counts().min():
 
         print(features_to_plot)
         clustered_indices = cluster_2d_array_slices(
