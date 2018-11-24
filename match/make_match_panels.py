@@ -12,6 +12,7 @@ def make_match_panels(
         drop_negative_target=False,
         directory_path=None,
         plotly_directory_path=None,
+        read_score_moe_p_value_fdr=True,
         **kwargs,
 ):
 
@@ -38,7 +39,7 @@ def make_match_panels(
 
             scores_file_path = '{}.tsv'.format(file_path_prefix)
 
-            if isfile(scores_file_path):
+            if read_score_moe_p_value_fdr and isfile(scores_file_path):
 
                 print('Reading score_moe_p_value_fdr from {} ...'.format(
                     scores_file_path))
