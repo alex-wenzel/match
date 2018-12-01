@@ -3,11 +3,8 @@ from pandas import DataFrame, Series
 
 from .nd_array.nd_array.normalize_nd_array import normalize_nd_array
 from .plot.plot.make_colorscale import make_colorscale
-from .plot.plot.style import (
-    BINARY_COLORS_WHITE_BLACK,
-    CATEGORICAL_COLORS,
-    CONTINUOUS_COLORSCALE_FOR_MATCH,
-)
+from .plot.plot.style import (BINARY_COLORS_WHITE_BLACK, CATEGORICAL_COLORS,
+                              CONTINUOUS_COLORSCALE_FOR_MATCH)
 
 
 def _process_target_or_features_for_plotting(target_or_features, type_, plot_std):

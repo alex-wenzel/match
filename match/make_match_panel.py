@@ -1,23 +1,17 @@
 from ._make_annotations import _make_annotations
 from ._match import _match
-from ._process_target_or_features_for_plotting import (
-    _process_target_or_features_for_plotting,
-)
-from ._style import (
-    ANNOTATION_FONT_SIZE,
-    ANNOTATION_WIDTH,
-    LAYOUT_SIDE_MARGIN,
-    LAYOUT_WIDTH,
-    ROW_HEIGHT,
-)
-from .information.information.compute_information_coefficient import (
-    compute_information_coefficient,
-)
+from ._process_target_or_features_for_plotting import \
+    _process_target_or_features_for_plotting
+from ._style import (ANNOTATION_FONT_SIZE, ANNOTATION_WIDTH,
+                     LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH, ROW_HEIGHT)
+from .information.information.compute_information_coefficient import \
+    compute_information_coefficient
 from .nd_array.nd_array.cluster_2d_array_slices import cluster_2d_array_slices
 from .nd_array.nd_array.nd_array_is_sorted import nd_array_is_sorted
 from .plot.plot.plot_and_save import plot_and_save
 from .support.support.iterable import make_object_int_mapping
-from .support.support.path import combine_path_prefix_and_suffix, establish_path
+from .support.support.path import (combine_path_prefix_and_suffix,
+                                   establish_path)
 from .support.support.series import get_extreme_series_indices
 
 
