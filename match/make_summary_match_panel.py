@@ -1,10 +1,16 @@
 from numpy import finfo
 
 from ._make_annotations import _make_annotations
-from ._process_target_or_features_for_plotting import \
-    _process_target_or_features_for_plotting
-from ._style import (ANNOTATION_FONT_SIZE, ANNOTATION_WIDTH,
-                     LAYOUT_SIDE_MARGIN, LAYOUT_WIDTH, ROW_HEIGHT)
+from ._process_target_or_features_for_plotting import (
+    _process_target_or_features_for_plotting,
+)
+from ._style import (
+    ANNOTATION_FONT_SIZE,
+    ANNOTATION_WIDTH,
+    LAYOUT_SIDE_MARGIN,
+    LAYOUT_WIDTH,
+    ROW_HEIGHT,
+)
 from .plot.plot.plot_and_save import plot_and_save
 from .support.support.iterable import make_object_int_mapping
 
