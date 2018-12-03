@@ -4,6 +4,7 @@ from pandas import read_table
 
 from .make_match_panel import make_match_panel
 from .support.support.path import combine_path_prefix_and_suffix
+from .support.support.str_ import make_file_name_from_str
 
 
 def make_match_panels(
@@ -24,7 +25,7 @@ def make_match_panels(
 
         for feature_group, feature_dict in feature_dicts.items():
 
-            suffix = "{}/{}".format(target_name, feature_group)
+            suffix = "{}/{}".format(target_name, make_file_name_from_str(feature_group))
 
             print("Making match panel for {} ...".format(suffix))
 
