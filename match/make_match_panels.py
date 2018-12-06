@@ -9,7 +9,7 @@ from .support.support.str_ import make_file_name_from_str
 
 def make_match_panels(
     target_x_sample,
-    feature_dicts,
+    data_dicts,
     drop_negative_target=False,
     directory_path=None,
     plotly_directory_path=None,
@@ -23,9 +23,9 @@ def make_match_panels(
 
             target_values = target_values[target_values != -1]
 
-        for feature_group, feature_dict in feature_dicts.items():
+        for data_name, data_dict in data_dicts.items():
 
-            suffix = "{}/{}".format(target_name, make_file_name_from_str(feature_group))
+            suffix = "{}/{}".format(target_name, make_file_name_from_str(data_name))
 
             print("Making match panel for {} ...".format(suffix))
 
@@ -49,9 +49,9 @@ def make_match_panels(
 
             make_match_panel(
                 target_values,
-                feature_dict["df"],
+                data_dict["df"],
                 score_moe_p_value_fdr=score_moe_p_value_fdr,
-                features_type=feature_dict["data_type"],
+                features_type=data_dict["data_type"],
                 title=suffix.replace("/", "<br>"),
                 file_path_prefix=file_path_prefix,
                 plotly_file_path_prefix=combine_path_prefix_and_suffix(

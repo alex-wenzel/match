@@ -19,7 +19,7 @@ eps = finfo(float).eps
 
 def make_summary_match_panel(
     target,
-    feature_dicts,
+    data_dicts,
     score_moe_p_value_fdr,
     plot_only_columns_shared_by_target_and_all_features=False,
     target_ascending=True,
@@ -44,9 +44,9 @@ def make_summary_match_panel(
 
     if plot_only_columns_shared_by_target_and_all_features:
 
-        for feature_dict in feature_dicts.values():
+        for data_dict in data_dicts.values():
 
-            target = target.loc[target.index & feature_dict["df"].columns]
+            target = target.loc[target.index & data_dict["df"].columns]
 
     if target.dtype == "O":
 
@@ -60,11 +60,11 @@ def make_summary_match_panel(
         target, target_type, plot_std
     )
 
-    n_row = 1 + len(feature_dicts)
+    n_row = 1 + len(data_dicts)
 
-    for feature_dict in feature_dicts.values():
+    for data_dict in data_dicts.values():
 
-        n_row += feature_dict["df"].shape[0]
+        n_row += data_dict["df"].shape[0]
 
     layout = dict(
         width=layout_width,
@@ -77,7 +77,7 @@ def make_summary_match_panel(
 
     row_fraction = 1 / n_row
 
-    yaxis_name = "yaxis{}".format(len(feature_dicts) + 1).replace("axis1", "axis")
+    yaxis_name = "yaxis{}".format(len(data_dicts) + 1).replace("axis1", "axis")
 
     domain_end = 1
 
@@ -106,20 +106,17 @@ def make_summary_match_panel(
         )
     ]
 
-    for feature_group_index, (feature_name, feature_dict) in enumerate(
-        feature_dicts.items()
-    ):
+    for data_name_index, (data_name, data_dict) in enumerate(data_dicts.items()):
 
-        print("Making match panel for {} ...".format(feature_name))
+        print("Making match panel for {} ...".format(data_name))
 
-        df = feature_dict["df"]
+        df = data_dict["df"]
 
-        # features_to_plot = df.reindex(columns=target.index)
         features_to_plot = df[df.columns & target.index]
 
         score_moe_p_value_fdr_to_plot = score_moe_p_value_fdr.loc[
             features_to_plot.index
-        ].sort_values("Score", ascending=feature_dict["emphasis"] == "low")
+        ].sort_values("Score", ascending=data_dict["emphasis"] == "low")
 
         features_to_plot = features_to_plot.loc[score_moe_p_value_fdr_to_plot.index]
 
@@ -128,10 +125,10 @@ def make_summary_match_panel(
         )
 
         features_to_plot, features_plot_min, features_plot_max, features_colorscale = _process_target_or_features_for_plotting(
-            features_to_plot, feature_dict["data_type"], plot_std
+            features_to_plot, data_dict["data_type"], plot_std
         )
 
-        yaxis_name = "yaxis{}".format(len(feature_dicts) - feature_group_index).replace(
+        yaxis_name = "yaxis{}".format(len(data_dicts) - data_name_index).replace(
             "axis1", "axis"
         )
 
@@ -141,7 +138,7 @@ def make_summary_match_panel(
 
             domain_end = 0
 
-        domain_start = domain_end - feature_dict["df"].shape[0] * row_fraction
+        domain_start = domain_end - data_dict["df"].shape[0] * row_fraction
 
         if abs(domain_start) <= eps:
 
@@ -180,7 +177,7 @@ def make_summary_match_panel(
                 xanchor="center",
                 x=0.5,
                 y=domain_end + (row_fraction / 2),
-                text="<b>{}</b>".format(feature_name),
+                text="<b>{}</b>".format(data_name),
                 **layout_annotation_template,
             )
         )
@@ -194,7 +191,7 @@ def make_summary_match_panel(
 
             x = 1.0016 + annotation_index / 10
 
-            if feature_group_index == 0:
+            if data_name_index == 0:
 
                 layout["annotations"].append(
                     dict(
