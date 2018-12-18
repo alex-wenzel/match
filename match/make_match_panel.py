@@ -34,6 +34,7 @@ def make_match_panel(
     random_seed=20_121_020,
     n_sampling=0,
     n_permutation=0,
+    score_ascending=False,
     target_type="continuous",
     cluster_within_category=True,
     features_type="continuous",
@@ -96,6 +97,10 @@ def make_match_panel(
 
         score_moe_p_value_fdr.index = features.index
 
+        score_moe_p_value_fdr.sort_values(
+            "Score", ascending=score_ascending, inplace=True
+        )
+
         if file_path_prefix is not None:
 
             score_moe_p_value_fdr.to_csv("{}.tsv".format(file_path_prefix), sep="\t")
@@ -105,7 +110,9 @@ def make_match_panel(
         score_moe_p_value_fdr = score_moe_p_value_fdr.reindex(index=features.index)
 
     indices = get_extreme_series_indices(
-        score_moe_p_value_fdr["Score"], extreme_feature_threshold, ascending=False
+        score_moe_p_value_fdr["Score"],
+        extreme_feature_threshold,
+        ascending=score_ascending,
     )
 
     if not len(indices):

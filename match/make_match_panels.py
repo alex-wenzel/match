@@ -52,6 +52,7 @@ def make_match_panels(
                 data_dict["df"],
                 score_moe_p_value_fdr=score_moe_p_value_fdr,
                 features_type=data_dict["data_type"],
+                score_ascending=data_dict.get("emphasis", "high") == "low",
                 title=suffix.replace("/", "<br>"),
                 file_path_prefix=file_path_prefix,
                 plotly_file_path_prefix=combine_path_prefix_and_suffix(

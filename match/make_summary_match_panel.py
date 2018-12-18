@@ -116,7 +116,7 @@ def make_summary_match_panel(
 
         score_moe_p_value_fdr_to_plot = score_moe_p_value_fdr.loc[
             features_to_plot.index
-        ].sort_values("Score", ascending=data_dict["emphasis"] == "low")
+        ].sort_values("Score", ascending=data_dict.get("emphasis", "high") == "low")
 
         features_to_plot = features_to_plot.loc[score_moe_p_value_fdr_to_plot.index]
 
